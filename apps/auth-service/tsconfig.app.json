@@ -1,0 +1,15 @@
+
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "node16",           // Sync this with resolution
+    "moduleResolution": "node16",
+    // "ignoreDeprecations": "6.0",
+    "types": ["node", "express"],
+
+   "rootDir": "../../",
+  },
+  "include": ["**/*.ts",
+  "../../packages/**/*/.ts,tsx", "src/swagger.js"]         // Adjusted if you have no src folder
+}

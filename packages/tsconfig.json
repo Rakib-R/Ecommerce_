@@ -1,0 +1,12 @@
+
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "outDir": "../../dist/packages/error-handler",
+    "rootDir": ".", 
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
