@@ -12,7 +12,6 @@
       "options": {
         "buildTarget": "api-gateway:build",
 
-        "envFile": ".env",
         "runtimeArgs": ["--env-file=.env"],
 
         "runBuildTargetDependencies": false

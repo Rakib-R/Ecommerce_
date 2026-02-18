@@ -12,7 +12,6 @@
       "options": {
         "buildTarget": "api:build",
 
-        "envFile": ".env",
         "runtimeArgs": ["--env-file=.env"],
 
         

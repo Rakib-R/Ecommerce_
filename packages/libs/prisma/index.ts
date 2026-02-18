@@ -1,6 +1,6 @@
 
 // Import the generated client from the local folder we just defined
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"
 
 declare global {
     namespace globalThis {

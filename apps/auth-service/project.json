@@ -12,9 +12,7 @@
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "auth-service:build",
-        
 
-        "envFile": ".env",
         "runtimeArgs": ["--env-file=.env"],
         
         "runBuildTargetDependencies": false

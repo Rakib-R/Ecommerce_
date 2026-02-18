@@ -2,8 +2,8 @@
 
 generator client {
   provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
-                                //!!  ADD -JS    ADD -JS    ADD -JS    ADD -JS    ADD -JS  
-  output   = "../packages/libs/prisma/src/generated"
+                                  //!!  ADD -JS    ADD -JS    ADD -JS    ADD -JS    ADD -JS  
+  // output   = "../packages/libs/prisma/src/generated"
 }
 
 datasource db {
