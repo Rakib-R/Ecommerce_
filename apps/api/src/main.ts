@@ -19,3 +19,6 @@ const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
 });
 server.on('error', console.error);
+
+
+console.log("DATABASE_URL check:", process.env.DATABASE_URL ? "FOUND" : "MISSING");

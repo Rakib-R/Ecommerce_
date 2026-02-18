@@ -1,9 +1,10 @@
 import express from 'express';
-import * as path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { errorMiddleware } from '../../../packages/error-handler/error-middleware';
 import router from './routes/auth.router';
+
+import * as path from 'path';
 import * as dotenv from 'dotenv';
 
 
@@ -48,3 +49,5 @@ const port = process.env.PORT || 6002;
 app.listen(port, () => {
   console.log(`🔑 Auth Service running at http://127.0.0.1:${port}/api`);
 });
+
+console.log("DATABASE_URL check:", process.env.DATABASE_URL ? "FOUND" : "MISSING");

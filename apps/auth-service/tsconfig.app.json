@@ -10,6 +10,8 @@
 
    "rootDir": "../../",
   },
-  "include": ["**/*.ts",
-  "../../packages/**/*/.ts,tsx", "src/swagger.js"]         // Adjusted if you have no src folder
+  "include": [
+    "src/**/*.ts",
+    "../../packages/**/*/.ts,tsx", 
+    "src/swagger.js"]         // Adjusted if you have no src folder
 }

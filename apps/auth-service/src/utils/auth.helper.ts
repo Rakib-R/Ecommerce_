@@ -21,11 +21,11 @@ export const validateRegistrationData = (data: any, userType: 'user' | "seller")
     !password ||
     (userType === "seller" && (!phone_number || !country))
   ) {
-    return new ValidationError("Missing required fields!");
+    throw new ValidationError("Missing required fields!");
   }
 
   if (!emailRegex.test(email)) {
-  return new ValidationError("Invalid email format!");
+  throw new ValidationError("Invalid email format!");
 }
 };
 export const checkOtpRestrictions = async (
@@ -61,7 +61,7 @@ export const trackOtpRequests = async (email: string, next:NextFunction) => {
 
   if (otpRequests >= 2) {
     await redis.set(`otp_spam_lock:${email}`,"locked", "EX" , 3600); // Lock for lhol
-    return next(new ValidationError("TOO MANY OTP REQS, Please Wait 1 hour.")
+    throw next(new ValidationError("TOO MANY OTP REQS, Please Wait 1 hour.")
     )
   };
   await redis.set(otpRequestKey, otpRequests + 1, "EX", 36000);

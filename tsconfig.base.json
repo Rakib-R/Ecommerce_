@@ -14,7 +14,10 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "types": ["node"],
-    "paths": {}
+    
+   "paths": {
+      "@prisma/client": ["./packages/libs/prisma/src/generated"]
+    }
   },
   "exclude": ["node_modules", "tmp"],
   "include": ["index.ts"]

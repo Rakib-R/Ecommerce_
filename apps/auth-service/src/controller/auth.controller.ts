@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData } from "../utils/auth.helper";
-import prisma from "../../../../packages/libs/prisma"
 import { AppError } from "../../../../packages/error-handler";
+import prisma from "../../../../packages/libs/prisma";
 
 // Register a new user
 export const userRegistration = async (
@@ -13,7 +13,6 @@ export const userRegistration = async (
   try{
 
      validateRegistrationData(req.body, "user");
-
   const { name, email } = req.body;
 
   const existingUser = await prisma.users.findUnique({
@@ -21,7 +20,7 @@ export const userRegistration = async (
   });
 
   if (existingUser) {
-    return next(new AppError("User already exists with this email!", 400));
+    throw next(new AppError("User already exists with this email!", 400));
   }
 
   await checkOtpRestrictions(email, next);

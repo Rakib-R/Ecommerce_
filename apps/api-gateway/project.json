@@ -11,9 +11,11 @@
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "api-gateway:build",
-        "runBuildTargetDependencies": false,
 
-        "port": 9230
+        "envFile": ".env",
+        "runtimeArgs": ["--env-file=.env"],
+
+        "runBuildTargetDependencies": false
       },
       "configurations": {
         "development": {

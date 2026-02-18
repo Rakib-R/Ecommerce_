@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "preserve",
+    "moduleResolution": "bundler",
     "types": ["node", "express"]
   },
   "include": ["src/**/*.ts"],

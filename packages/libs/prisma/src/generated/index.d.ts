@@ -3,7 +3,7 @@
  * Client
 **/
 
-import * as runtime from './runtime/client.js';
+import * as runtime from './runtime/library.js';
 import $Types = runtime.Types // general types
 import $Public = runtime.Types.Public
 import $Utils = runtime.Types.Utils
@@ -36,11 +36,11 @@ export type users = $Result.DefaultSelection<Prisma.$usersPayload>
  * ```
  *
  *
- * Read more in our [docs](https://pris.ly/d/client).
+ * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
  */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
-  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
   ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -57,7 +57,7 @@ export class PrismaClient<
    * ```
    *
    *
-   * Read more in our [docs](https://pris.ly/d/client).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
@@ -72,6 +72,13 @@ export class PrismaClient<
    * Disconnect from the database
    */
   $disconnect(): $Utils.JsPromise<void>;
+
+  /**
+   * Add a middleware
+   * @deprecated since 4.16.0. For new code, prefer client extensions instead.
+   * @see https://pris.ly/d/extensions
+   */
+  $use(cb: Prisma.Middleware): void
 
 /**
    * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
@@ -101,9 +108,10 @@ export class PrismaClient<
    * })
    * ```
    * 
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $runCommandRaw(command: Prisma.InputJsonObject): Prisma.PrismaPromise<Prisma.JsonObject>
+
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
     extArgs: ExtArgs
   }>>
@@ -167,6 +175,14 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
+   * Metrics
+   */
+  export type Metrics = runtime.Metrics
+  export type Metric<T> = runtime.Metric<T>
+  export type MetricHistogram = runtime.MetricHistogram
+  export type MetricHistogramBucket = runtime.MetricHistogramBucket
+
+  /**
   * Extensions
   */
   export import Extension = $Extensions.UserArgs
@@ -177,12 +193,11 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.4.0
-   * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
+   * Prisma Client JS version: 6.5.0
+   * Query Engine version: 173f8d54f8d52e692c7e27e72a88314ec7aeff60
    */
   export type PrismaVersion = {
     client: string
-    engine: string
   }
 
   export const prismaVersion: PrismaVersion
@@ -192,7 +207,6 @@ export namespace Prisma {
    */
 
 
-  export import Bytes = runtime.Bytes
   export import JsonObject = runtime.JsonObject
   export import JsonArray = runtime.JsonArray
   export import JsonValue = runtime.JsonValue
@@ -568,6 +582,9 @@ export namespace Prisma {
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
 
 
+  export type Datasources = {
+    db?: Datasource
+  }
 
   interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
     returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
@@ -747,32 +764,32 @@ export namespace Prisma {
   export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
   export interface PrismaClientOptions {
     /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasources?: Datasources
+    /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasourceUrl?: string
+    /**
      * @default "colorless"
      */
     errorFormat?: ErrorFormat
     /**
      * @example
      * ```
-     * // Shorthand for `emit: 'stdout'`
+     * // Defaults to stdout
      * log: ['query', 'info', 'warn', 'error']
      * 
-     * // Emit as events only
+     * // Emit as events
      * log: [
-     *   { emit: 'event', level: 'query' },
-     *   { emit: 'event', level: 'info' },
-     *   { emit: 'event', level: 'warn' }
-     *   { emit: 'event', level: 'error' }
+     *   { emit: 'stdout', level: 'query' },
+     *   { emit: 'stdout', level: 'info' },
+     *   { emit: 'stdout', level: 'warn' }
+     *   { emit: 'stdout', level: 'error' }
      * ]
-     * 
-     * / Emit as events and log to stdout
-     * og: [
-     *  { emit: 'stdout', level: 'query' },
-     *  { emit: 'stdout', level: 'info' },
-     *  { emit: 'stdout', level: 'warn' }
-     *  { emit: 'stdout', level: 'error' }
-     * 
      * ```
-     * Read more in our [docs](https://pris.ly/d/logging).
+     * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
     log?: (LogLevel | LogDefinition)[]
     /**
@@ -784,10 +801,6 @@ export namespace Prisma {
       maxWait?: number
       timeout?: number
     }
-    /**
-     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
-     */
-    accelerateUrl?: string
     /**
      * Global configuration for omitting model fields by default.
      * 
@@ -816,15 +829,10 @@ export namespace Prisma {
     emit: 'stdout' | 'event'
   }
 
-  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
-
-  export type GetLogType<T> = CheckIsLogLevel<
-    T extends LogDefinition ? T['level'] : T
-  >;
-
-  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
-    ? GetLogType<T[number]>
-    : never;
+  export type GetLogType<T extends LogLevel | LogDefinition> = T extends LogDefinition ? T['emit'] extends 'event' ? T['level'] : never : never
+  export type GetEvents<T extends any> = T extends Array<LogLevel | LogDefinition> ?
+    GetLogType<T[0]> | GetLogType<T[1]> | GetLogType<T[2]> | GetLogType<T[3]>
+    : never
 
   export type QueryEvent = {
     timestamp: Date
@@ -864,6 +872,25 @@ export namespace Prisma {
     | 'runCommandRaw'
     | 'findRaw'
     | 'groupBy'
+
+  /**
+   * These options are being passed into the middleware as "params"
+   */
+  export type MiddlewareParams = {
+    model?: ModelName
+    action: PrismaAction
+    args: any
+    dataPath: string[]
+    runInTransaction: boolean
+  }
+
+  /**
+   * The `T` type makes sure, that the `return proceed` is not forgotten in the middleware implementation
+   */
+  export type Middleware<T = any> = (
+    params: MiddlewareParams,
+    next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
+  ) => $Utils.JsPromise<T>
 
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
@@ -1043,7 +1070,7 @@ export namespace Prisma {
     file_id?: boolean
     url?: boolean
     userId?: boolean
-    users?: boolean | images$usersArgs<ExtArgs>
+    user?: boolean | images$userArgs<ExtArgs>
   }, ExtArgs["result"]["images"]>
 
 
@@ -1057,13 +1084,13 @@ export namespace Prisma {
 
   export type imagesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_id" | "url" | "userId", ExtArgs["result"]["images"]>
   export type imagesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | images$usersArgs<ExtArgs>
+    user?: boolean | images$userArgs<ExtArgs>
   }
 
   export type $imagesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "images"
     objects: {
-      users: Prisma.$usersPayload<ExtArgs> | null
+      user: Prisma.$usersPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1433,7 +1460,7 @@ export namespace Prisma {
    */
   export interface Prisma__imagesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    users<T extends images$usersArgs<ExtArgs> = {}>(args?: Subset<T, images$usersArgs<ExtArgs>>): Prisma__usersClient<$Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    user<T extends images$userArgs<ExtArgs> = {}>(args?: Subset<T, images$userArgs<ExtArgs>>): Prisma__usersClient<$Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1461,7 +1488,7 @@ export namespace Prisma {
 
   /**
    * Fields of the images model
-   */
+   */ 
   interface imagesFieldRefs {
     readonly id: FieldRef<"images", 'String'>
     readonly file_id: FieldRef<"images", 'String'>
@@ -1837,9 +1864,9 @@ export namespace Prisma {
   }
 
   /**
-   * images.users
+   * images.user
    */
-  export type images$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type images$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the users
      */
@@ -2025,11 +2052,11 @@ export namespace Prisma {
     id: string
     name: string
     email: string
-    password: string | null
+    password: string
     following: string[]
     createdAt: Date
     updatedAt: Date
-    imagesId: string
+    imagesId: string | null
     _count: UsersCountAggregateOutputType | null
     _min: UsersMinAggregateOutputType | null
     _max: UsersMaxAggregateOutputType | null
@@ -2088,11 +2115,11 @@ export namespace Prisma {
       id: string
       name: string
       email: string
-      password: string | null
+      password: string
       following: string[]
       createdAt: Date
       updatedAt: Date
-      imagesId: string
+      imagesId: string | null
     }, ExtArgs["result"]["users"]>
     composites: {}
   }
@@ -2484,7 +2511,7 @@ export namespace Prisma {
 
   /**
    * Fields of the users model
-   */
+   */ 
   interface usersFieldRefs {
     readonly id: FieldRef<"users", 'String'>
     readonly name: FieldRef<"users", 'String'>
@@ -2946,7 +2973,7 @@ export namespace Prisma {
 
 
   /**
-   * Field references
+   * Field references 
    */
 
 
@@ -3003,7 +3030,7 @@ export namespace Prisma {
     file_id?: StringFilter<"images"> | string
     url?: StringFilter<"images"> | string
     userId?: StringNullableFilter<"images"> | string | null
-    users?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
+    user?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
   }
 
   export type imagesOrderByWithRelationInput = {
@@ -3011,7 +3038,7 @@ export namespace Prisma {
     file_id?: SortOrder
     url?: SortOrder
     userId?: SortOrder
-    users?: usersOrderByWithRelationInput
+    user?: usersOrderByWithRelationInput
   }
 
   export type imagesWhereUniqueInput = Prisma.AtLeast<{
@@ -3022,7 +3049,7 @@ export namespace Prisma {
     NOT?: imagesWhereInput | imagesWhereInput[]
     file_id?: StringFilter<"images"> | string
     url?: StringFilter<"images"> | string
-    users?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
+    user?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
   }, "id" | "userId">
 
   export type imagesOrderByWithAggregationInput = {
@@ -3052,11 +3079,11 @@ export namespace Prisma {
     id?: StringFilter<"users"> | string
     name?: StringFilter<"users"> | string
     email?: StringFilter<"users"> | string
-    password?: StringNullableFilter<"users"> | string | null
+    password?: StringFilter<"users"> | string
     following?: StringNullableListFilter<"users">
     createdAt?: DateTimeFilter<"users"> | Date | string
     updatedAt?: DateTimeFilter<"users"> | Date | string
-    imagesId?: StringFilter<"users"> | string
+    imagesId?: StringNullableFilter<"users"> | string | null
     avatar?: XOR<ImagesNullableScalarRelationFilter, imagesWhereInput> | null
   }
 
@@ -3079,11 +3106,11 @@ export namespace Prisma {
     OR?: usersWhereInput[]
     NOT?: usersWhereInput | usersWhereInput[]
     name?: StringFilter<"users"> | string
-    password?: StringNullableFilter<"users"> | string | null
+    password?: StringFilter<"users"> | string
     following?: StringNullableListFilter<"users">
     createdAt?: DateTimeFilter<"users"> | Date | string
     updatedAt?: DateTimeFilter<"users"> | Date | string
-    imagesId?: StringFilter<"users"> | string
+    imagesId?: StringNullableFilter<"users"> | string | null
     avatar?: XOR<ImagesNullableScalarRelationFilter, imagesWhereInput> | null
   }, "id" | "email">
 
@@ -3108,18 +3135,18 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"users"> | string
     name?: StringWithAggregatesFilter<"users"> | string
     email?: StringWithAggregatesFilter<"users"> | string
-    password?: StringNullableWithAggregatesFilter<"users"> | string | null
+    password?: StringWithAggregatesFilter<"users"> | string
     following?: StringNullableListFilter<"users">
     createdAt?: DateTimeWithAggregatesFilter<"users"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"users"> | Date | string
-    imagesId?: StringWithAggregatesFilter<"users"> | string
+    imagesId?: StringNullableWithAggregatesFilter<"users"> | string | null
   }
 
   export type imagesCreateInput = {
     id?: string
     file_id: string
     url: string
-    users?: usersCreateNestedOneWithoutAvatarInput
+    user?: usersCreateNestedOneWithoutAvatarInput
   }
 
   export type imagesUncheckedCreateInput = {
@@ -3132,7 +3159,7 @@ export namespace Prisma {
   export type imagesUpdateInput = {
     file_id?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
-    users?: usersUpdateOneWithoutAvatarNestedInput
+    user?: usersUpdateOneWithoutAvatarNestedInput
   }
 
   export type imagesUncheckedUpdateInput = {
@@ -3163,77 +3190,77 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
-    password?: string | null
+    password: string
     following?: usersCreatefollowingInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    imagesId: string
-    avatar?: imagesCreateNestedOneWithoutUsersInput
+    imagesId?: string | null
+    avatar?: imagesCreateNestedOneWithoutUserInput
   }
 
   export type usersUncheckedCreateInput = {
     id?: string
     name: string
     email: string
-    password?: string | null
+    password: string
     following?: usersCreatefollowingInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    imagesId: string
-    avatar?: imagesUncheckedCreateNestedOneWithoutUsersInput
+    imagesId?: string | null
+    avatar?: imagesUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type usersUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
-    avatar?: imagesUpdateOneWithoutUsersNestedInput
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: imagesUpdateOneWithoutUserNestedInput
   }
 
   export type usersUncheckedUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
-    avatar?: imagesUncheckedUpdateOneWithoutUsersNestedInput
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: imagesUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type usersCreateManyInput = {
     id?: string
     name: string
     email: string
-    password?: string | null
+    password: string
     following?: usersCreatefollowingInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    imagesId: string
+    imagesId?: string | null
   }
 
   export type usersUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type usersUncheckedUpdateManyInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3428,15 +3455,15 @@ export namespace Prisma {
     set: string[]
   }
 
-  export type imagesCreateNestedOneWithoutUsersInput = {
-    create?: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: imagesCreateOrConnectWithoutUsersInput
+  export type imagesCreateNestedOneWithoutUserInput = {
+    create?: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
+    connectOrCreate?: imagesCreateOrConnectWithoutUserInput
     connect?: imagesWhereUniqueInput
   }
 
-  export type imagesUncheckedCreateNestedOneWithoutUsersInput = {
-    create?: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: imagesCreateOrConnectWithoutUsersInput
+  export type imagesUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
+    connectOrCreate?: imagesCreateOrConnectWithoutUserInput
     connect?: imagesWhereUniqueInput
   }
 
@@ -3449,24 +3476,24 @@ export namespace Prisma {
     set?: Date | string
   }
 
-  export type imagesUpdateOneWithoutUsersNestedInput = {
-    create?: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: imagesCreateOrConnectWithoutUsersInput
-    upsert?: imagesUpsertWithoutUsersInput
+  export type imagesUpdateOneWithoutUserNestedInput = {
+    create?: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
+    connectOrCreate?: imagesCreateOrConnectWithoutUserInput
+    upsert?: imagesUpsertWithoutUserInput
     disconnect?: imagesWhereInput | boolean
     delete?: imagesWhereInput | boolean
     connect?: imagesWhereUniqueInput
-    update?: XOR<XOR<imagesUpdateToOneWithWhereWithoutUsersInput, imagesUpdateWithoutUsersInput>, imagesUncheckedUpdateWithoutUsersInput>
+    update?: XOR<XOR<imagesUpdateToOneWithWhereWithoutUserInput, imagesUpdateWithoutUserInput>, imagesUncheckedUpdateWithoutUserInput>
   }
 
-  export type imagesUncheckedUpdateOneWithoutUsersNestedInput = {
-    create?: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: imagesCreateOrConnectWithoutUsersInput
-    upsert?: imagesUpsertWithoutUsersInput
+  export type imagesUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
+    connectOrCreate?: imagesCreateOrConnectWithoutUserInput
+    upsert?: imagesUpsertWithoutUserInput
     disconnect?: imagesWhereInput | boolean
     delete?: imagesWhereInput | boolean
     connect?: imagesWhereUniqueInput
-    update?: XOR<XOR<imagesUpdateToOneWithWhereWithoutUsersInput, imagesUpdateWithoutUsersInput>, imagesUncheckedUpdateWithoutUsersInput>
+    update?: XOR<XOR<imagesUpdateToOneWithWhereWithoutUserInput, imagesUpdateWithoutUserInput>, imagesUncheckedUpdateWithoutUserInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -3585,22 +3612,22 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
-    password?: string | null
+    password: string
     following?: usersCreatefollowingInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    imagesId: string
+    imagesId?: string | null
   }
 
   export type usersUncheckedCreateWithoutAvatarInput = {
     id?: string
     name: string
     email: string
-    password?: string | null
+    password: string
     following?: usersCreatefollowingInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    imagesId: string
+    imagesId?: string | null
   }
 
   export type usersCreateOrConnectWithoutAvatarInput = {
@@ -3622,57 +3649,57 @@ export namespace Prisma {
   export type usersUpdateWithoutAvatarInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type usersUncheckedUpdateWithoutAvatarInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    password?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
     following?: usersUpdatefollowingInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    imagesId?: StringFieldUpdateOperationsInput | string
+    imagesId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type imagesCreateWithoutUsersInput = {
+  export type imagesCreateWithoutUserInput = {
     id?: string
     file_id: string
     url: string
   }
 
-  export type imagesUncheckedCreateWithoutUsersInput = {
+  export type imagesUncheckedCreateWithoutUserInput = {
     id?: string
     file_id: string
     url: string
   }
 
-  export type imagesCreateOrConnectWithoutUsersInput = {
+  export type imagesCreateOrConnectWithoutUserInput = {
     where: imagesWhereUniqueInput
-    create: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
+    create: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
   }
 
-  export type imagesUpsertWithoutUsersInput = {
-    update: XOR<imagesUpdateWithoutUsersInput, imagesUncheckedUpdateWithoutUsersInput>
-    create: XOR<imagesCreateWithoutUsersInput, imagesUncheckedCreateWithoutUsersInput>
+  export type imagesUpsertWithoutUserInput = {
+    update: XOR<imagesUpdateWithoutUserInput, imagesUncheckedUpdateWithoutUserInput>
+    create: XOR<imagesCreateWithoutUserInput, imagesUncheckedCreateWithoutUserInput>
     where?: imagesWhereInput
   }
 
-  export type imagesUpdateToOneWithWhereWithoutUsersInput = {
+  export type imagesUpdateToOneWithWhereWithoutUserInput = {
     where?: imagesWhereInput
-    data: XOR<imagesUpdateWithoutUsersInput, imagesUncheckedUpdateWithoutUsersInput>
+    data: XOR<imagesUpdateWithoutUserInput, imagesUncheckedUpdateWithoutUserInput>
   }
 
-  export type imagesUpdateWithoutUsersInput = {
+  export type imagesUpdateWithoutUserInput = {
     file_id?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
   }
 
-  export type imagesUncheckedUpdateWithoutUsersInput = {
+  export type imagesUncheckedUpdateWithoutUserInput = {
     file_id?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
   }
