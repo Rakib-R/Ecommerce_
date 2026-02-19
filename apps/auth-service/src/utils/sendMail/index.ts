@@ -47,10 +47,10 @@ export const sendEmail = async (
     html,
   });
 
-  return true;
-} catch (error) {
-  console.error("Error sending email:", error);
-  return false;
-}
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return false;
+  }
 
 }

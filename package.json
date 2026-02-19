@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx nx run-many --target=serve --all",
+    "auth-docs": "node apps/auth-service/src/swagger.js",
     "prisma:generate": "prisma generate"
   },
   "private": true,
@@ -14,6 +15,7 @@
     "@nx/express": "^20.6.1",
     "@nx/jest": "20.6.1",
     "@nx/js": "20.6.1",
+    "@nx/next": "^20.6.1",
     "@nx/node": "20.6.1",
     "@nx/web": "20.6.1",
     "@nx/webpack": "20.6.1",
@@ -31,6 +33,7 @@
     "@types/express-http-proxy": "^1.6.7",
     "@types/ioredis": "^4.28.10",
     "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "~18.16.9",
     "@types/nodemailer": "^7.0.10",
