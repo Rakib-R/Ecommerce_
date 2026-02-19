@@ -2,6 +2,8 @@
   "name": "ecommerce-monorepo",
   "version": "0.0.0",
   "license": "MIT",
+  "type": "module",
+  
   "scripts": {
     "dev": "npx nx run-many --target=serve --all",
     "prisma:generate": "prisma generate"

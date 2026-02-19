@@ -1,9 +1,17 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+const { join, resolve } = require("path");
 
 module.exports = {
   output: {
-    path: join(__dirname, '../../dist/apps/api-gateway'),
+    path: join(__dirname, "../../dist/apps/auth-service"),
+  },
+  resolve: {
+    alias: {
+      // This fix tells Webpack that "@/" refers to the repo root
+      "@": resolve(__dirname, "../../"), 
+      "@packages": resolve(__dirname, "../../packages"),
+    },
+    extensions: [".ts", ".js"],
   },
   plugins: [
     new NxAppWebpackPlugin({

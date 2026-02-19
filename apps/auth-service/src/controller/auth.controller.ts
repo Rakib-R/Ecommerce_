@@ -1,39 +1,36 @@
+
 import { NextFunction, Request, Response } from "express";
 import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData } from "../utils/auth.helper";
-import { AppError } from "../../../../packages/error-handler";
-import prisma from "../../../../packages/libs/prisma";
+import { AppError } from "@packages/error-handler/src/index";
+import prisma from "@packages/libs/prisma/src/index";
 
-// Register a new user
 export const userRegistration = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  try {
+    validateRegistrationData(req.body, "user");
+    const { name, email } = req.body;
 
-  try{
+    const existingUser = await prisma.users.findUnique({
+      where: { email: email},
+    });
 
-     validateRegistrationData(req.body, "user");
-  const { name, email } = req.body;
+    if (existingUser) {
+      // Use 'return next' to exit the function immediately
+      return next(new AppError("User already exists with this email!", 400));
+    }
 
-  const existingUser = await prisma.users.findUnique({
-      where: { email },
-  });
+    await checkOtpRestrictions(email, next);
+    await trackOtpRequests(email, next);
+    await sendOtp (name,email, 'user-activation-mail');
 
-  if (existingUser) {
-    throw next(new AppError("User already exists with this email!", 400));
-  }
-
-  await checkOtpRestrictions(email, next);
-  await trackOtpRequests(email, next);
-  await sendOtp(email, name, 'user-activation-mail');
-
-  res.status(200).json({
-    message: "OTP sent to email. Pls verify"
-  })
- 
-  }
-
-  catch(error) {
-      return error
+    res.status(200).json({
+      message: "OTP sent to email. Pls verify"
+    });
+  } catch (error) {
+    // Pass the actual error object to your error middleware
+    next(error);
   }
 };

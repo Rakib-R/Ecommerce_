@@ -1,17 +1,28 @@
 
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "module": "node16",           // Sync this with resolution
-    "moduleResolution": "node16",
-    // "ignoreDeprecations": "6.0",
+    "outDir": "dist/apps/auth-service",
     "types": ["node", "express"],
-
-   "rootDir": "../../",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@packages/*": ["../../packages/*"]
+    },
+    "rootDir": ".",                   // <-- must include everything
+    "rootDirs": ["./src", "../../packages"],  // optional, safe to keep
+    "tsBuildInfoFile": "out-tsc/auth-service/tsconfig.app.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts",
-    "../../packages/**/*/.ts,tsx", 
-    "src/swagger.js"]         // Adjusted if you have no src folder
+    "../../packages/**/*"             // <-- include all shared packages
+  ],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

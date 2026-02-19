@@ -2,7 +2,9 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "moduleResolution": "bundler",
+    
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "outDir": "../../dist/packages/error-handler",
     "rootDir": ".", 
     "types": ["node"]

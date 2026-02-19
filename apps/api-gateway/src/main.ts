@@ -35,19 +35,22 @@ app.get('/gateway-health', (req, res) => {
 
 // 4. Proxy Configuration 
 // We point everything to 127.0.0.1 to avoid ECONNREFUSED issues
-app.use('/api', proxy('http://localhost:6002', {
+app.use('/gatewaygateway', proxy('http://localhost:6001/api', {
+  
   proxyReqPathResolver: (req) => {
-    // This ensures that http://localhost:8080/api 
-    // is sent to http://127.0.0.1:6001/api
-    return '/api'; 
-  },
+        // Strip /gatewaygateway and replace with /api
+        return req.originalUrl.replace('/gatewaygateway', '/api');
+    },
   proxyErrorHandler: (err, res, next) => {
     res.status(503).send({ error: "Auth Service is down" });
   }
+
 }));
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 7777;
 app.listen(port, () => {
-  console.log(`🚀 Gateway: http://localhost:${port}`);
-  console.log(`🔗 Proxying http://localhost:${port}/api -> http://127.0.0.1:6001/api`);
+  console.log(`🚀 Gateway: http://localhost:${port}/gatewaygateway`);
+  console.log(`🚀 Gateway: http://localhost:${port}/gateway-health`);
+
+  console.log(`🔗 Proxying http://localhost:${port}/gatewaygateway -> http://127.0.0.1:6001/api`);
 });

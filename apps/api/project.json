@@ -11,7 +11,8 @@
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "api:build",
-
+        
+        "inspect": false,
         "runtimeArgs": ["--env-file=.env"],
 
         
