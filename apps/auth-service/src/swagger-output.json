@@ -5,16 +5,16 @@
     "description": "Automatically generated Swagger docs",
     "version": "1.0.0"
   },
-  "host": "localhost:6001",
+  "host": "127.0.0.1:6001",
   "basePath": "/",
   "schemes": [
     "http"
   ],
   "paths": {
-    "/user-registration": {
+    "/api/user-registration": {
       "post": {
         "description": "",
-      "parameters": [
+            "parameters": [
             {
               "name": "body",
               "in": "body",

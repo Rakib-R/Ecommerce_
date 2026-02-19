@@ -10,10 +10,15 @@ import swaggerDocument from "./swagger-output.json";
 const app = express();
 
   app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:6001'],
+   origin: [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://localhost:6001',
+    'http://127.0.0.1:6001'
+  ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   }));
-
   app.use(express.json());
   app.use(cookieParser());
 
@@ -22,18 +27,23 @@ const app = express();
 
   // ROUTES
   // Root API ping
-  app.get('/api', (req, res) => res.send({
+  app.get('/api', (req, res) => {  
+    res.send({
     message: '🔑🔑Hello Api from Auth Service 🔑🔑🔑🔑',
     status: 'Active'
-  }));
+  })}
+);
 
   // All API routes
   app.use('/api', router);
 
   // Swagger UI
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  app.get('/api/docs-json', (req, res) => res.json(swaggerDocument));
-
+  app.get('/api/docs-json', (req, res) => {
+    
+    console.log('At auth service', req.headers.origin)
+    res.json(swaggerDocument)
+});
   // Error middleware last
   app.use(errorMiddleware);
 

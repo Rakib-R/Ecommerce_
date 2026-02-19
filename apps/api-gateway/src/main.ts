@@ -8,30 +8,30 @@ import cors from "cors";
 const app = express();
 
 // 1. Middlewares
-app.use(cors({
-  origin: ['http://localhost:3000'],
-  credentials: true,
-}));
-app.use(morgan("dev"));
-app.use(express.json({ limit: "100mb" }));
-app.use(cookieParser());
-app.set("trust proxy", 1);
+  app.use(cors({
+      origin: ['http://localhost:3000'],
+      credentials: true,
+    }));
+    app.use(morgan("dev"));
+    app.use(express.json({ limit: "100mb" }));
+    app.use(cookieParser());
+    app.set("trust proxy", 1);
 
-// 2. Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: "Too many requests!" },
-  standardHeaders: true,
-  legacyHeaders: false,
-  validate: { xForwardedForHeader: false },
-});
-app.use(limiter);
+    // 2. Rate Limiting
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 100,
+      message: { error: "Too many requests!" },
+      standardHeaders: true,
+      legacyHeaders: false,
+      validate: { xForwardedForHeader: false },
+    });
+    app.use(limiter);
 
-// 3. Health Check
-app.get('/gateway-health', (req, res) => {
-  res.send({ message: 'Gateway is healthy' });
-});
+  // 3. Health Check
+  app.get('/gateway-health', (req, res) => {
+    res.send({ message: 'Gateway is healthy' });
+  });
 
 // 4. Proxy Configuration 
 // We point everything to 127.0.0.1 to avoid ECONNREFUSED issues
@@ -39,7 +39,7 @@ app.use('/gatewaygateway', proxy('http://localhost:6001/api', {
   
   proxyReqPathResolver: (req) => {
         // Strip /gatewaygateway and replace with /api
-        return req.originalUrl.replace('/gatewaygateway', '/api');
+      return req.originalUrl.replace('/gatewaygateway', '/api');
     },
   proxyErrorHandler: (err, res, next) => {
     res.status(503).send({ error: "Auth Service is down" });

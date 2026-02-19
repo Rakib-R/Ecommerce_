@@ -4,8 +4,6 @@ import redis from "@packages/redis";
 import { NextFunction } from "express";
 import { sendEmail } from "./sendMail";
 
-const emailRegex = /^[^\s@]+@[^\s+\.[^\s@]+$/;
-
 export const validateRegistrationData = (data: any, userType: 'user' | "seller") => {
   const {
     name,
@@ -14,19 +12,17 @@ export const validateRegistrationData = (data: any, userType: 'user' | "seller")
     phone_number,country,
   } = data;
 
-  if (
-    !name ||
-    !email ||
-    !password ||
-    (userType === "seller" && (!phone_number || !country))
-  ) {
-    throw new ValidationError("Missing required fields!");
-  }
+    if (!name || !email || !password || (userType === "seller" && (!phone_number || !country))) {
+      throw new ValidationError("Missing required fields!");
+    }
+    const trimmedEmail = email.trim(); // <-- trim whitespace
 
-  if (!emailRegex.test(email)) {
-  throw new ValidationError("Invalid email format!");
-}
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      throw new ValidationError("Invalid email format!");
+  }
 };
+
 export const checkOtpRestrictions = async (
   email: string,
   next: NextFunction
@@ -76,3 +72,36 @@ export const sendOtp = async (name: string, email: string, template: string) => 
   return true;
 };
 
+export const verifyOtp = async (
+  email: string,
+  otp: string,
+  next: NextFunction
+) => {
+  const storedOtp = await redis.get(email);
+
+  if (!storedOtp) {
+    return next(new ValidationError('Invalid or expired OTP!'));
+  }
+  const failedAttemptsKey = `${email}:otp:attempts`;
+
+  const failedAttempts = parseInt(
+    (await redis.get(failedAttemptsKey)) || '0'
+  );
+
+  if (storedOtp !== otp) {
+    if (failedAttempts >= 2) {
+      await redis.set(`${email}:otp:lock`, 'locked', 'EX', 1800); // Lock for 30 minutes
+      await redis.del(`otp:${email}`,failedAttemptsKey);
+      return next(
+        new ValidationError(
+          "Too many failed attempts. Your account is locked for 30 minutes!"
+        )
+      );
+
+    }
+    await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 300);
+    return next(new ValidationError(`Incorrect OTP. ${2 - failedAttempts} attempts left.`));
+  }
+    await redis.del(`otp:${email}`, failedAttemptsKey);
+
+};

@@ -1,8 +1,10 @@
 
 import { NextFunction, Request, Response } from "express";
-import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData } from "../utils/auth.helper";
+import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData, verifyOtp } from "../utils/auth.helper";
 import { AppError } from "@packages/error-handler";
 import prisma from "@packages/prisma";
+import bcrypt from "bcryptjs";
+
 
 export const userRegistration = async (
   req: Request,
@@ -14,7 +16,7 @@ export const userRegistration = async (
     const { name, email } = req.body;
 
     const existingUser = await prisma.users.findUnique({
-      where: { email: email},
+      where: { email},
     });
 
     if (existingUser) {
@@ -32,5 +34,41 @@ export const userRegistration = async (
   } catch (error) {
     // Pass the actual error object to your error middleware
     next(error);
+  }
+};
+
+
+// verify user with OTP
+export const verifyUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp, name, password } = req.body;
+
+    if (!email || !password || !otp || !name) {
+        return next(new Error('Fields are required!'));
+      }
+      const existingUser = await prisma.users.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        return next(new Error('User already exists with this email!'));
+      }
+      await verifyOtp(email, otp,next);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await prisma.users.create(
+        { data: { name, email, password: hashedPassword } });
+
+    // TODO: verify OTP logic here
+    return res.status(200).json({
+      message: 'User verified successfully',
+    });
+
+  } catch (error) {
+    return next(error);
   }
 };
