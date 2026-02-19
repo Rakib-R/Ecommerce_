@@ -1,23 +1,13 @@
-
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist/apps/auth-service",
-    "types": ["node", "express"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@packages/*": ["../../packages/*"]
-    },
-    "rootDir": ".",                   // <-- must include everything
-    "rootDirs": ["./src", "../../packages"],  // optional, safe to keep
+    "rootDir": "../..",
+    "outDir": "../../dist/apps/auth-service",
+    "types": ["node"],
     "tsBuildInfoFile": "out-tsc/auth-service/tsconfig.app.tsbuildinfo"
   },
   "include": [
-    "src/**/*.ts",
-    "../../packages/**/*"             // <-- include all shared packages
+    "src/**/*.ts"
   ],
   "exclude": [
     "out-tsc",

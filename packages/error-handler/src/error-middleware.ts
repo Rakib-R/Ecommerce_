@@ -1,4 +1,5 @@
-import { AppError } from "./src/index";
+
+import { AppError } from "./AppError";
 import { Request,  Response, NextFunction } from "express";
 
 export const errorMiddleware = (

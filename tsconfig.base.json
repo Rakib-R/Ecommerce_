@@ -3,31 +3,27 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "rootDir": ".",
     "baseUrl": ".",
     "ignoreDeprecations": "5.0",
     "sourceMap": true,
-    "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "target": "ES2020", //! CHANGED BY ULTIMATED CLAUED CODE  FROM ES2015
+    "module": "ESNext",   //! CHANGED BY ULTIMATED CLAUED CODE FROM nodenext
+    "moduleResolution": "bundler", //todo SINCE USING WEBPACK
     "lib": ["es2020"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "types": ["node"],
     "paths": {
-      "@/*": ["./*"],
-      "@api-gateway/*": ["apps/api-gateway/src/*"],
-      "@packages/*": ["packages/*"],
-      "@packages/error-handler": ["packages/error-handler/src/index.ts"],
+      // "@/*": ["./*"], /// DO NOT PUT THIS
+      // "@api-gateway/*": ["apps/api-gateway/src/*"], /// DO NOT PUT THIS
+       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
       "@packages/middleware": ["packages/middleware/src/index.ts"],
+      "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
-      "@packages/prisma": ["packages/libs/prisma/src/index.ts"]
-        }
+    }
   },
   "exclude": ["node_modules", "tmp"],
-  "include": ["index.ts"]
 }
