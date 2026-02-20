@@ -1,6 +1,6 @@
 
 import { NextFunction, Request, Response } from "express";
-import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyOtp } from "../utils/auth.helper";
+import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyForgotPasswordOtp, verifyOtp } from "../utils/auth.helper";
 import { AppError, AuthError, ValidationError } from "@packages/error-handler";
 import prisma from "@packages/prisma";
 import bcrypt from "bcryptjs";
@@ -57,7 +57,7 @@ export const verifyUser = async (
     if (existingUser) {
       throw new Error('User already exists with this email!');
     }
-    await verifyOtp(email, otp);
+    await verifyOtp(email, otp, next);
     
     const hashedPassword = await bcrypt.hash(password, 10);
 

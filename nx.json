@@ -16,8 +16,7 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "nxCloudId": "699344f839aabe1d0607396f",
-
-   "generators": {
+  "generators": {
     "@nx/js:library": {
       "directory": "packages"
     },
@@ -26,18 +25,21 @@
     },
     "@nx/node:application": {
       "directory": "apps"
+    },
+    "@nx/next": {
+      "application": {
+        "style": "tailwind",
+        "linter": "none"
+      }
     }
   },
-  
   "plugins": [
     {
-      "plugin": "@nx/webpack/plugin",
+      "plugin": "@nx/next/plugin",
       "options": {
         "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "buildDepsTargetName": "build-deps",
-        "watchDepsTargetName": "watch-deps"
+        "devTargetName": "dev",
+        "startTargetName": "start"
       }
     },
     {
