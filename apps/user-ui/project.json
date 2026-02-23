@@ -4,5 +4,14 @@
   "sourceRoot": "apps/user-ui",
   "projectType": "application",
   "tags": [],
-  "targets": {}
+ "targets": {
+    "serve": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "seller-ui:build",
+        "dev": true,
+        "port": 3000
+      }
+    }
+  }
 }

@@ -9,15 +9,28 @@ import swaggerDocument from "./swagger-output.json";
 
 const app = express();
 
-  app.use(cors({
-   origin: [
-    'http://localhost:8080',
-    'http://localhost:6001',
-    'http://127.0.0.1:6001'
-  ],
+ app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      "http://127.0.0.1:7777",// Your Gateway
+      'http://localhost:7777', 
+      'http://localhost:3000',
+     'http://127.0.0.1:3000',
+    ];
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked: Origin not allowed'));
+    }
+  },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
   }));
+
   app.use(express.json());
   app.use(cookieParser());
 

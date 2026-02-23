@@ -5,16 +5,35 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "defaultConfiguration": "development",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/api-gateway",
+        "main": "apps/api-gateway/src/main.ts",
+        "tsConfig": "apps/api-gateway/tsconfig.app.json",
+        "isolatedConfig": true,
+        "webpackConfig": "apps/api-gateway/webpack.config.cjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "api-gateway:build",
-
         "runtimeArgs": ["--env-file=.env"],
         "inspect": false,
-
         "runBuildTargetDependencies": false
       },
       "configurations": {

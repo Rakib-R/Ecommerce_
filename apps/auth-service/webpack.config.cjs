@@ -7,7 +7,6 @@ module.exports = {
   },
   resolve: {
     alias: {
-      // This fix tells Webpack that "@/" refers to the repo root
       "@": resolve(__dirname, "../../"), 
       "@packages": resolve(__dirname, "../../packages"),
     },
@@ -19,7 +18,14 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: [
+        './src/assets',
+        {
+          glob: '**/*.ejs',
+          input: './src/utils/email-templates',
+          output: 'utils/email-templates',
+        },
+      ],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,
