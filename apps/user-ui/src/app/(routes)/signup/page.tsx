@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import GoogleButton from "../../shared/widget/components/google-button";
-import FacebookButton from '../../shared/widget/components/facebook-button';
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import GithubButton from '../../shared/widget/components/github-button';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from "axios";
 import toast from 'react-hot-toast';
@@ -58,7 +56,7 @@ const SignUp = () => {
       const signupMutation = useMutation({
       mutationFn: async (data: FormData) => {
         const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/user-registration`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/user-registration`,
         data
       );
       return response.data;
@@ -81,7 +79,7 @@ const SignUp = () => {
     mutationFn: async () => {
       if (!userData) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/verify-user`,
         { ...userData, otp: otp.join('') }
       );
       return response.data;

@@ -5,6 +5,28 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "defaultConfiguration": "development",
+      "options": {
+        "target": "node",
+        "main": "apps/api/src/main.ts",
+        "outputPath": "dist/apps/api",
+        "tsConfig": "apps/api/tsconfig.app.json",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "development": {
+          "watch": true
+        },
+        "production": {
+          "optimization": true,
+          "sourceMap": false
+        }
+      }
+    },
+    
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",

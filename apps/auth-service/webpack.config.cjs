@@ -21,7 +21,7 @@ module.exports = {
       assets: [
         './src/assets',
         {
-          glob: '**/*.ejs',
+          glob: '**/*.cjs',
           input: './src/utils/email-templates',
           output: 'utils/email-templates',
         },

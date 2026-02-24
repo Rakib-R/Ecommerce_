@@ -22,10 +22,10 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "example": "any"
+                  "example": "rakib"
                 },
                 "email": {
-                  "example": "any"
+                  "example": "www@email.com"
                 }
               }
             }
@@ -49,10 +49,10 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "www@email.com"
                 },
                 "otp": {
-                  "example": "any"
+                  "example": "****"
                 },
                 "name": {
                   "example": "any"
@@ -82,7 +82,7 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "www@email.com"
                 },
                 "password": {
                   "example": "any"
@@ -97,6 +97,76 @@
           }
         }
       }
+    },
+
+
+    "/seller-registration": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "any"
+                },
+                "email": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/verify-seller": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "any"
+                },
+                "otp": {
+                  "example": "****"
+                },
+                "name": {
+                  "example": "rakib"
+                },
+                "password": {
+                  "example": "any"
+                },
+                 "phone_number" : {
+                    "example" : "01715966680"
+                 },
+                 "country" : {
+                  "example" : "bd"
+                 }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
     }
+    
+    
   }
 }

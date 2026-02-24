@@ -1,7 +1,10 @@
+
+module.exports = {
+  'forgot-password-buyer': `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Eshop Password Reset</title>
+  <title>Ecommerce Password Reset</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -114,14 +117,14 @@
     <div class="email-container">
       
       <div class="email-header">
-        <h1>Password Reset Request – Eshop</h1>
+        <h1>Password Reset Request – Ecommerce</h1>
       </div>
 
       <div class="email-body">
         <p>Hello <span class="highlight"><%= name %></span>,</p>
 
         <p>
-          We received a request to reset your password for your Eshop account.
+          We received a request to reset your password for your Ecommerce account.
         </p>
 
         <p>
@@ -142,10 +145,12 @@
       </div>
 
       <div class="email-footer">
-        © <%= new Date().getFullYear() %> Eshop. All rights reserved.
+        © <%= new Date().getFullYear() %> Ecommerce. All rights reserved.
       </div>
 
     </div>
   </div>
 </body>
 </html>
+`
+}

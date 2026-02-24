@@ -6,14 +6,30 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project seller-ui --web",
+  
   "targets": {
-    "serve": {
-      "executor": "@nx/next:server",
-      "options": {
-        "buildTarget": "seller-ui:build",
+  "serve": {
+    "executor": "@nx/next:server",
+    "defaultConfiguration": "development",
+    "options": {
+      "buildTarget": "seller-ui:build",
+      "dev": true,
+      "port": 4000,
+      "hostname": "0.0.0.0"
+    },
+    "configurations": {
+      "development": {
+        "buildTarget": "seller-ui:build:development",
         "dev": true,
+        "port": 4000
+      },
+      "production": {
+        "buildTarget": "seller-ui:build:production",
+        "dev": false,
         "port": 4000
       }
     }
   }
+}
+
 }

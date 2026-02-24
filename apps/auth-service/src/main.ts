@@ -18,7 +18,10 @@ const app = express();
       "http://127.0.0.1:7777",// Your Gateway
       'http://localhost:7777', 
       'http://localhost:3000',
-     'http://127.0.0.1:3000',
+      'http://127.0.0.1:3000', 
+      'http://localhost:4000',
+      'http://127.0.0.1:4000',
+
     ];
     if (allowedOrigins.includes(origin)) {
       callback(null, true);

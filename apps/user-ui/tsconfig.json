@@ -9,7 +9,6 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -23,7 +22,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "isolatedModules": true
   },
   "include": [
     "**/*.js",
