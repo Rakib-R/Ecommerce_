@@ -144,6 +144,7 @@ const ForgotPassword = () => {
   };
 
   const handleResendOtp = () => {
+    setServerError(null); 
     if (canResend) {
       requestOtpMutation.mutate({ email: userEmail });
     }

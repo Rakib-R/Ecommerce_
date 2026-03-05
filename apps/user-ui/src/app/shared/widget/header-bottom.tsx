@@ -7,6 +7,7 @@ import { navItems } from '../../configs/constants';
 import Cart from "../../../../assests/svgs/cart.png"
 import useUser from "apps/user-ui/src/app/hooks/useUser"
 
+
 const HeaderBottom = () => {
   const [show, setShow] = useState(false);
   const [isFixed, setIsFixed] = useState(false);
@@ -33,7 +34,7 @@ const HeaderBottom = () => {
        When the child becomes 'fixed', this div prevents the content below from jumping up.  */
     <div ref={containerRef} className={`relative w-full h-[80px] ${isFixed ? "shadow-md" : '' }` }>
       <main
-        className={`w-[1300px] mx-8 z-[100] transition-all duration-300 ${
+        className={`relative w-[1300px] left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${
             isFixed 
             ? "fixed top-0 left-0 shadow-lg bg-blue-500 animate-in fade-in slide-in-from-top-4" 
             : "relative bg-blue-500"

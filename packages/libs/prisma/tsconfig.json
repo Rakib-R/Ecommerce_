@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "./src",
     "composite": true,
      "declaration": true /// po: If you have multiple sub-projects that depend on each other, enabling this allows the compiler to check 
      // dependent projects faster without recompiling everything. 

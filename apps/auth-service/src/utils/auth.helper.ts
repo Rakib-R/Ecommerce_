@@ -50,7 +50,7 @@ export const trackOtpRequests = async (email: string, next:NextFunction) => {
 
   if (otpRequests >= 2) {
     await redis.set(`otp_spam_lock:${email}`,"locked", "EX" , 3600); // Lock for lhol
-    throw new ValidationError("TOO MANY OTP REQS, Please Wait 1 hour.")
+    throw new ValidationError("Too Many OTP Requests, Please Wait 1 Hour.")
     
   };
   await redis.set(otpRequestKey, otpRequests + 1, "EX", 36000);

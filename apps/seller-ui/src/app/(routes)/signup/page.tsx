@@ -1,7 +1,6 @@
 "use client"
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react';
 import { useForm, useWatch } from "react-hook-form";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
@@ -9,10 +8,10 @@ import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { countries } from '../../utils/countries';
-import  CreateShop  from '../../shared/modules/auth/create-shop';
-import Stripe from "../../assets/stripe.jpeg"
+import CreateShop from '../../shared/modules/auth/create-shop';
+import Stripe from "../../assets/stripe.jpeg";
 import Image from 'next/image';
-
+import { useSellerRegistrationStore } from '../../store/useSellerRegistrationStore';
 
 type FormData = {
   name: string;
@@ -25,7 +24,7 @@ type FormData = {
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
   return (
-    <span className="absolute left-0 -bottom-5 flex items-center gap-1 text-sm font-medium 
+    <span className="absolute left-0 -bottom-5 flex items-center gap-1 text-sm font-medium
         text-red-600 animate-in fade-in slide-in-from-top-1">
       <AlertCircle size={12} /> {message}
     </span>
@@ -33,22 +32,42 @@ const FieldError = ({ message }: { message?: string }) => {
 };
 
 const SignUp = () => {
+  // ── Read EVERYTHING that controls which step renders from the store ──────────
+  // This is the critical fix: activeStep must come from the store, NOT useState.
+  const {
+    activeStep,       // ← from store, persisted across refreshes
+    sellerId,
+    step1Values,
+    _hasHydrated,     // ← gate: don't render until localStorage is loaded
+    setActiveStep,
+    setSellerId,
+    saveStep1Values,
+    resetRegistration,
+  } = useSellerRegistrationStore();
+
+  // ── Local UI-only state (transient, fine to reset on refresh) ───────────────
   const [passwordVisible, setPasswordVisible] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(true);
   const [timer, setTimer] = useState(60);
   const [showOtp, setShowOtp] = useState(false);
-  const [activeStep, setActiveStep] = useState(3);
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [sellerData, setSellerData] = useState<FormData | null>(null);
-  const [sellerId, setSellerId] = useState('');
   const [dialCode, setDialCode] = useState("+880");
-  const router = useRouter();
+  // sellerData only needed within the current OTP flow session
+  const [sellerData, setSellerData] = useState<FormData | null>(null);
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>();
+  // Pre-fill step-1 form with persisted values so nothing is re-typed after refresh
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
+    defaultValues: {
+      name: step1Values.name ?? "",
+      email: step1Values.email ?? "",
+      country: step1Values.country ?? "",
+      phone_number: step1Values.phone_number ?? "",
+      password: step1Values.password ?? "",
+    },
+  });
 
-  // Watch country field to auto-sync dial code
   const watchedCountry = useWatch({ control, name: "country" });
   useEffect(() => {
     if (!watchedCountry) return;
@@ -56,7 +75,6 @@ const SignUp = () => {
     if (matched) setDialCode(matched.dialCode);
   }, [watchedCountry]);
 
-  // Timer Logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (!canResend && timer > 0) {
@@ -66,6 +84,19 @@ const SignUp = () => {
     }
     return () => clearInterval(interval);
   }, [canResend, timer]);
+
+ useEffect(() => {
+  if (_hasHydrated && step1Values) {
+    reset({
+      name: step1Values.name,
+      email: step1Values.email,
+      country: step1Values.country,
+      phone_number: step1Values.phone_number?.replace(dialCode, ""), // Clean the dial code
+      password: step1Values.password,
+    });
+  }
+}, [_hasHydrated, step1Values, reset]);
+
 
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -83,8 +114,9 @@ const SignUp = () => {
   });
 
   const onSubmit = (data: FormData) => {
-    // Prepend dial code to phone number before sending
     const payload = { ...data, phone_number: `${dialCode}${data.phone_number}` };
+    // Save BEFORE the network call — if connection drops, form stays filled
+    saveStep1Values(payload);
     setSellerData(payload);
     signupMutation.mutate(payload);
   };
@@ -100,6 +132,8 @@ const SignUp = () => {
     },
     onSuccess: (data) => {
       setSuccessMessage("Verification successful! Redirecting...");
+      // Persist sellerId AND advance step together so a refresh after this
+      // point always lands on step 2, not step 1
       setSellerId(data.seller?.id);
       setActiveStep(2);
     },
@@ -114,18 +148,15 @@ const SignUp = () => {
       inputRefs.current[index + 1]?.focus();
     }
   };
-
+  
   const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
     if (e.key === "Enter") {
       const isOtpComplete = otp.every(digit => digit !== "");
-      if (isOtpComplete) {
-        verifyOtpMutation.mutate();
-      } else {
-        toast.error("Please enter the full 4-digit code");
-      }
+      if (isOtpComplete) verifyOtpMutation.mutate();
+      else toast.error("Please enter the full 4-digit code");
     }
   };
 
@@ -137,68 +168,93 @@ const SignUp = () => {
     }
   };
 
-  const getErrorMessage = (error: any) => {
+  const getErrorMessage = (error: unknown) => {
     if (error instanceof AxiosError) {
       return error.response?.data?.message || error.message;
     }
     return "An unexpected error occurred.";
   };
 
-  const STEPS = ["Create Account", "Setup Shop", "Connect Bank"];
-
-  function connectStrip(): void {
-
   const connectStripe = async () => {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/create-stripe-link`, {
-        sellerId,
-      });
 
+      console.log("Stripe Key Loaded:", process.env.STRIPE_SECRET_KEY?.substring(0, 8) + "...");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/create-stripe-link`,
+        { sellerId }
+      );
       if (response.data.url) {
+        resetRegistration(); // wipe store only when truly done
         window.location.href = response.data.url;
       }
     } catch (error) {
       console.error("Error connecting to Stripe:", error);
     }
   };
-    throw new Error('Sorry, function not properly implemented!.');
+
+  const STEPS = [{step: 1 , label : "Create Account"}, {step: 2, label: "Setup Shop"}, {step: 3, label: "Connect Bank"}];
+
+  // ── Hydration gate ──────────
+  // Without this, Next.js renders with defaultState (step 1) first, then
+  // immediately re-renders with the localStorage value — causing a flicker
+
+  if (!_hasHydrated) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-[#f4f4f5]">
+        <Loader2 className="animate-spin text-blue-600" size={32} />
+      </main>
+    );
   }
 
+//   // FOR PROGRESS ANIMATION 
+//   function getProgressPercent(activeStep: number, totalSteps: number): number {
+//   if (activeStep <= 1) return 0;
+//   return ((activeStep - 1) / (totalSteps - 1)) * 100;
+// }
   return (
-    <main className="relative w-full flex flex-col items-center pt-10 min-h-screen bg-[#f4f4f5]">
+    <main className=" w-full flex flex-col items-center pt-10 min-h-screen bg-[#f4f4f5]">
 
       {/* ── Stepper ── */}
-      <div className="relative flex items-center justify-between w-[90%] md:w-[520px] mb-10">
-        {/* connector line behind circles */}
-        <div className="absolute top-5 left-5 right-5 h-px bg-gray-400 -z-0" />
+     <div className="relative flex items-center justify-between w-[90%] md:w-[520px] mb-10">
 
-        {STEPS.map((label, i) => {
-          const step = i + 1;
+        {STEPS.map(({ step, label }: any, index: number) => {
           const active = step <= activeStep;
+          const isLast = index === STEPS.length - 1;
+
           return (
-            <div key={step} className="flex flex-col items-center gap-1.5 z-10">
-              <span
-                className={`flex items-center justify-center h-10 w-10 rounded-full text-sm font-bold border-2 transition-all
-                  ${active
-                    ? "bg-blue-500 border-blue-500 text-white shadow-md shadow-blue-200"
-                    : "bg-white border-gray-200 text-gray-400"}`}
-              >
-                {step}
-              </span>
-              <span className={`text-xs font-medium ${active ? "text-blue-500" : "text-gray-400"}`}>
-                {label}
-              </span>
-            </div>
+            <React.Fragment key={step}>
+              <div className="flex flex-col items-center gap-1.5 -mx-8 z-10 ">
+                <span
+                  className={`flex items-center justify-center h-10 w-10 text-sm font-bold 
+                    rounded-full border-2 transition-all duration-300
+                    ${active
+                      ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200"
+                      : "bg-white border-gray-200 text-gray-400"
+                    }`}
+                >
+                  {step}
+                </span>
+                <span className={`text-xs font-medium ${active ? "text-blue-600" : "text-gray-400"}`}>
+                  {label}
+                </span>
+              </div>
+
+              {/* Connector line — only between steps, not after the last */}
+              {!isLast && (
+                <div className="flex-1 h-[2px] bg-gray-300 relative overflow-hidden -mt-5">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-blue-600 transition-all duration-500 ease-in-out"
+                    style={{ width: activeStep > step ? "100%" : "0%" }}
+                  />
+                </div>
+              )}
+            </React.Fragment>
           );
-        })}
-      </div>
+        })} 
+    </div>
 
-      {/* ── Background accent ── */}
-      <div className="absolute bottom-0 left-0 w-full h-[55%] bg-white border-t border-gray-100 -z-10" />
-
-      {/* ── SUCCESS TOAST ── */}
       {successMessage && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
+        <div key="success-toast" className="fixed top-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
           <div className="bg-green-600 text-white px-8 py-3 rounded-full shadow-2xl flex items-center gap-3 font-semibold">
             <CheckCircle2 size={20} />
             {successMessage}
@@ -206,10 +262,10 @@ const SignUp = () => {
         </div>
       )}
 
+      {/* ── STEP 1 ── */}
       {activeStep === 1 && (
         <div className="w-full flex justify-center">
           <section className="w-[90%] md:w-[480px] bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
-
             <div className="px-8 pt-8 pb-2">
               <h1 className="text-2xl font-bold text-gray-900 text-center">
                 {showOtp ? "Email Verification" : "Create Your Seller Account"}
@@ -222,7 +278,6 @@ const SignUp = () => {
               )}
             </div>
 
-            {/* SERVER ERROR */}
             {(signupMutation.isError || verifyOtpMutation.isError) && !successMessage && (
               <div className="mx-8 mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3 text-red-700 animate-in fade-in zoom-in-95">
                 <AlertCircle size={18} className="shrink-0 mt-0.5" />
@@ -235,8 +290,6 @@ const SignUp = () => {
 
             {!showOtp ? (
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-8">
-
-                {/* Name */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">Name</label>
                   <input
@@ -249,7 +302,6 @@ const SignUp = () => {
                   <FieldError message={errors.name?.message} />
                 </div>
 
-                {/* Email */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">Email</label>
                   <input
@@ -265,7 +317,6 @@ const SignUp = () => {
                   <FieldError message={errors.email?.message} />
                 </div>
 
-                {/* Country */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">Country</label>
                   <select
@@ -275,26 +326,21 @@ const SignUp = () => {
                   >
                     <option value="">Select your country</option>
                     {countries.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
+                      <option key={country.code} value={country.code}>{country.name}</option>
                     ))}
                   </select>
                   <FieldError message={errors.country?.message} />
                 </div>
 
-                {/* Phone Number with dial code prefix */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">Phone Number</label>
                   <div className={`flex border rounded-lg overflow-hidden transition-all
                     ${errors.phone_number ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100"}`}>
-
-                    {/* Dial code selector */}
                     <select
                       value={dialCode}
                       onChange={(e) => setDialCode(e.target.value)}
-                      className="shrink-0 bg-gray-50 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer hover:bg-gray-100 transition-colors"
-                      aria-label="Country dial code"
+                      className="shrink-0 bg-gray-50 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer
+                       hover:bg-gray-100 transition-colors"
                     >
                       {countries.map((country) => (
                         <option key={country.code} value={country.dialCode}>
@@ -302,25 +348,19 @@ const SignUp = () => {
                         </option>
                       ))}
                     </select>
-
-                    {/* Number input (without the dial code) */}
                     <input
                       type="tel"
                       placeholder="1234567890"
                       className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
                       {...register("phone_number", {
                         required: "Phone number is required",
-                        pattern: {
-                          value: /^\d{6,14}$/,
-                          message: "Enter digits only, 6–14 characters",
-                        },
+                        pattern: { value: /^\d{6,14}$/, message: "Enter digits only, 6–14 characters" },
                       })}
                     />
                   </div>
                   <FieldError message={errors.phone_number?.message} />
                 </div>
 
-                {/* Password */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">Password</label>
                   <div className={`flex border rounded-lg overflow-hidden transition-all
@@ -352,16 +392,13 @@ const SignUp = () => {
                 >
                   {signupMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : "Create Account"}
                 </button>
-
               </form>
             ) : (
-              /* ── OTP Panel ── */
               <div className="flex flex-col items-center gap-6 px-8 py-8">
                 <p className="text-sm text-center text-gray-500">
                   Enter the 4-digit code sent to{" "}
                   <span className="font-bold text-gray-900">{sellerData?.email}</span>
                 </p>
-
                 <div className="flex justify-center gap-3">
                   {otp.map((digit, index) => (
                     <input
@@ -376,33 +413,24 @@ const SignUp = () => {
                     />
                   ))}
                 </div>
-
                 <button
                   disabled={verifyOtpMutation.isPending || !!successMessage}
                   onClick={() => verifyOtpMutation.mutate()}
                   className={`w-full py-3 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg
-                    ${successMessage
-                      ? "bg-green-600 text-white"
-                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100"}`}
+                    ${successMessage ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100"}`}
                 >
                   {verifyOtpMutation.isPending
                     ? <Loader2 className="animate-spin" size={18} />
-                    : successMessage
-                      ? <CheckCircle2 size={18} />
-                      : "Verify OTP"}
+                    : successMessage ? <CheckCircle2 size={18} /> : "Verify OTP"}
                 </button>
-
                 {verifyOtpMutation.isError && verifyOtpMutation.error instanceof AxiosError && (
                   <p className="text-sm text-red-500">
                     {verifyOtpMutation.error.response?.data?.message || verifyOtpMutation.error.message}
                   </p>
                 )}
-
                 <div className="text-sm">
                   {canResend ? (
-                    <button onClick={resendOtp} className="text-blue-600 font-bold hover:underline">
-                      Resend OTP
-                    </button>
+                    <button onClick={resendOtp} className="text-blue-600 font-bold hover:underline">Resend OTP</button>
                   ) : (
                     <span className="text-gray-400 italic">
                       Resend available in <span className="text-black font-bold">{timer}s</span>
@@ -415,30 +443,24 @@ const SignUp = () => {
         </div>
       )}
 
-      {activeStep === 2 && <CreateShop 
-      sellerId={sellerId} 
-      setActiveStep={setActiveStep} />}
+      {/* ── STEP 2 ── */}
+      {activeStep === 2 && <CreateShop setActiveStep={setActiveStep} />}
 
-      
-      {activeStep === 3 && 
-        <div className="text-center">
+      {/* ── STEP 3 ── */}
+      {activeStep === 3 && (
+        <section className="text-center">
           <h3 className="text-2xl font-semibold text-gray-800">Withdraw Method</h3>
-          <p className="text-gray-500 mt-2">
-            Connect your payout account to start receiving payments.
-          </p>
-          
+          <p className="text-gray-500 mt-2">Connect your payout account to start receiving payments.</p>
           <br />
-
           <button
             type="button"
-            onClick={ connectStrip}
-            className="m-auto flex items-center justify-center gap-3 text-lg text-white py-2 px-6 bg-[#2516a4] hover:bg-[#3730a3] transition-colors rounded-md w-full max-w-[300px]">
-            {/* You can add a Stripe Icon SVG here */}
-            Connect Stripe <Image src={Stripe} width={30} height={30} alt='Stripe'/>
+            onClick={connectStripe}
+            className="m-auto flex items-center justify-center gap-3 text-lg text-white py-2 px-6 bg-[#2516a4] hover:bg-[#3730a3] transition-colors rounded-md w-full max-w-[300px]"
+          >
+            Connect Stripe <Image src={Stripe} width={30} height={30} alt="Stripe" />
           </button>
-      </div>}
-
-
+        </section>
+      )}
     </main>
   );
 };

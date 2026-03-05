@@ -23,19 +23,30 @@
       {
         "name": "next"
       }
-    ]
+    ],
+
+    "paths": {
+      "@/*":[
+        "./src/*"
+      ]
+    },
+    "outDir": "dist",
+    "rootDir": "../../",
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
     "**/*.js",
     "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
+    "../../packages/**/*.tsx",
     "../../apps/seller-ui/.next/types/**/*.ts",
     "../../dist/apps/seller-ui/.next/types/**/*.ts",
     "next-env.d.ts",
     "next.config.js",
     "next.config.mjs",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+     "next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"
   ],
   "exclude": [
     "node_modules",

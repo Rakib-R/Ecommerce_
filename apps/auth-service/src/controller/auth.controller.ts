@@ -94,6 +94,10 @@ export const loginUser = async (
         return next(new ValidationError("Invalid email or password!"));
       }
 
+      //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
+      res.clearCookie("seller-access_token");
+      res.clearCookie("seller-refresh_token");
+      
       if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
       return next(new AuthError("Internal Server Error: Missing Token Secrets"));
     }
@@ -105,7 +109,7 @@ export const loginUser = async (
 
     // Generate refresh token if needed
       const refreshToken = jwt.sign(
-      { id: user.id },
+      { id: user.id, role: 'user' },
       process.env.JWT_REFRESH_SECRET as string,
       { expiresIn: "7d" }
     );
@@ -124,12 +128,15 @@ export const loginUser = async (
 
 // Refresh Token - User
 export const refreshToken = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken =  
+      req.cookies["refresh_token"] || 
+      req.cookies["seller-refresh-token"] ||
+      req.headers.authorization?.split(" ")[1];
 
     if (!refreshToken) {
       throw new ValidationError("Unauthorized! No refresh token.");
@@ -137,27 +144,36 @@ export const refreshToken = async (
 
     const decoded = jwt.verify(
       refreshToken, 
-      process.env.REFRESH_TOKEN_SECRET as string
-    ) as any;
+      process.env.JWT_REFRESH_SECRET as string
+    ) as {id: string; role: string};
     
     if (!decoded || !decoded.id || !decoded.role) {
     return new JsonWebTokenError("Forbidden! Invalid refresh token.");
   }
 
-    // let account;
-    // if (decoded.role === "user") {
-    const user = await prisma.users.findUnique({ where: { id: decoded.id },  });
-    if (!user) {
-    return new AuthError("Forbidden! User/Seller not found");
-  }
-    const accessToken = jwt.sign(
+    let account;
+
+    if (decoded.role === "user") {
+      account = await prisma.users.findUnique({ where: { id: decoded.id },  });
+  } else if(decoded.role === 'seller'){
+      account = await prisma.sellers.findUnique({  where: { id: decoded.id },
+      include: {shop: true}
+  });
+}
+    const newAccessToken = jwt.sign(
       { id: decoded.id }, 
       process.env.ACCESS_TOKEN_SECRET as string, 
       { expiresIn: "15m" }
     );
     
-    setCookie(res, "access_token", accessToken);
+    if (decoded.role === "user") {
+      setCookie(res, "accessToken", newAccessToken);
+    } else if (decoded.role === "seller") {
+      setCookie(res, "seller-access-token", newAccessToken);
+    }
       
+    req.role = decoded.role;
+
     return res.status(201).json({ success: true }); 
     } catch (error) { 
      return next(error); 
@@ -298,7 +314,7 @@ export const createShop = async (req: Request, res: Response, next: NextFunction
     if (
       !name || !bio || !address || !sellerId || !opening_hours || !category
     ) {
-      return next (new ValidationError('All fields are required!'));
+      return next (new ValidationError('All fields are required for creating shop!'));
     }
     const shopData: any = {
           name, bio, address, opening_hours, category,
@@ -329,52 +345,75 @@ export const createStripeConnectLink = async (
 ) => {
   try {
     const { sellerId } = req.body;
+      
+    console.log("Stripe Key Loaded:", process.env.STRIPE_SECRET_KEY?.substring(0, 8) + "...");
+    if (!sellerId) {
+      return next(new Error("Seller ID is required!"));
+    }
 
-  //  Basic validation: check if ID exists in request
-  if (!sellerId) {
-    return next(new Error("Seller ID is required!"));
-  }
+    // 1. Find seller in DB
+    const seller = await prisma.sellers.findUnique({
+      where: { id: sellerId },
+    });
 
-  //  Database check: find the seller in Prisma
-  const seller = await prisma.sellers.findUnique({
-    where: {
-      id: sellerId,
-    },
-  });
+    if (!seller) {
+      return next(new Error("Seller account not found."));
+    }
 
-  if (!seller) {
-    return next(new Error("Seller account is not available or does not exist."));
-  }
-    const account = await stripe.accounts.create({
-    type: "express",
-    email: seller.email, // Ensure this variable matches your seller object
-    country: "GB",
-    capabilities: {
-      card_payments: { requested: true },
-      transfers: { requested: true },
-  },
-  business_type: "individual", 
-});
+    let stripeAccountId = seller.stripeId;
 
-  await prisma.sellers.update({ where: { id: sellerId, },
-    data: {
-    stripeId: account.id, },
-  })
+    // 2. ✅ Only create a NEW Stripe account if seller doesn't have one yet
+    if (!stripeAccountId) {
+      const account = await stripe.accounts.create({
+        type: "express",
+        email: seller.email,
+        country: "GB",
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_type: "individual",
+      });
 
-  const accountLink = await stripe.accountLinks.create({
-    account: account.id,
-    refresh_url: "http://localhost:4000/success", // Use refresh_url
-    return_url: "http://localhost:4000/success",  // Use return_url
-    type: "account_onboarding",                   // Fixed spelling of 'onboarding'
-});
+      stripeAccountId = account.id;
 
-  res.status(200).json({  url: accountLink.url });
+      // 3. ✅ Save stripeId immediately after creation
+      await prisma.sellers.update({
+        where: { id: sellerId },
+        data: { stripeId: stripeAccountId },
+      });
+    }
 
-  } catch (error) {
+    // 4. ✅ Check if this account has already completed onboarding
+    const account = await stripe.accounts.retrieve(stripeAccountId);
+
+    if (account.details_submitted) {
+      return res.status(200).json({
+        url: null,
+        message: "Stripe account already fully onboarded.",
+        alreadyOnboarded: true,
+      });
+    }
+
+    // 5. ✅ Create the onboarding link using saved/existing account ID
+    const accountLink = await stripe.accountLinks.create({
+      account: stripeAccountId,
+      return_url: `http://localhost:4000/seller/connect/return`,   // ✅ Use env var
+      refresh_url: `http://localhost:4000/seller/connect/refresh`, // ✅ Use env var
+      type: "account_onboarding",
+    });
+
+    return res.status(200).json({ url: accountLink.url });
+
+  } catch (error: any) {
+    // 6. ✅ Surface Stripe-specific errors clearly
+    if (error?.type?.startsWith("Stripe")) {
+      console.error("Stripe Error:", error.message);
+      return next(new Error(`Stripe error: ${error.message}`));
+    }
     return next(error);
   }
 };
-
 
 export const loginSeller = async (
   req: Request,
@@ -391,12 +430,15 @@ export const loginSeller = async (
     if (!seller) return next(new AuthError("Seller doesn't exist!"));
     const isMatch = await bcrypt.compare(password, seller.password!);
 
-      if (!isMatch) {
-        return next(new ValidationError("Invalid email or password!"));
-      }
-
-      if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
-      return next(new AuthError("Internal Server Error: Missing Token Secrets"));
+    if (!isMatch) {
+      return next(new ValidationError("Invalid email or password!"));
+    }
+    //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    
+    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    return next(new AuthError("Internal Server Error: Missing Token Secrets"));
     }
       const accessToken = jwt.sign(
       { id: seller.id, role: "seller" },
@@ -406,7 +448,7 @@ export const loginSeller = async (
 
     // Generate refresh token if needed
       const refreshToken = jwt.sign(
-      { id: seller.id },
+     { id: seller.id, role: "seller" },
       process.env.JWT_REFRESH_SECRET as string,
       { expiresIn: "7d" }
     );
@@ -417,10 +459,10 @@ export const loginSeller = async (
     // setCookie(res, "accessToken", accessToken);
     
     setCookie(res, "seller-refresh-token", refreshToken);
-    setCookie(res, "setter-access-token", accessToken);
+    setCookie(res, "seller-access-token", accessToken);
 
     res.status(200).json({ message: "Login successful!", 
-      user: { id: seller.id, name: seller.name, email: seller.email } 
+      seller: { id: seller.id, name: seller.name, email: seller.email } 
     });
   
   } catch (error) {
@@ -440,9 +482,43 @@ export const getSeller = async (
 
     res.status(200).json({
       success: true,
-      setter: seller,
+      seller: seller,
     });
+
   } catch (error) {
+    if (!req.seller) {
+    return res.status(403).json({ success: false, message: "Forbidden: Not a seller" });
+  }
     next(error);
   }
+};
+
+// Stripe webhook — fires when seller completes onboarding
+export const stripeWebhook = async (req: Request, res: Response, next: NextFunction) => {
+  const sig = req.headers["stripe-signature"] as string;
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body, // ⚠️ Must use raw body — see Step 4
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    return res.status(400).json({ message: "Webhook signature failed" });
+  }
+
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+
+    // Only update if fully onboarded
+    if (account.details_submitted && account.charges_enabled) {
+      await prisma.sellers.updateMany({
+        where: { stripeId: account.id },
+        data: { stripeOnboarded: true },
+      });
+    }
+  }
+
+  res.json({ received: true });
 };

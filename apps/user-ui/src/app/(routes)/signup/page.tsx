@@ -143,17 +143,8 @@ const SignUp = () => {
         </div>
       )}
 
-      <h1 className="text-4xl font-Poppins font-semibold text-black text-center">Sign Up</h1>
-      <p className="text-center text-lg font-medium py-3">
-        Already have an account?{" "}
-        <Link href="/login" className="text-blue-500 underline">Login</Link>
-      </p>
-
       <div className="flex justify-center">
         <section className="md:w-[480px] p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
-          <h3 className="text-2xl font-bold text-center mb-6 text-gray-900">
-            {showOtp ? "Email Verification" : "Create Account"}
-          </h3>
 
           {/* SERVER ERROR CALLOUT */}
           {(signupMutation.isError || verifyOtpMutation.isError) && !successMessage && (
@@ -168,6 +159,16 @@ const SignUp = () => {
 
           {!showOtp ? (
             <>
+
+           <section className='flex flex-col gap-2 mt-3 mb-8'>
+              <h3 className="text-3xl font-bold text-center text-gray-900">
+              {showOtp ? "Email Verification" : "Create User Account"}
+            </h3>
+            <small className="text-center text-lg font-medium py-3">
+              Already have an account?{" "}
+              <Link href="/login" className="text-blue-500 underline">Login</Link>
+            </small>
+          </section>
               {/* SOCIAL LOGINS */}
               <div className="flex flex-col gap-3 mb-6">
                 <button type="button" className="flex items-center justify-center gap-3 py-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg transition-colors group">

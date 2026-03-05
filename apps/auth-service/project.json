@@ -11,6 +11,7 @@
         "main": "apps/auth-service/src/main.ts",
         "tsConfig": "apps/auth-service/tsconfig.app.json",
         "webpackConfig": "apps/auth-service/webpack.config.cjs",
+        "isolatedConfig": false,
         "target": "node",
         "compiler": "tsc"
       },

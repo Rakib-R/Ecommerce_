@@ -21,6 +21,9 @@ const app = express();
       'http://127.0.0.1:3000', 
       'http://localhost:4000',
       'http://127.0.0.1:4000',
+      
+      'http://192.168.0.105:3000',
+      'http://192.168.0.105:4000',
 
     ];
     if (allowedOrigins.includes(origin)) {
@@ -56,13 +59,14 @@ const app = express();
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   app.get('/api/docs-json', (req, res) => {
     
-    console.log('At auth service', req.headers.origin)
+  console.log('At auth service', req.headers.origin)
     res.json(swaggerDocument)
 });
   // Error middleware last
   app.use(errorMiddleware);
 
 const port = process.env.PORT || 6001;
+
 app.listen(port, () => {
   console.log(`🔑 Auth Service running at http://127.0.0.1:${port}/api`);
   console.log(`Swagger Docs at http://127.0.1:${port}/api/docs`);

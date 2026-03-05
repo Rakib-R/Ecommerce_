@@ -1,7 +1,7 @@
 
 //!!!!!!  THIS IS ONE FROM  TUTORIAL !!!!!!!!!!!!!!
 import axios from "axios";
-import { useAuthStore } from "../../../user-ui/src/app/store/authStore";
+import { useAuthStore } from "../store/authStore";
 
 const axiosInstance = axios.create({});
 
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token-user`
+          `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`
         );
 
         isRefreshing = false;

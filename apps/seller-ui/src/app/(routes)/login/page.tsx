@@ -22,7 +22,7 @@ const FieldError = ({ message }: { message?: string }) => {
     </span>
   );
 };
-
+  
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ const Login = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/login-user`, 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/login-seller`, 
         data,
         { withCredentials: true }
       );
@@ -61,12 +61,9 @@ const Login = () => {
 
   return (
     <main className="py-10 h-screen bg-[#f1f1f1]">
-      <h1 className="text-4xl font-Poppins font-semibold text-black text-center">
-        Login
+      <h1 className="text-4xl mb-8 font-Poppins font-semibold text-black text-center">
+        Ecommerce_
       </h1>
-      <p className="text-center text-lg font-medium py-3 text-gray-600">
-        Home / Login
-      </p>
 
       <div className="flex justify-center px-4">
         <section className="md:w-[480px] w-full p-8 bg-white shadow-xl rounded-2xl border border-gray-100">

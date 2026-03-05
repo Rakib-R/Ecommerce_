@@ -54,9 +54,8 @@ model sellers {
   country      String
   password     String
   stripeId     String?
-  shop         shops?    
-  shopId       String?   @db.ObjectId
-  shopsId      String?   @db.ObjectId
+  shop         shops?   
+  stripeOnboarded Boolean  @default(false) 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }

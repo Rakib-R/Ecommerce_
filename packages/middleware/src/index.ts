@@ -18,9 +18,9 @@ export const isAuthenticated = async (
       return res.status(401).json({ message: "Unauthorized! Token missing." });
     }
 
-    const decoded = jwt.verify(  token,  process.env.ACCESS_TOKEN_SECRET as string ) as {
+    const decoded = jwt.verify(  token, process.env.ACCESS_TOKEN_SECRET as string ) as {
         id: string;
-        role: "buyer" | "seller";
+        role: "user" | "seller";
     };
 
     if (!decoded) {
@@ -30,7 +30,7 @@ export const isAuthenticated = async (
     }
 
     let account;
-    if (decoded.role === "buyer") {
+    if (decoded.role === "user") {
       account = await prisma.users.findUnique({
       where: { id: decoded.id },
   });
@@ -41,7 +41,7 @@ export const isAuthenticated = async (
       where: { id: decoded.id },
       include: {shop: true}
   });
-  req.seller = account
+    req.seller = account
 }
   if (!account) {
       return res.status(404).json({ message: "Account not found!" });
@@ -49,6 +49,7 @@ export const isAuthenticated = async (
 
   req.role = decoded.role;
   return next();
+
   } catch (error) {
   return res.status(401).json({
       message: "Unauthorized! Token expired or invalid.",

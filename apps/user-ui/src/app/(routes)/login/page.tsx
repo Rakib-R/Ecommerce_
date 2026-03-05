@@ -71,16 +71,14 @@ const Login = () => {
   });
 
   return (
-    <main className="py-10 min-h-[85vh] bg-[#f1f1f1]">
-      <h1 className="text-4xl font-Poppins font-semibold text-black text-center">
-        Login
+    <main className="py-10 min-h-[85vh] bg-gray-100">
+      <h1 className="text-4xl mb-8 font-Poppins font-semibold text-black text-center">
+        Ecommerce_
       </h1>
-      <p className="text-center text-lg font-medium py-3 text-gray-600">
-        Home / Login
-      </p>
+  
 
       <div className="flex justify-center px-4">
-        <section className="md:w-[480px] w-full p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
+        <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">
           <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
             Login to Ecommerce
           </h3>

@@ -20,7 +20,8 @@
       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
       "@packages/middleware": ["packages/middleware/src/index.ts"],
       "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
-      "@packages/redis": ["packages/libs/redis/src/index.ts"]
+      "@packages/redis": ["packages/libs/redis/src/index.ts"],
+      "@packages/routes": ["apps/auth-service/src/routes/auth.router.ts"],
     }
   },
   "exclude": ["node_modules", "tmp"]
