@@ -3,12 +3,13 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "../../dist/packages/error-handler",
     "rootDir": ".", 
     "types": ["node"]
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts",  "**/*.tsx",],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,130 +1,145 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller } from "react-hook-form";
 import Input from "../input";
-import { Plus, X } from "lucide-react";
+import { X, Plus, ListPlus } from "lucide-react";
+
+interface Property {
+  label: string;
+  values: string[];
+}
 
 export const CustomProperties = ({ control, errors }: any) => {
-
-  const [properties, setProperties] = useState<{ label: string; values: string[] }[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [newLabel, setNewLabel] = useState("");
   const [newValue, setNewValue] = useState("");
 
   return (
-    <main>
-      <section className="flex flex-col mt-2 gap-2 ml-4">
-          <div  className="flex gap-2 items-end text-gray-400">
+    <main className="w-full">
+      <Controller
+        name="customProperties"
+        control={control}
+        render={({ field }) => {
           
-              {/* CONTROLLER CONTROLLER*/}
-          <Controller
-              name="customProperties"
-              control={control}
-              render={({ field }) => { 
+          // Helper to sync local state with React Hook Form
+          const syncForm = (updatedList: Property[]) => {
+            setProperties(updatedList);
+            field.onChange(updatedList);
+          };
 
-                useEffect(() => { 
-                field.onChange(properties) ;
-                },[properties])
+          const handleAddProperty = () => {
+            if (!newLabel.trim()) return;
+            const updated = [...properties, { label: newLabel, values: [] }];
+            syncForm(updated);
+            setNewLabel("");
+          };
 
-              const addProperty = () => {
-                  if (!newLabel.trim()) return;
-                  setProperties([
-                    ...properties,
-                    { label: newLabel, values: [] },
-                  ]);
-                  setNewLabel("");
-                };
+          const handleAddValue = (index: number) => {
+            if (!newValue.trim()) return;
+            const updated = [...properties];
+            updated[index].values = [...updated[index].values, newValue.trim()];
+            syncForm(updated);
+            setNewValue("");
+          };
 
-              const addValue = (index: number) => {
-                if (!newValue.trim()) return;
-                const updatedProperties = [...properties];
-                updatedProperties[index].values.push(newValue);
+          const handleRemoveValue = (propIndex: number, valIndex: number) => {
+            const updated = [...properties];
+            updated[propIndex].values = updated[propIndex].values.filter((_, i) => i !== valIndex);
+            syncForm(updated);
+          };
 
-                setProperties(updatedProperties);
-                setNewValue("");
-              };
-              
-              const removeProperty = (index: number) => {
-                setProperties(properties.filter((_, i) => i !== index));
-              };
-              return (
-                <div className="mt-2">
-                  <label className="block font-semibold text-gray-300 mb-1">
-                    Custom Properties
-                  </label>
+          const handleRemoveProperty = (index: number) => {
+            const updated = properties.filter((_, i) => i !== index);
+            syncForm(updated);
+          };
 
-                  <section className="flex flex-col gap-3 mt-2">
-                    {/* Existing Properties */}
-                    {properties.map((property, index) => (
-                      // Remove Propertiex
-                      <div
-                        key={index}
-                        className="border p-3 rounded-lg text-white">
-                        <div className="flex items-center justify-between font-medium">
-                          <span>{property.label}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeProperty(index)}>
-                            <X size={18} className="text-red-500"/>
-                          </button>
-                          </div>
-                         
-                          {/* Add Values to Property */}
-                        <div className="flex items-center mt-2 gap-2">
-                          <input
-                            type="text"
-                            className="outline-none bg-gray-800 p-2 rounded-md"
-                            placeholder="Enter value..."
-                            value={newValue}
-                            onChange={(e) => setNewValue(e.target.value)}
-                          />
-                          <button
-                            type="button"
-                            className="px-3 py-1 text-white rounded-md"
-                            onClick={() => addValue(index)}>
-                            Add
-                          </button>
-                        </div>
+          return (
+            <div className="flex flex-col w-full">
+              <label className="block font-semibold text-gray-200">
+                Custom Properties 
+              </label>
 
-                        {/* Show Values */}
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {property.values.map((value, i) => (
-                              <span
-                                key={i}
-                                className="px-2 py-1 bg-gray-700 text-white rounded-md"
-                              >
-                                {value}
-                              </span>
-                            ))}
-                          </div>
-                      </div>
-                    ))}
-                  </section>
-                    {/* ADD NEW PROPERTY */}
-                  <section className="flex items-center gap-4">
-                    <Input
-                        placeholder="Enter property label (e.g., Material, Warranty)"
-                        onChange={(e: any) => setNewLabel(e.target.value)}
+              {/* Render Existing Groups */}
+              <section className=" w-full grid grid-cols-2 md:grid-cols-1">
+                {properties.map((prop, pIdx) => (
+                  <div key={pIdx} className="w-full border border-gray-700 p-4 rounded-xl bg-gray-900/80">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="font-bold text-blue-400 uppercase text-xs tracking-wider">
+                        {prop.label}
+                      </span>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveProperty(pIdx)}
+                        className="text-gray-500 hover:text-red-500 transition-colors">
+                        <X size={18} />
+                      </button>
+                    </div>
+
+                    {/* Add Value Input */}
+                    <div className="flex gap-2 w-full">
+                        <input
+                          type="text"
+                          placeholder="Custon Value ..."
+                          className="flex-1 p-2 bg-slate-500/30 text-sm px-3 border border-gray-100 rounded-md focus:border-blue-500 outline-none "
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddValue(pIdx))}
                         />
-                       <button 
-                       className="w-1/5 p-2 rounded-md bg-blue-400 text-black cursor-pointer"
-                        onClick={() => addProperty}
-                       >
-                        Add
-                       </button>
-                  </section>
+                        <button 
+                        type="button" 
+                        onClick={() => handleAddValue(pIdx)}
+                        className="justify-center mb-1 p-2 bg-blue-600 hover:bg-blue-700 text-white  rounded-md gap-2 transition-all"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
 
-               {errors?.customProperties && (
-                  <p className="text-xs mt-1"> {errors.customProperties.message as string}
-                  </p>
-                  )}
+                     {/* Value Tags */}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {prop.values.map((value, valueId) => (
+                        <span key={valueId} className="flex items-center gap-1 px-3 py-1 bg-gray-800 text-sm border border-gray-600">
+                          {value}
+                          <X 
+                            size={14} 
+                            className="cursor-pointer hover:text-red-400" 
+                            onClick={() => handleRemoveValue(pIdx, valueId)} 
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </section>
+
+              {/* Add New Property Category */}
+              <section className="flex items-end gap-3 mt-2 border-gray-800 rounded-xl">
+                <div className="flex-1 [&_label]:opacity-50 [&_label]:text-md">
+                  <Input
+                    label="New Category"
+                    className="placeholder:text-sm "
+                    placeholder="Enter property value (eg. Material, Color)"
+                    value={newLabel}
+                    onChange={(e: any) => setNewLabel(e.target.value)}
+                    onKeyDown={(e : any) => e.key === 'Enter' && (e.preventDefault(),handleAddProperty())}
+                  />
                 </div>
-                
-                )
-            
-              }}/>
-        </div>
-    </section>
-  
+                <button
+                  type="button"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md flex items-center gap-2 h-[42px] transition-all"
+                  onClick={handleAddProperty}>
+                  <ListPlus size={18} />
+                  <span>Add</span>
+                </button>
+              </section>
+
+              {errors?.customProperties && (
+                <p className="text-red-400 text-xs italic">
+                  {errors.customProperties.message as string}
+                </p>
+              )}
+            </div>
+          );
+        }}
+      />
     </main>
   );
 };

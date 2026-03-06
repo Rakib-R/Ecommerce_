@@ -27,6 +27,6 @@
     "../apps/.next/types/**/*.ts",
     "../dist/apps/.next/types/**/*.ts",
     "next-env.d.ts"
-, "next.config.cjs.bok.bok", "user-ui/next.config.mjs", "api-gateway/webpack.config.cjs", "seller-ui/next.config.cjs"  ],
+, "next.config.cjs.bok.bok", "user-ui/next.config.mjs", "api-gateway/webpack.config.cjs", "seller-ui/next.config.cjs", "product-service/webpack.config.cjs", "product-service/src/swagger.cjs"  ],
   "exclude": ["node_modules", "jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }

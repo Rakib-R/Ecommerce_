@@ -5,7 +5,10 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const axiosInstance = axios.create({});
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,  // ✅ points to gateway
+  withCredentials: true,  // ✅ sends cookies automatically
+});
 
 let isRefreshing = false;
 let refreshSubscribers: Array<() => void> = [];
@@ -42,9 +45,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`
-        );
+         await axiosInstance.post("/api/refresh-token");
 
         isRefreshing = false;
         onRefreshSuccess();

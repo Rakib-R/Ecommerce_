@@ -1,21 +1,16 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join, resolve } = require('path'); // Added resolve
+const { join, resolve } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, '../../dist/apps/api-gateway'),
+    path: join(__dirname, '../../dist/apps/product-service'),
   },
+
   resolve: {
     alias: {
-      // This maps the "@/" prefix to the root of your project
-      '@': resolve(__dirname, '../../'),
-      '@packages': resolve(__dirname, '../../packages'),
+      "@packages": resolve(__dirname, "../../packages"),
     },
-
-    extensionAlias: {
-      '.js': ['.ts', '.js'],
-    },
-    extensions: ['.ts', '.js'],
+    extensions: [".js", ".ts"]
   },
   plugins: [
     new NxAppWebpackPlugin({

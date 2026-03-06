@@ -34,7 +34,7 @@ const ImagePlaceholder = ({
 
   return (
     <div
-      className={`relative ${small ? "h-[180px]" : "h-[300px]"} w-full bg-slate-900 cursor-pointer 
+      className={`relative ${small ? "h-[180px]" : "h-[400px]"} w-full bg-zinc-900 cursor-pointer 
        border border-gray-600 flex rounded-lg items-center`}
     >
       <input
@@ -81,11 +81,11 @@ const ImagePlaceholder = ({
         className="w-full h-full object-cover rounded-lg" />
       ) : (
         <div className="w-full flex flex-col items-center">
-          <p className={`text-gray-400 ${small ? "text-xl" : "text-4xl"} 
+          <p className={`text-white ${small ? "text-xl" : "text-4xl"} 
                   font-semibold`}>
               {size}          
           </p>
-          <p className={`text-gray-500  ${small ? "text-sm" : "text-lg"} pt-2 text-center`}>
+          <p className={`text-white  ${small ? "text-sm" : "text-lg"} pt-2 text-center`}>
             Please chose an image <br />according to the expected ratio
           </p>
         </div>

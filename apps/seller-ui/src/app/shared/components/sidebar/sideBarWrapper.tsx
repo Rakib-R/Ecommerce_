@@ -11,7 +11,7 @@ import Link from 'next/link';
 import Logo from '../../../assets/logo.svg'
 import Image from 'next/image';
 import SidebarItem from './sidebar.item';
-import { BellPlus, BellRing, CalendarPlus, Home, ListOrdered, LogOut, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from 'lucide-react';
+import { BellPlus, BellRing, CalendarPlus, CreditCard, Home, ListOrdered, LogOut, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from 'lucide-react';
 import SidebarMenu from './sidebar.menu';
 
 
@@ -76,7 +76,9 @@ const SideBarWrapper = () => {
       <SidebarItem
           isActive={activeSidebar === "/payments"}
           title="Payments"
-          href="/payments" icon={undefined}      
+          href="/payments" icon={
+            <CreditCard />
+          }      
           />
     </SidebarMenu>
       

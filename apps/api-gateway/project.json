@@ -15,6 +15,7 @@
         "main": "apps/api-gateway/src/main.ts",
         "tsConfig": "apps/api-gateway/tsconfig.app.json",
 
+        "watch": false,
         "isolatedModules": true,
         "webpackConfig": "apps/api-gateway/webpack.config.cjs"
       },
@@ -23,7 +24,8 @@
           "mode": "development"
         },
         "production": {
-          "mode": "production"
+          "mode": "production",
+          "watch": false
         }
       }
     },
@@ -35,14 +37,20 @@
         "buildTarget": "api-gateway:build",
         "runtimeArgs": ["--env-file=.env"],
         "inspect": false,
-        "runBuildTargetDependencies": false
+        "runBuildTargetDependencies": false,
+          "watch": false
+
       },
       "configurations": {
         "development": {
-          "buildTarget": "api-gateway:build:development"
+          "buildTarget": "api-gateway:build:development",
+          "watch": false
+
         },
         "production": {
-          "buildTarget": "api-gateway:build:production"
+          "buildTarget": "api-gateway:build:production",
+          "watch": false
+
         }
       }
     },

@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "rootDir": "../../",
+    "module": "esnext", 
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    "types": ["node", "express"],
+  
+  },
+
+  "include": [
+    "src/**/*.ts",
+    "../../packages/**/*.ts"
+, "../../packages/components/rich-text-editor/index.tsx"  ]
+}

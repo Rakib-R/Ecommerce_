@@ -25,10 +25,10 @@ router.post("/create-stripe-link", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
 
-router.post(
-  "/webhook/stripe",
-  express.raw({ type: "application/json" }), // ⚠️ Must be raw, not JSON
-  stripeWebhook
-);
+// router.post(
+//   "/webhook/stripe",
+//   express.raw({ type: "application/json" }), // ⚠️ Must be raw, not JSON
+//   stripeWebhook
+// );
 export default router;
 

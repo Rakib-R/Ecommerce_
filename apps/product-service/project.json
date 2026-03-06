@@ -1,0 +1,56 @@
+{
+  "name": "product-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/product-service/src",
+  "projectType": "application",
+  "targets": {
+
+    
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/product-service",
+        "main": "apps/product-service/src/main.ts",
+        "tsConfig": "apps/product-service/tsconfig.app.json",
+        "webpackConfig": "apps/product-service/webpack.config.cjs" 
+      },
+      "configurations": {
+        "production": { "optimization": true },
+        "development": { "optimization": false }
+      }
+    },
+
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "product-service:build",
+        "runBuildTargetDependencies": false,
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "product-service:build:development",
+          "watch": false
+         
+        },
+        "production": {
+          "buildTarget": "product-service:build:production",
+          "watch": false
+        }
+      }
+    },
+    "swagger": {
+    "executor": "nx:run-commands",
+    "options": {
+      "command": "ts-node -P apps/product-service/tsconfig.app.json apps/product-service/src/swagger.ts"
+    }
+  }
+  },
+
+  "tags": []
+}

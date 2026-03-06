@@ -90,17 +90,18 @@ export const loginUser = async (
     if (!user) return next(new AuthError("User doesn't exist!"));
     const isMatch = await bcrypt.compare(password, user.password!);
 
-      if (!isMatch) {
-        return next(new ValidationError("Invalid email or password!"));
-      }
-
-      //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
-      res.clearCookie("seller-access_token");
-      res.clearCookie("seller-refresh_token");
-      
-      if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
-      return next(new AuthError("Internal Server Error: Missing Token Secrets"));
+    if (!isMatch) {
+      return next(new ValidationError("Invalid email or password!"));
     }
+
+    //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
+    res.clearCookie("seller-access-token");
+    res.clearCookie("seller-refresh-token");
+      
+    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    return next(new AuthError("Internal Server Error: Missing Token Secrets"));
+  }
+
       const accessToken = jwt.sign(
       { id: user.id, role: "user" },
       process.env.JWT_ACCESS_SECRET as string,
@@ -114,8 +115,8 @@ export const loginUser = async (
       { expiresIn: "7d" }
     );
 
-    setCookie(res, "refreshToken", refreshToken);
-    setCookie(res, "accessToken", accessToken);
+    setCookie(res, "refresh_token", refreshToken);
+    setCookie(res, "access_token", accessToken);
 
     res.status(200).json({ message: "Login successful!", 
       user: { id: user.id, name: user.name, email: user.email } 
@@ -148,7 +149,7 @@ export const refreshToken = async (
     ) as {id: string; role: string};
     
     if (!decoded || !decoded.id || !decoded.role) {
-    return new JsonWebTokenError("Forbidden! Invalid refresh token.");
+    return next(new JsonWebTokenError("Forbidden! Invalid refresh token."));
   }
 
     let account;
@@ -160,14 +161,16 @@ export const refreshToken = async (
       include: {shop: true}
   });
 }
+    if (!account) return next(new AuthError("Account not found!"));
+
     const newAccessToken = jwt.sign(
-      { id: decoded.id }, 
-      process.env.ACCESS_TOKEN_SECRET as string, 
+      { id: decoded.id, role: decoded.role }, 
+      process.env.JWT_ACCESS_SECRET as string, 
       { expiresIn: "15m" }
     );
     
     if (decoded.role === "user") {
-      setCookie(res, "accessToken", newAccessToken);
+      setCookie(res, "access_token", newAccessToken);
     } else if (decoded.role === "seller") {
       setCookie(res, "seller-access-token", newAccessToken);
     }
@@ -181,7 +184,7 @@ export const refreshToken = async (
 };
   export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
-    res.status(201).json({ success: true, user: req.user });
+    res.status(201).json({ success: true });
   } catch (error) {
     next(error);
   }
@@ -282,7 +285,7 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
     
     const existingSeller = await prisma.sellers.findUnique({ where : { email }});
     if (existingSeller){
-      new ValidationError('Seller already exists with this email!')
+       return next(new ValidationError('Seller already exists with this email!'))
     }
 
     await verifyOtp(email, otp, next);
@@ -398,8 +401,8 @@ export const createStripeConnectLink = async (
     // 5. ✅ Create the onboarding link using saved/existing account ID
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      return_url: `http://localhost:4000/seller/connect/return`,   // ✅ Use env var
-      refresh_url: `http://localhost:4000/seller/connect/refresh`, // ✅ Use env var
+      return_url: `${process.env.SELLER_APP_URL}/seller/connect/return`,   // ✅ Use env var
+      refresh_url: `${process.env.SELLER_APP_URL}/seller/connect/refresh`,
       type: "account_onboarding",
     });
 
@@ -434,8 +437,8 @@ export const loginSeller = async (
       return next(new ValidationError("Invalid email or password!"));
     }
     //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
+    res.clearCookie("accessToken");
+    res.clearCookie("refressToken");
     
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
     return next(new AuthError("Internal Server Error: Missing Token Secrets"));
@@ -477,6 +480,10 @@ export const getSeller = async (
   res: Response,
   next: NextFunction
 ) => {
+
+    if (!req.seller) {
+    return res.status(403).json({ success: false, message: "Forbidden: Not a seller" });
+  }
   try {
     const seller = req.seller; // assuming `req.seller` is set by auth middleware
 
@@ -486,9 +493,6 @@ export const getSeller = async (
     });
 
   } catch (error) {
-    if (!req.seller) {
-    return res.status(403).json({ success: false, message: "Forbidden: Not a seller" });
-  }
     next(error);
   }
 };

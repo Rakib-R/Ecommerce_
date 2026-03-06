@@ -45,30 +45,29 @@ const app = express();
 
   // ROUTES
   // Root API ping
-  app.get('/api', (req, res) => {  
+  app.get('/auth', (req, res) => {  
     res.send({
-    message: '🔑🔑Hello Api from Auth Service 🔑🔑🔑🔑',
+    message: '🔑🔑~~ Hello From Auth Service ~~ 🔑🔑',
     status: 'Active'
   })}
 );
 
   // All API routes
-  app.use('/api', router);
+  app.use('/auth', router);
 
-  // Swagger UI
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  app.get('/api/docs-json', (req, res) => {
+  app.use('/auth/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.get('/auth/docs-json', (req, res) => {
     
   console.log('At auth service', req.headers.origin)
     res.json(swaggerDocument)
 });
-  // Error middleware last
+
   app.use(errorMiddleware);
 
 const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
-  console.log(`🔑 Auth Service running at http://127.0.0.1:${port}/api`);
+  console.log(`🔑 Auth Service running at http://127.0.0.1:${port}/auth`);
   console.log(`Swagger Docs at http://127.0.1:${port}/api/docs`);
 
 });
