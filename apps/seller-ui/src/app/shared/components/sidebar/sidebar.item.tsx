@@ -13,7 +13,7 @@ const SidebarItem = ({ icon, title, isActive, href }: SidebarItemProps) => {
     <Link href={href} className=" block group">
       <div
         className={`
-          flex gap-3 items-center w-full min-h-[48px] px-4 mb-4 rounded-xl transition-all duration-200
+          flex gap-3 items-center w-full min-h-[48px] px-3 mb-2 rounded-xl transition-all duration-200
           ${isActive 
             ? "bg-blue-500 shadow-sm scale-[0.98]" 
             : "text-gray-200 hover:bg-gray-100 hover:text-gray-900"}

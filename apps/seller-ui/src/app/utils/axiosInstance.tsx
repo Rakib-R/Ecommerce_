@@ -6,8 +6,8 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,  // ✅ points to gateway
-  withCredentials: true,  // ✅ sends cookies automatically
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,   //! IT WAS EMPTY FOR A REASON !
+   withCredentials: true,  // ✅ sends cookies automatically
 });
 
 let isRefreshing = false;
@@ -28,13 +28,15 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Attach response interceptor
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle token refresh on 401
+    if (status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve) =>
           subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
@@ -45,21 +47,25 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-         await axiosInstance.post("/api/refresh-token");
-
+        await axiosInstance.post(`product/api/refresh-token`);
         isRefreshing = false;
         onRefreshSuccess();
         return axiosInstance(originalRequest);
       } catch (err) {
         isRefreshing = false;
-        useAuthStore.getState().logout();
+        useAuthStore.getState().handleLogout()
         return Promise.reject(err);
       }
+    }
+    
+    // Handle 503 - service unavailable (backend down)
+    if (status === 503) {
+      console.error("Service unavailable:", originalRequest.url);
+     
     }
 
     return Promise.reject(error);
   }
 );
 
-// ✅ Export the instance itself
 export default axiosInstance;

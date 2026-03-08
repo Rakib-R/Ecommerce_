@@ -5,11 +5,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus, Trash, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import axiosInstance from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { Controller, useForm } from "react-hook-form";
 import Input from "packages/components/input";
 import { AxiosError } from "axios";
+import DeleteDiscountCodeModal from "../../../shared/components/modals/delete-discount-codes";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface DiscountFormValues {
   public_name: string;
@@ -21,17 +22,24 @@ interface DiscountFormValues {
 const Page = () => {
 
   const [showModal, setShowModal] = useState<Boolean>(false);
-  const queryClient = useQueryClient();
-  const { data: discountCodes = [], isLoading } = useQuery({
-    queryKey: ["shop-discounts"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/product/api/get-discount-codes");
-      return res.data?.discount_codes || [];
-    },
-}); 
+  const [showDeleteModal, setShowDeleteModal] = useState<Boolean>(false);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>();
 
-  const handleDeleteClick = async(discount: {}) => {
+  const queryClient = useQueryClient();
+
+ const { data: discountCodes = [], isLoading } = useQuery({
+  queryKey: ["shop-discounts"],
+  queryFn: async () => {
+    const res = await axiosInstance.get("/product/api/get-discount-codes");
+    return res?.data?.discount_codes || [];
+  },
+});
+
+  const handleDeleteClick = async(discount: any) => {
+    setSelectedDiscount(discount);
+    setShowModal(true);
   }
+
   const onSubmit = (data: any) => {
   if (discountCodes.length >= 8) {
     toast.error("You can only create up to 8 discount codes.");
@@ -57,18 +65,26 @@ const {
     ? "bg-white text-black"
     : "bg-transparent text-white";
 
+  const createDiscountCodeMutation = useMutation({
+    mutationFn: async (data: DiscountFormValues) => {
+      await axiosInstance.post("/product/api/create-discount-code", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
+      reset();
+      setShowModal(false);
+    },
+  });
 
-    const createDiscountCodeMutation = useMutation({
-      mutationFn: async (data: FormData) => {
-        await axiosInstance.post("/product/api/create-discount-code", data);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
-        reset();
-        setShowModal(false)
-      },
-    });
-
+  const deleteDiscountCodeMutation = useMutation({
+    mutationFn: async (discountId: string) => {
+      await axiosInstance.post(`/product/api/delete-discount-code/${discountId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
+      setShowModal(false);
+    },
+  });
     return (
     <main className="min-h-screen p-8">
       <section className="flex justify-between items-center mb-6">
@@ -92,7 +108,7 @@ const {
         <span className="text-white font-medium">Discount Codes</span>
     </div>
       
-      <div className="mt-8 p-6 bg-[#1a1c1e] rounded-lg shadow-lg">
+      <div className="mt-8 p-3 bg-[#1a1c1e] rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">
           Your Discount Codes
         </h3>
@@ -151,95 +167,109 @@ const {
       </div>
       {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}   
 
-    {showModal && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg">
-            <div className="flex justify-between items-center border-b border-gray-700 pb-3">
-              <h3 className="text-xl text-white">Create Discount Code</h3>
+              {showModal && (
+                  <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-gray-800 p-4 rounded-lg w-[450px] shadow-lg">
+                      <div className="flex justify-between items-center border-b border-gray-700 pb-3">
+                        <h3 className="text-xl text-white">Create Discount Code</h3>
 
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                <X size={22} />
-              </button>
-            </div>
+                        <button
+                          onClick={() => setShowModal(false)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          <X size={22} />
+                        </button>
+                      </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
+                      <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
 
-              {/* Title */}
-              <Input
-                label="Title (Public Name)"
-                className={`${isFocused ? "text-black/90 bg-white" : "bg-transparent text-white"}`}
-                 {...register("public_name", { required: "Title is required" })}
+                        {/* Title */}
+                        <Input
+                          label="Title (Public Name)"
+                          className={`${isFocused ? "text-black/90 bg-white" : "bg-transparent text-white"}`}
+                          {...register("public_name", { required: "Title is required" })}
 
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => {
-                    setIsFocused(false);
-                  }}/>
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => {
+                              setIsFocused(false);
+                            }}/>
 
-              {errors.public_name && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.public_name.message}
-                </p>
+                        {errors.public_name && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.public_name.message}
+                          </p>
+                        )}
+
+                        {/* Discount Type */}
+                        <div className="mt-2">
+                          <label className="text-sm text-gray-400">Discount Type</label>
+                          <Controller 
+                            control={control}
+                            name="discountType"
+                          render={({field}) => ( 
+                              <select
+                              {...register("discountType")}
+                              className="w-full bg-gray-800 text-white p-2 rounded-lg mt-1">
+                              <option value="percentage">Percentage (%)</option>
+                              <option value="flat">Flat ($)</option>
+                            </select>
+                              )}/>
+                        </div>
+
+                        {/* Discount Value */}
+                        <div className="mt-2">
+                          <Input
+                              label="Discount Value"
+                              type="number"
+                              min={1}
+                              {...register("discountValue", { 
+                                required: "Value is required",
+                                min: { value: 1, message: "Value must be at least 1" }
+                              })}
+                            />
+                        </div>
+
+                          {/* Discount Code */}
+                        <div className="mt-4">
+                          <Input
+                            label="Discount Code"
+                            {...register("discountCode", { 
+                              required: "Discount Code is required" 
+                            })}
+                          />
+                          </div>
+                        <button type="submit" className="flex items-center justify-center gap-2 w-full mt-4 p-3 bg-blue-600
+                        hover:bg-blue-700 rounded-lg font-semibold"
+                        disabled={createDiscountCodeMutation.isPending}>
+
+                          <Plus size={18}/>
+                          {createDiscountCodeMutation?.isPending ? "Creating ... " : "Create"}
+                        </button>
+                        {
+                          createDiscountCodeMutation.isError &&
+                          (
+                            <p className="text-sm mt-2">
+                              {
+                                (createDiscountCodeMutation.error as AxiosError<{
+                                  message: string;
+                                }>)?.response?.data?.message || "Something went wrong"
+                              }
+                            </p>
+                          )
+                        }
+                      </form>
+                    </div>
+                  </div>
               )}
 
-              {/* Discount Type */}
-              <div className="mt-2">
-                <label className="text-sm text-gray-400">Discount Type</label>
-                <Controller 
-                  control={control}
-                  name="discountType"
-                render={({field}) => ( 
-                    <select
-                    {...register("discountType")}
-                    className="w-full bg-gray-800 text-white p-2 rounded-lg mt-1">
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="flat">Flat ($)</option>
-                  </select>
-                     )}/>
-              </div>
-
-              {/* Discount Value */}
-              <div className="mt-2">
-                <Input
-                    label="Discount Value"
-                    type="number"
-                    min={1}
-                    {...register("discountValue", { 
-                      required: "Value is required",
-                      min: { value: 1, message: "Value must be at least 1" }
-                    })}
-                  />
-              </div>
-
-                {/* Discount Code */}
-              <div className="mt-4">
-                <Input
-                  label="Discount Code"
-                  {...register("discountCode", { 
-                    required: "Discount Code is required" 
-                  })}
+              {showDeleteModal && selectedDiscount && (
+              <DeleteDiscountCodeModal
+                discount={selectedDiscount}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={() => deleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
                 />
-                </div>
-              <button type="submit" className="flex items-center justify-center gap-2 w-full mt-4 p-3 bg-blue-600
-               hover:bg-blue-700 rounded-lg font-semibold"
-               disabled={createDiscountCodeMutation.isPending}>
+              )}
 
-                <Plus size={18}/>
-                {createDiscountCodeMutation?.isPending ? "Creating ... " : "Create"}
-              </button>
-
-              {createDiscountCodeMutation.isError && (
-            <p className="text-red-500 text-sm mt-2">
-              {(createDiscountCodeMutation.error as 
-                AxiosError<{ message: string }>)?.response?.data?.message || "Something went wrong"}
-            </p>
-          )}
-            </form>
-          </div>
-        </div>
-    )}
   </main>
   );
 };

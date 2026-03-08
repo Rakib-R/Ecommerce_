@@ -42,7 +42,7 @@
     "next.config.mjs",
     ".next/types/**/*.ts",
      "next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"
-  ],
+, "../../packages/libs/imageKit/index.ts"  ],
   "exclude": [
     "node_modules",
     "jest.config.ts",

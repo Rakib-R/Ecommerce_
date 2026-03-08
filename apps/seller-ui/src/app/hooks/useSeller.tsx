@@ -15,6 +15,7 @@ const useSeller = () => {
   queryFn: fetchSeller,
   staleTime: 1000 * 60 * 5,
   retry: 1,
+  enabled: false
 });
 
   return { seller, isLoading, isError, refetch };

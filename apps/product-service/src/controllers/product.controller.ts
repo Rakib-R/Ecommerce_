@@ -2,15 +2,20 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "@packages/prisma";
 import { NotFoundError, ValidationError } from "@packages/error-handler";
+import { imagekit } from "packages/libs/imageKit";
 
-// get product categories
+// GET product categories
 export const getCategories = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+
+    console.log('🟢 Querying DB...');
     const config = await prisma.site_config.findFirst();
+    console.log('🟢 DB done:🟢 DB done:', config); 
+    
     if(!config) {
         return res.status(404).json({ message: "Categories are not found"})
     }
@@ -20,7 +25,9 @@ export const getCategories = async (
     })
 
   } catch (error) {
-    return next(error);
+    console.error('getCategories error:', error);
+    return res.status(500).json({ error: 'Internal server & getCategories error' }); 
+  
   }
 };
 
@@ -69,7 +76,7 @@ export const createDiscountCodes = async (
 };
 
 
-// Get all discount codes for the current seller
+// GET all discount codes for the current seller
 export const getDiscountCodes = async (
   req: any,
   res: Response,
@@ -126,6 +133,27 @@ export const deleteDiscountCode = async (
       success: true,
       message: "Discount code deleted successfully",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// Upload product image
+export const uploadProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { fileName } = req.body; 
+    const response = await imagekit.upload({
+      file : fileName,
+      fileName: `product-${Date.now()}.jpg`,
+      folder: "/products" 
+    });
+
+    res.status(200).json({ data: response , file_url: response.url, fileName: response.fileId});
   } catch (error) {
     next(error);
   }

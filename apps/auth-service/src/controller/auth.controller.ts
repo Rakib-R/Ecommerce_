@@ -193,7 +193,7 @@ export const userForgotPassword = async (req: Request, res: Response, next: Next
   await  handleForgotPassword(req, res, next, "buyer");
 };
 
-// Verify forgot password OTP
+// Verify forgot password OTP for User !
 export const verifyUserForgotPassword = async (
   req: Request,
   res: Response,
@@ -409,7 +409,7 @@ export const createStripeConnectLink = async (
     return res.status(200).json({ url: accountLink.url });
 
   } catch (error: any) {
-    // 6. ✅ Surface Stripe-specific errors clearly
+    
     if (error?.type?.startsWith("Stripe")) {
       console.error("Stripe Error:", error.message);
       return next(new Error(`Stripe error: ${error.message}`));
@@ -481,7 +481,7 @@ export const getSeller = async (
   next: NextFunction
 ) => {
 
-    if (!req.seller) {
+  if (!req.seller) {
     return res.status(403).json({ success: false, message: "Forbidden: Not a seller" });
   }
   try {
@@ -526,3 +526,48 @@ export const stripeWebhook = async (req: Request, res: Response, next: NextFunct
 
   res.json({ received: true });
 };
+
+export const sellerForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  await  handleForgotPassword(req, res, next, "seller");
+};
+
+// Verify forgot password OTP For Seller !
+export const verifySellerForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => await verifyForgotPasswordOtp(req, res, next);
+
+export const resetSellerPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword)
+      throw new ValidationError("Email and new password are required!");
+
+    const seller = await prisma.sellers.findUnique({ where: { email } });
+    if (!seller) return next(new ValidationError("Seller not found!"));
+
+    // compare new password with the existing one
+    const isSamePassword = await bcrypt.compare(newPassword, seller.password!);
+    if (isSamePassword)
+      throw new ValidationError("New password cannot be the same as the old password!");
+    
+    // hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await prisma.sellers.update({
+        where: { email },
+        data: { password: hashedPassword },
+      });
+      
+    res.status(200).json({ message: "Password reset successfully!" });
+
+  } catch (error) {
+    return next(error);
+  }
+};
+

@@ -12,7 +12,7 @@ export const SidebarWrapper = styled.div<SidebarWrapperProps>`
   transition: transform 0.2s ease;
   height: 100%;
   position: fixed;
-  width: 16rem;
+  width: 5rem;
   flex-shrink: 0;
   z-index: 202;
   overflow-y: auto;
@@ -76,23 +76,21 @@ export const Header = styled.div`
 
 // Body container
 export const Body = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-l);
-  margin-top: var(--space-13);
-  padding-left: var(--space-4);
-  padding-right: var(--space-4);
-  padding-bottom: var(--space-8);
-  min-height: calc(100vh - 100px); /* leave space for footer */
-  color: var(--text-color, #111);
-  font-family: var(--font-primary, "Poppins", sans-serif);
-  line-height: 1.6;
+  // display: flex;
+  // flex-direction: column;
+  // gap: var(--space-l);
+  // margin-top: var(--space-13);
+  // padding: (8px, 8px);
+  // min-height: calc(100vh - 100px); /* leave space for footer */
+  // color: var(--text-color, #111);
+  // font-family: var(--font-primary, "Poppins", sans-serif);
+  // line-height: 1.6;
 
-  @media (max-width: 768px) {
-    padding-left: var(--space-3);
-    padding-right: var(--space-3);
-    gap: var(--space-m);
-  }
+  // @media (max-width: 768px) {
+  //   padding-left: var(--space-3);
+  //   padding-right: var(--space-3);
+  //   gap: var(--space-m);
+  // }
 `;
 
 // export const Body = styled.div`
