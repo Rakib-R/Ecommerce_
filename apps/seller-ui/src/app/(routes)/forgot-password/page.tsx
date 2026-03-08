@@ -20,7 +20,7 @@ type FormData = {
 
 const ForgotPassword = () => {
   const [step, setStep] = useState<Step>("email");
-  const [userEmail, setUserEmail] = useState("");
+  const [sellerEmail, setSellerEmail] = useState("");
   const [otp, setOtp] = useState<string[]>(new Array(4).fill(""));
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -56,13 +56,13 @@ const ForgotPassword = () => {
   const requestOtpMutation = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/forgot-password-buyer`, 
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/forgot-password-seller`, 
         { email }
       );
       return response.data;
     },
     onSuccess: (data, { email }) => {
-      setUserEmail(email);
+      setSellerEmail(email);
       setTempEmail(email);
       if (step === "email") setStep("otp"); // Only move step if we aren't already there
       setServerError(null);
@@ -80,8 +80,8 @@ const ForgotPassword = () => {
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-forgot-password-buyer`,
-        { email: userEmail, otp: otp.join("") }
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-forgot-password-seller`,
+        { email: sellerEmail, otp: otp.join("") }
       );
       return response.data;
     },
@@ -97,8 +97,8 @@ const ForgotPassword = () => {
   // 3. Reset Password
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ password }: { password: string }) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-user-password`, {
-        email: userEmail,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-seller-password`, {
+        email: sellerEmail,
         newPassword: password,
       });
       return response.data;
@@ -146,7 +146,7 @@ const ForgotPassword = () => {
   const handleResendOtp = () => {
     setServerError(null); 
     if (canResend) {
-      requestOtpMutation.mutate({ email: userEmail });
+      requestOtpMutation.mutate({ email: sellerEmail });
     }
   };
 
@@ -173,7 +173,7 @@ const ForgotPassword = () => {
               {step === "reset" && "Create New Password"}
             </h3>
             <p className="text-center text-gray-500 mt-2 text-sm px-6">
-              {step === "otp" ? `Code sent to ${userEmail}` : "Secure your account with a new password."}
+              {step === "otp" ? `Code sent to ${sellerEmail}` : "Secure your account with a new password."}
             </p>
           </div>
 

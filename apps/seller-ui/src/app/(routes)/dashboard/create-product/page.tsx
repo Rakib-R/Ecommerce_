@@ -11,10 +11,21 @@ import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
 import { SizeSelector } from 'packages/components/size-selector';
 
+import Link from 'next/link';
 import { Controller, ControllerFieldState, ControllerRenderProps, FieldValues, useForm, UseFormStateReturn } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
-import Link from 'next/link';
+
+// Fix — explicitly grab the default export and type it
+// At module level, outside your component
+const RichTextEditor = dynamic(
+  () => import('packages/components/rich-text-editor').then(mod => mod.default),
+  {
+    ssr: false,
+    loading: () => <div className="h-40 w-full bg-zinc-800 animate-pulse rounded-md" />
+  }
+);
+
 
 const page = () => {
 
@@ -30,8 +41,10 @@ const page = () => {
     queryKey: ["categories"],
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get("/product/api/get-categories");
-        return res.data;
+       const res = await axiosInstance.get("/product/api/get-categories");
+       console.log('Categories :', res.data,)
+      return res.data;
+
       } catch (error) {
         throw new Error("Failed to fetch categories");
       }
@@ -40,13 +53,15 @@ const page = () => {
     retry: 2,
   });
 
-  const RichTextEditor = useMemo(() => dynamic(
-  () => import('packages/components/rich-text-editor'),
-  { 
-    ssr: false,
-    loading: () => <div className="h-40 w-full bg-zinc-800 animate-pulse rounded-md" /> 
-  }),[]);
-  
+
+ const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
+      queryKey: ["shop-discounts"],
+      queryFn: async () => {
+     const res = await axiosInstance.get("/product/api/get-discount-codes");
+      return res?.data?.discount_codes || [];
+  },
+});
+
   const categories = data?.categories || [];
   const subCategoriesData = data?.subCategories || {};
 
@@ -63,41 +78,53 @@ const page = () => {
   console.log(data);
   };
 
-  const handleImageChange = (file: File | null, index: number) => {
-  const updatedImages = [...images];
-  updatedImages[index] = file;
-  
-  if (index >= images.length && images.length < 1) {
-  const updatedImages = [...images];
-  updatedImages.push(null);
-  setImages(updatedImages);
-  setValue("images", updatedImages)
-}
-  };
-    const handleRemoveImage = (index: number) => {
-      setImages((prevImages) => {
-        const updatedImages = [...prevImages];
+  const handleImageChange = async (file: File | null, index: number) => {
+    if (!file) return;
+    try {
+      const fileName = await convertFileToBase64(file);
+      const response = await axiosInstance.post("/product/api/upload-product-image", 
+        { fileName }); //! HAVE TO BE AN OBJECT !
+       const updatedImages = [...images];
+       updatedImages[index] = response?.data.file_url;
 
-        if (index >= updatedImages.length) {
-          return updatedImages;
-        }
-        if (index === 0) {
-          updatedImages[0] = null;
-        } else {
-          updatedImages.splice(index, 1);
-        }
-
-      if (!updatedImages.includes(null) && updatedImages.length < 1) {
+    if (index >= images.length - 1 && images.length < 8) {
         updatedImages.push(null);
-      }
-        setValue("images", updatedImages);
-        return updatedImages;
-      });
-};
-    const hanldeSaveDraft = () =>{
-
+        setImages(updatedImages);
+        setValue("images", updatedImages)
     }
-  
+    } catch (error) {
+    console.error("Image Kit upload failed !");
+    }
+
+    const updatedImages = [...images];
+    updatedImages[index] = file;
+
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prevImages) => {
+      const updatedImages = [...prevImages];
+
+      if (index >= updatedImages.length) {
+        return updatedImages;
+      }
+      if (index === 0) {
+        updatedImages[0] = null;
+      } else {
+        updatedImages.splice(index, 1);
+      }
+
+    if (!updatedImages.includes(null) && updatedImages.length < 1) {
+      updatedImages.push(null);
+    }
+      setValue("images", updatedImages);
+      return updatedImages;
+    });
+};
+  const hanldeSaveDraft = () =>{
+
+  }
+
    return (
   <form 
     className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
@@ -112,39 +139,43 @@ const page = () => {
       <span>Create Products</span>
     </div>
 
-      {/* Content Layout */}
+       {/* BreadCrumbs */}   {/* BreadCrumbs */} {/* BreadCrumbs */}
       <main className="w-full flex gap-6 py-4 bg-black/90 ">
+
       {/* Left side Image upload section */}
-        <section className="md:w-[35%]">
-            {images?.length > 0 && (
-              <ImagePlaceholder
+      {/* Left side Image upload section */}
+      <section className="md:w-[35%]">
+          {images?.length > 0 && (
+            <ImagePlaceholder
+            setOpenImageModal={setOpenImageModal}
+            size="765 x 850"
+            small={false}
+            index={0}
+            onImageChange={handleImageChange}
+            onRemove={handleRemoveImage}
+            />
+          )}
+
+          <aside className="grid grid-cols-2 gap-3 mt-4">
+          {images.slice(1).map((_, index) => (
+            <ImagePlaceholder
+              key={index}
+              small
+              index={index + 1}
               setOpenImageModal={setOpenImageModal}
               size="765 x 850"
-              small={false}
-              index={0}
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
-              />
-            )}
+            />
+          ))}
+        </aside>
+        </section>
 
-           <aside className="grid grid-cols-2 gap-3 mt-4">
-            {images.slice(1).map((_, index) => (
-              <ImagePlaceholder
-                key={index}
-                small
-                index={index + 1}
-                setOpenImageModal={setOpenImageModal}
-                size="765 x 850"
-                onImageChange={handleImageChange}
-                onRemove={handleRemoveImage}
-              />
-            ))}
-          </aside>
-         </section>
+    {/* Right side - form inputs --------  --------   Right side - form inputs */} 
+    {/* Right side - form inputs --------  --------   Right side - form inputs */} 
 
-        {/* Right side - form inputs --------  --------   Right side - form inputs */} 
-      <section className='flex gap-4 md:w-[65%] '>
-        <aside className='flex flex-col gap-2 w-full mr-8 md:w-3/5 md:mr-0'>
+    <section className='flex gap-6 md:w-[65%] '>
+      <aside className='flex flex-col gap-2 md:w-[57%]'>
 
       {/* TITLE */}
       <Input 
@@ -512,6 +543,33 @@ const page = () => {
           <label className="font-semibold block mb-2">
             Select Discount Codes <span className="text-gray-400 font-normal">(optional)</span>
           </label>
+
+          {discountLoading ? (
+            <p>Loading discount codes...</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {discountCodes?.map((code : any) => (
+                <button
+                  key={code.id}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold border ${watch("countCodes") 
+                    ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"
+                  } hover:opacity-90 transition`}
+
+                  onClick={() => {
+                  const currentSelection = watch("discountCodes") || [];
+                  const updatedSelection = currentSelection.includes(code.id)
+                    ? currentSelection.filter(
+                      (id: string) => id !== code.id)
+                    : [...currentSelection, code.id];
+                  setValue("discountCodes", updatedSelection);
+                }}
+                >
+                  {code?.public_name} {" "} ({code?.discount_value} 
+                  {code?.discount_type === "percentage" ? "%" : "$"})
+                </button>
+              ))}
+            </div>
+          )}
         </div>
             <div className="mt-6 flex justify-end gap-3">
           {isChanged && (

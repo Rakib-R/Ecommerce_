@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`min-h-screen Übg-s1ate-9@0 font-sans antialiased ${poppins.className}`}>
+      <body className={`min-h-screen font-sans antialiased ${poppins.className}`}>
         <Providers>
 
           {children}

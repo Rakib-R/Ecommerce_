@@ -12,6 +12,8 @@ import CreateShop from '../../shared/modules/auth/create-shop';
 import Stripe from "../../assets/stripe.jpeg";
 import Image from 'next/image';
 import { useSellerRegistrationStore } from '../../store/useSellerRegistrationStore';
+import { AnimatePresence, motion } from "framer-motion";
+
 
 type FormData = {
   name: string;
@@ -30,6 +32,12 @@ const FieldError = ({ message }: { message?: string }) => {
     </span>
   );
 };
+
+  const stepVariants = {
+    enter: { opacity: 0, y: 80 },
+    center: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -80 },
+  };
 
 const SignUp = () => {
   // ── Read EVERYTHING that controls which step renders from the store ──────────
@@ -85,36 +93,53 @@ const SignUp = () => {
     return () => clearInterval(interval);
   }, [canResend, timer]);
 
- useEffect(() => {
-  if (_hasHydrated && step1Values) {
-    reset({
-      name: step1Values.name,
-      email: step1Values.email,
-      country: step1Values.country,
-      phone_number: step1Values.phone_number?.replace(dialCode, ""), // Clean the dial code
-      password: step1Values.password,
-    });
-  }
-}, [_hasHydrated, step1Values, reset]);
+    //! Only run once when hydration completes
+    // !← only on hydration, nothing else
+  useEffect(() => {
+    if (_hasHydrated && step1Values) {
+      reset({
+        name: step1Values.name,
+        email: step1Values.email,
+        country: step1Values.country,
+        phone_number: step1Values.phone_number?.replace(dialCode, ""), // Clean the dial code
+        password: step1Values.password,
+      });
+    }
+  }, [_hasHydrated]);
+
+  // CLEARS UP SUCCESS MESSAGE
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(null), 3000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
 
 
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/seller-registration`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/seller-registration`,
         data
       );
       return response.data;
     },
     onSuccess: () => {
+      // Clear the signup error when OTP panel opens 
+      signupMutation.reset();
       setShowOtp(true);
       setCanResend(false);
       setTimer(60);
     },
   });
 
+  
   const onSubmit = (data: FormData) => {
+
+    // ✅ Guard against double fire
+    if (signupMutation.isPending) return;
     const payload = { ...data, phone_number: `${dialCode}${data.phone_number}` };
+
     // Save BEFORE the network call — if connection drops, form stays filled
     saveStep1Values(payload);
     setSellerData(payload);
@@ -125,7 +150,7 @@ const SignUp = () => {
     mutationFn: async () => {
       if (!sellerData) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/verify-seller`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-seller`,
         { ...sellerData, otp: otp.join('') }
       );
       return response.data;
@@ -141,6 +166,10 @@ const SignUp = () => {
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^[0-9]$/.test(value) && value !== "") return;
+    
+    if (value && verifyOtpMutation.isError || AxiosError) {
+      verifyOtpMutation.reset();
+  }
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -160,13 +189,29 @@ const SignUp = () => {
     }
   };
 
-  const resendOtp = () => {
-    if (sellerData) {
-      signupMutation.mutate(sellerData);
-      setCanResend(false);
-      setTimer(60);
-    }
-  };
+const resendOtpMutation = useMutation({
+  mutationFn: async () => {
+    if (!sellerData) return;
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_SERVER_URI}/api/seller-registration`,
+      sellerData
+    );
+    return response.data;
+  },
+  onSuccess: () => {
+    setCanResend(false);
+    setTimer(60);
+    toast.success("OTP resent!");
+  },
+  onError: () => {
+    toast.error("Failed to resend OTP. Try again.");
+  }
+});
+
+const resendOtp = () => {
+  if (!sellerData || resendOtpMutation.isPending) return;
+  resendOtpMutation.mutate();
+};
 
   const getErrorMessage = (error: unknown) => {
     if (error instanceof AxiosError) {
@@ -177,10 +222,9 @@ const SignUp = () => {
 
   const connectStripe = async () => {
     try {
-
       console.log("Stripe Key Loaded:", process.env.STRIPE_SECRET_KEY?.substring(0, 8) + "...");
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/create-stripe-link`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
         { sellerId }
       );
       if (response.data.url) {
@@ -262,8 +306,17 @@ const SignUp = () => {
         </div>
       )}
 
+    <AnimatePresence mode="wait" initial={false}>
+     <motion.section className='flex'
+         key={activeStep}
+          variants={stepVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.3, ease: "easeInOut" }}>
+      
       {/* ── STEP 1 ── */}
-      {activeStep === 1 && (
+      { activeStep === 1 && (
         <div className="w-full flex justify-center">
           <section className="w-[90%] md:w-[480px] bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
             <div className="px-8 pt-8 pb-2">
@@ -288,166 +341,171 @@ const SignUp = () => {
               </div>
             )}
 
-            {!showOtp ? (
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-8">
-                <div className="relative pb-2">
-                  <label className="block text-sm font-semibold mb-1 text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    placeholder="Mona Mia"
-                    className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm
-                      ${errors.name ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
-                    {...register("name", { required: "Name is required" })}
-                  />
-                  <FieldError message={errors.name?.message} />
-                </div>
+          {!showOtp ? (
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-8">
+              <div className="relative pb-2">
+                <label className="block text-sm font-semibold mb-1 text-gray-700">Name</label>
+                <input
+                  type="text"
+                  placeholder="Mona Mia"
+                  className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm
+                    ${errors.name ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
+                  {...register("name", { required: "Name is required" })}
+                />
+                <FieldError message={errors.name?.message} />
+              </div>
 
-                <div className="relative pb-2">
-                  <label className="block text-sm font-semibold mb-1 text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    placeholder="you@email.com"
-                    className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm
-                      ${errors.email ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email address" },
-                    })}
-                  />
-                  <FieldError message={errors.email?.message} />
-                </div>
+              <div className="relative pb-2">
+                <label className="block text-sm font-semibold mb-1 text-gray-700">Email</label>
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm
+                    ${errors.email ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email address" },
+                  })}
+                />
+                <FieldError message={errors.email?.message} />
+              </div>
 
-                <div className="relative pb-2">
-                  <label className="block text-sm font-semibold mb-1 text-gray-700">Country</label>
+              <div className="relative pb-2">
+                <label className="block text-sm font-semibold mb-1 text-gray-700">Country</label>
+                <select
+                  className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm bg-white
+                    ${errors.country ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
+                  {...register("country", { required: "Country is required" })}
+                >
+                  <option value="">Select your country</option>
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.code}>{country.name}</option>
+                  ))}
+                </select>
+                <FieldError message={errors.country?.message} />
+              </div>
+
+              <div className="relative pb-2">
+                <label className="block text-sm font-semibold mb-1 text-gray-700">Phone Number</label>
+                <div className={`flex border rounded-lg overflow-hidden transition-all
+                  ${errors.phone_number ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100"}`}>
                   <select
-                    className={`w-full p-2.5 border rounded-lg outline-none transition-all text-sm bg-white
-                      ${errors.country ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
-                    {...register("country", { required: "Country is required" })}
+                    value={dialCode}
+                    onChange={(e) => setDialCode(e.target.value)}
+                    className="shrink-0 bg-gray-50 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer
+                      hover:bg-gray-100 transition-colors"
                   >
-                    <option value="">Select your country</option>
                     {countries.map((country) => (
-                      <option key={country.code} value={country.code}>{country.name}</option>
+                      <option key={country.code} value={country.dialCode}>
+                        {country.dialCode} {country.name}
+                      </option>
                     ))}
                   </select>
-                  <FieldError message={errors.country?.message} />
+                  <input
+                    type="tel"
+                    placeholder="1234567890"
+                    className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
+                    {...register("phone_number", {
+                      required: "Phone number is required",
+                      pattern: { value: /^\d{6,14}$/, message: "Enter digits only, 6–14 characters" },
+                    })}
+                  />
                 </div>
+                <FieldError message={errors.phone_number?.message} />
+              </div>
 
-                <div className="relative pb-2">
-                  <label className="block text-sm font-semibold mb-1 text-gray-700">Phone Number</label>
-                  <div className={`flex border rounded-lg overflow-hidden transition-all
-                    ${errors.phone_number ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100"}`}>
-                    <select
-                      value={dialCode}
-                      onChange={(e) => setDialCode(e.target.value)}
-                      className="shrink-0 bg-gray-50 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer
-                       hover:bg-gray-100 transition-colors"
-                    >
-                      {countries.map((country) => (
-                        <option key={country.code} value={country.dialCode}>
-                          {country.dialCode} {country.name}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="tel"
-                      placeholder="1234567890"
-                      className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
-                      {...register("phone_number", {
-                        required: "Phone number is required",
-                        pattern: { value: /^\d{6,14}$/, message: "Enter digits only, 6–14 characters" },
-                      })}
-                    />
-                  </div>
-                  <FieldError message={errors.phone_number?.message} />
+              <div className="relative pb-2">
+                <label className="block text-sm font-semibold mb-1 text-gray-700">Password</label>
+                <div className={`flex border rounded-lg overflow-hidden transition-all
+                  ${errors.password ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100"}`}>
+                  <input
+                    type={passwordVisible ? "text" : "password"}
+                    placeholder="Min. 6 characters"
+                    className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: { value: 6, message: "Password too short" },
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    className="px-3 text-gray-400 hover:text-gray-600 transition-colors bg-white"
+                  >
+                    {passwordVisible ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
+                <FieldError message={errors.password?.message} />
+              </div>
 
-                <div className="relative pb-2">
-                  <label className="block text-sm font-semibold mb-1 text-gray-700">Password</label>
-                  <div className={`flex border rounded-lg overflow-hidden transition-all
-                    ${errors.password ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100"}`}>
-                    <input
-                      type={passwordVisible ? "text" : "password"}
-                      placeholder="Min. 6 characters"
-                      className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
-                      {...register("password", {
-                        required: "Password is required",
-                        minLength: { value: 6, message: "Password too short" },
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setPasswordVisible(!passwordVisible)}
-                      className="px-3 text-gray-400 hover:text-gray-600 transition-colors bg-white"
-                    >
-                      {passwordVisible ? <Eye size={18} /> : <EyeOff size={18} />}
-                    </button>
-                  </div>
-                  <FieldError message={errors.password?.message} />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={signupMutation.isPending}
-                  className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-zinc-800 disabled:bg-zinc-400 transition-all flex justify-center items-center gap-2 mt-1"
-                >
-                  {signupMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : "Create Account"}
-                </button>
-              </form>
-            ) : (
-              <div className="flex flex-col items-center gap-6 px-8 py-8">
-                <p className="text-sm text-center text-gray-500">
-                  Enter the 4-digit code sent to{" "}
-                  <span className="font-bold text-gray-900">{sellerData?.email}</span>
+              <button
+                type="submit"
+                disabled={signupMutation.isPending}
+                className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-zinc-800 disabled:bg-zinc-400 transition-all flex justify-center items-center gap-2 mt-1"
+              >
+                {signupMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : "Create Account"}
+              </button>
+            </form>
+          ) : (
+            <div className="flex flex-col items-center gap-6 px-8 py-8">
+              <p className="text-sm text-center text-gray-500">
+                Enter the 4-digit code sent to{" "}
+                <span className="font-bold text-gray-900">{sellerData?.email}</span>
+              </p>
+              <div className="flex justify-center gap-3">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    ref={(el) => { if (el) inputRefs.current[index] = el; }}
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white bg-gray-50 outline-none transition-all"
+                  />
+                ))}
+              </div>
+              <button
+                disabled={verifyOtpMutation.isPending || !!successMessage}
+                onClick={() => verifyOtpMutation.mutate()}
+                className={`w-full py-3 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg
+                  ${successMessage ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100"}`}
+              >
+                {verifyOtpMutation.isPending
+                  ? <Loader2 className="animate-spin" size={18} />
+                  : successMessage ? <CheckCircle2 size={18} /> : "Verify OTP"}
+              </button>
+              {verifyOtpMutation.isError && verifyOtpMutation.error instanceof AxiosError && (
+                <p className="text-sm text-red-500">
+                  {verifyOtpMutation.error.response?.data?.message || verifyOtpMutation.error.message}
                 </p>
-                <div className="flex justify-center gap-3">
-                  {otp.map((digit, index) => (
-                    <input
-                      key={index}
-                      type="text"
-                      ref={(el) => { if (el) inputRefs.current[index] = el; }}
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                      className="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white bg-gray-50 outline-none transition-all"
-                    />
-                  ))}
-                </div>
-                <button
-                  disabled={verifyOtpMutation.isPending || !!successMessage}
-                  onClick={() => verifyOtpMutation.mutate()}
-                  className={`w-full py-3 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg
-                    ${successMessage ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100"}`}
-                >
-                  {verifyOtpMutation.isPending
-                    ? <Loader2 className="animate-spin" size={18} />
-                    : successMessage ? <CheckCircle2 size={18} /> : "Verify OTP"}
-                </button>
-                {verifyOtpMutation.isError && verifyOtpMutation.error instanceof AxiosError && (
-                  <p className="text-sm text-red-500">
-                    {verifyOtpMutation.error.response?.data?.message || verifyOtpMutation.error.message}
-                  </p>
-                )}
-                <div className="text-sm">
-                  {canResend ? (
-                    <button onClick={resendOtp} className="text-blue-600 font-bold hover:underline">Resend OTP</button>
+              )}
+              <div className="text-sm">
+                {canResend ? (
+                  <button onClick={resendOtp} disabled={resendOtpMutation.isPending}
+                    className="text-blue-600 font-bold hover:underline disabled:opacity-50">
+                     {resendOtpMutation.isPending 
+                      ? <Loader2 className="animate-spin inline" size={14} /> 
+                         : "Resend OTP"}   
+                        </button>
                   ) : (
                     <span className="text-gray-400 italic">
                       Resend available in <span className="text-black font-bold">{timer}s</span>
                     </span>
-                  )}
-                </div>
+                )}
               </div>
-            )}
-          </section>
-        </div>
-      )}
+            </div>
+          )}
+        </section>
+      </div>
+    )}
 
       {/* ── STEP 2 ── */}
-      {activeStep === 2 && <CreateShop setActiveStep={setActiveStep} />}
+      { activeStep === 2 && <CreateShop setActiveStep={setActiveStep} />}
 
       {/* ── STEP 3 ── */}
-      {activeStep === 3 && (
+      { activeStep === 3 && (
         <section className="text-center">
           <h3 className="text-2xl font-semibold text-gray-800">Withdraw Method</h3>
           <p className="text-gray-500 mt-2">Connect your payout account to start receiving payments.</p>
@@ -461,6 +519,9 @@ const SignUp = () => {
           </button>
         </section>
       )}
+
+    </motion.section>
+</AnimatePresence>
     </main>
   );
 };

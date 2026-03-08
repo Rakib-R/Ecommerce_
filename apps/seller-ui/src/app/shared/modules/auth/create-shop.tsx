@@ -63,7 +63,7 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
   const shopCreateMutation = useMutation({
     mutationFn: async (data: ShopFormValues & { sellerId: string }) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/create-shop`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`,
         data
       );
       return response.data;

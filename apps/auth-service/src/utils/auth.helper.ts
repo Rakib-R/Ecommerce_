@@ -72,7 +72,7 @@ email: string, otp: string, next: NextFunction
   
   const storedOtp = await redis.get(`otp:${email}`); // <-- FIXED
   if (!storedOtp) {
-    console.log("😍👌👌❤😜storedOtp storedOtp storedOtp 😍👌👌❤😜",storedOtp)
+    console.log("😍😜storedOtp storedOtp storedOtp 😍👌👌❤😜",storedOtp)
     throw new ValidationError('Invalid or expired OTP!');
   }
   const failedAttemptsKey = `${email}:otp:attempts`;

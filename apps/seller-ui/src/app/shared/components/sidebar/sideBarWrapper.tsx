@@ -18,7 +18,7 @@ import SidebarMenu from './sidebar.menu';
 const SideBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
-  const { seller } = useSeller();
+  const {seller } = useSeller();
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -26,21 +26,18 @@ const SideBarWrapper = () => {
 
   const getIconColor = (route: string) => activeSidebar === route ? "#0085ff" : "#969696"
   return (
-    <Box
-    style={{
+    <Box style={{
       height: "100vh",
       zIndex: 202,
       position: "sticky",
-      padding: "8px",
       top: 0,
       overflowY: "scroll",
       scrollbarWidth: 'none',
   }}
-    className='sidebar-wrapper'
->
+    className='sidebar-wrapper'>
   <Sidebar.Header>
   <Box>
-    <Link href="/" className="flex  gap-2">
+    <Link href="/" className="flex gap-2">
       <Image width={40} height={40} src={Logo} alt='Logo'/>
       <Box>
         <h3 className="text-xl font-medium text-[#ecedee]">{seller?.shop?.name}</h3>
@@ -52,7 +49,7 @@ const SideBarWrapper = () => {
   </Box>
 </Sidebar.Header>
 
-  <main className="block my-3 h-full ">
+  <main className="block my-2 h-full ">
   <Sidebar.Body className="body sidebar">
     <SidebarItem
       title="Dashboard"
@@ -173,7 +170,7 @@ const SideBarWrapper = () => {
         <SidebarItem
           isActive={activeSidebar === "/logout"}
           title="Logout"
-          href="/logout"
+          href="/login"
           icon={
             <LogOut
               size={22}

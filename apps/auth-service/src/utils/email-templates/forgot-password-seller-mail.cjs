@@ -19,21 +19,42 @@ module.exports = {
     </head>
     <body>
       <div class="email-wrapper">
-        <div class="email-container">
-          <div class="email-header"><h1>Password Reset Request – Eshop</h1></div>
-          <div class="email-body">
-            <p>Hello <span class="highlight"><%= name %></span>,</p>
-            <p>We received a request to reset your password for your Eshop account.</p>
-            <p>Use the OTP below to reset your password:</p>
-            <div style="margin:25px 0;text-align:center;">
-              <div class="otp-code"><%= otp %></div>
-            </div>
-            <p>This OTP is valid for the next <span class="highlight">5 minutes</span>.</p>
-            <p>If you did not request this, you can safely ignore this email.</p>
-          </div>
-          <div class="email-footer">© <%= new Date().getFullYear() %> Eshop. All rights reserved.</div>
-        </div>
+    <div class="email-container">
+      
+      <div class="email-header">
+        <h1>Password Reset Request – Ecommerce</h1>
       </div>
+
+      <div class="email-body">
+        <p>Hello <span class="highlight"><%= name %></span>,</p>
+
+        <p>
+          We received a request to reset your password for your Ecommerce account.
+        </p>
+
+        <p>
+          If you made this request, please use the OTP below to reset your password:
+        </p>
+
+        <div class="otp-box">
+          <div class="otp-code"><%= otp %></div>
+        </div>
+
+        <p>
+          This OTP is valid for the next <span class="highlight">5 minutes</span>.
+        </p>
+
+        <p>
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
+      </div>
+
+      <div class="email-footer">
+        © <%= new Date().getFullYear() %> Ecommerce. All rights reserved.
+      </div>
+
+    </div>
+  </div>
     </body>
  </html>
 

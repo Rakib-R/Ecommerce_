@@ -66,8 +66,8 @@ export const useSellerRegistrationStore = create<SellerRegistrationState>()(
       name: "seller-registration",
 
       // Called automatically by Zustand once localStorage has been read
-      // and merged into the store. We flip _hasHydrated here so components
-      // know the real persisted values are now available.
+      // and merged into the store. We flip _hasHydrated here so components// know
+      //  the real persisted values are now available.
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
