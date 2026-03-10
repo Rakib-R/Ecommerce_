@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Wand, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react'
 import ImagePlaceholder from '../../../shared/components/image-placeholderr';
 import Input from 'packages/components/input';
@@ -10,11 +10,18 @@ import { ColorSelector } from 'packages/components/color-selector';
 import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
 import { SizeSelector } from 'packages/components/size-selector';
+import { convertFileToBase64 } from '../../../utils/convertFile2Base64' 
 
+import Image from 'next/image';
+import { AxiosError } from "axios";
 import Link from 'next/link';
-import { Controller, ControllerFieldState, ControllerRenderProps, FieldValues, useForm, UseFormStateReturn } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
+import toast from 'react-hot-toast';
+import { enhancements } from '../../../utils/AI.enhancements';
+import { useRouter } from 'next/navigation';
+import { setDragLock } from 'framer-motion';
 
 // Fix — explicitly grab the default export and type it
 // At module level, outside your component
@@ -26,106 +33,191 @@ const RichTextEditor = dynamic(
   }
 );
 
+interface UploadedImage {
+  fileId : string;
+  file_url: string;
+}
 
 const page = () => {
 
    const [openImageModal, setOpenImageModal] = useState(false);
-   const [loading, setLoading] = useState(false);
-   const [imageList, setImageList] = useState<any[]>([]);
    const [isChanged, setIsChanged] = useState(true);
-   const [images, setImages] = useState<(File | null)[]>([null])
+   const [processing, setProcessing] = useState<boolean>(false);
+   const [activeEffect, setActiveEffect] = useState<String | null>(null);
+   const [pictureUploadLoader, setPictureUploadLoader] = useState<boolean>(false)
+   const [selectedImage, setSelectedImage] = useState('');
+   const [loading, setLoading] = useState(false);
+   const [images, setImages] = useState<(UploadedImage | null)[]>([null])
 
-  const { register,  control,  watch, setValue,  handleSubmit,formState: { errors },} = useForm();
-  
+  const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors },} = 
+        useForm({ reValidateMode: "onChange"});
+        
+  const router = useRouter();
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      try {
-       const res = await axiosInstance.get("/product/api/get-categories");
-       console.log('Categories :', res.data,)
-      return res.data;
+      queryKey: ["categories"],
+      queryFn: async () => {
+        try {
+          const res = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-categories`);
+          return res.data;
+        }  catch (error) {
+            if (error instanceof AxiosError) {
+              throw new Error(error.response?.data?.message || "Failed to fetch categories");
+            }
+            throw error;
+          }
+      },              
+      // ← comma here
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+    });
 
-      } catch (error) {
-        throw new Error("Failed to fetch categories");
-      }
+  const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
+        queryKey: ["shop-discounts"],
+        queryFn: async () => {
+      const res = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-discount-codes`);
+        return res?.data?.discount_codes || [];
     },
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
   });
 
+    const categories = data?.categories || [];
+    const subCategoriesData = data?.subCategories || {};
 
- const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
-      queryKey: ["shop-discounts"],
-      queryFn: async () => {
-     const res = await axiosInstance.get("/product/api/get-discount-codes");
-      return res?.data?.discount_codes || [];
-  },
-});
+    // FORM HOOK WATCH ATTRIBUTE
+    const selectedCategory = watch("category");
+    const selectedSubCategory = watch("subCategory");
+    const regularPrice = watch('regularPrice')
 
-  const categories = data?.categories || [];
-  const subCategoriesData = data?.subCategories || {};
+    const subCategories = useMemo(() => {
+        return categories ? subCategoriesData[selectedCategory] || [] : []
+      },[selectedCategory, subCategoriesData])
 
-  const selectedCategory = watch("category");
-  const selectedSubCategory = watch("SubCategory");
-  const regularPrice = watch("regularPrice");
-  
-  const subCategories = useMemo(() => {
-      return categories ? subCategoriesData[selectedCategory] || [] : []
-    },[selectedCategory, subCategoriesData])
+    const onInvalid = (errors: any) => {
+       Object.keys(errors).forEach((field) => {
+      setError(field as any, {
+        type: "manual",
+        message: errors[field]?.message,
+    });
+  });
 
+  toast.error("Please fix the errors in the form before submitting.");
+ };
 
-  const onSubmit = (data: any) => {
-  console.log(data);
-  };
+    const onSubmit = async (data: any) => {
+      try {
+        setLoading(true);
+        await axiosInstance.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/create-product`, data);
+        router.push('/dashboard/all-products');
+      }
+      catch (error: any){
+        console.log("Backend error status:", error?.response?.status);
+         console.log("Backend error data:", error?.response?.data);
+        toast.error(error?.data?.message)
+        }
+      finally{
+        setLoading(false)
+      }
+    };
+
+    const applyTransformation = async (transformation: string) => {
+      if (!selectedImage || processing) return;
+      setProcessing(true);
+      setActiveEffect(transformation);
+    try {
+
+      let source = selectedImage;
+      if (selectedImage.includes("_next/image")) {
+      const urlParams = new URLSearchParams(selectedImage.split('?')[1]);
+      source = decodeURIComponent(urlParams.get('url') || "");
+    }
+    const baseUrl = source.split('?')[0];
+    const transformedUrl = `${baseUrl}?tr=${transformation}`;
+
+    setSelectedImage(transformedUrl);
+    setActiveEffect(transformation);
+    
+  } catch (error) {
+      console.error("AI Error:", error);
+  } finally {
+      setProcessing(false);
+    }
+  }
 
   const handleImageChange = async (file: File | null, index: number) => {
     if (!file) return;
+    setPictureUploadLoader(true);
+    
     try {
-      const fileName = await convertFileToBase64(file);
-      const response = await axiosInstance.post("/product/api/upload-product-image", 
-        { fileName }); //! HAVE TO BE AN OBJECT !
-       const updatedImages = [...images];
-       updatedImages[index] = response?.data.file_url;
+        const fileName = await convertFileToBase64(file);    
+        const response = await axiosInstance.post("/product/api/upload-product-image", { fileName });    
+                 
+        const uploadedImage: UploadedImage = {
+          fileId: response.data.fileId,
+          file_url: response.data.file_url
+        };
 
-    if (index >= images.length - 1 && images.length < 8) {
-        updatedImages.push(null);
-        setImages(updatedImages);
-        setValue("images", updatedImages)
-    }
+        // Use the callback version of setImages to get the LATEST state
+        setImages((prevImages) => {
+          const updated = [...prevImages];
+          updated[index] = uploadedImage;
+
+          // Check if we need to add the next "plus" slot
+          if (index === prevImages.length - 1 && updated.length < 8) {
+            updated.push(null);
+          }
+          // Sync with the form immediately
+          setValue("images", updated);
+          return updated;
+        });
+
     } catch (error) {
-    console.error("Image Kit upload failed !");
+          console.error("Upload failed!", error);
+          toast.error("One or more images failed to upload.");
+    } finally {
+      setPictureUploadLoader(false);
     }
+};
 
-    const updatedImages = [...images];
-    updatedImages[index] = file;
+    const handleRemoveImage = async (index: number) => {
+      
+    try{
+      const updatedImages = [...images];
+      const imageToDelete = updatedImages[index];
+      
+      if (imageToDelete && typeof imageToDelete === 'object'){
+          await axiosInstance.delete('/product/api/delete-product-image', 
+          {data: { fileId : imageToDelete.fileId} 
+          });
+      }
+      setImages((prevImages) => {
+        const updatedImages = [...prevImages];
 
+        if (index >= updatedImages.length) {
+          return updatedImages;
+        }
+        if (index === 0) {
+          updatedImages[0] = null;
+        } else {
+          updatedImages.splice(index, 1);
+        }
+
+      if (!updatedImages.includes(null) && updatedImages.length < 1) {
+        updatedImages.push(null);
+      }
+        setValue("images", updatedImages);
+        return updatedImages;
+      });
+      
+    }
+    catch (error){
+        console.log('Image Can"t be removed', error as string)
+      }
   };
 
-  const handleRemoveImage = (index: number) => {
-    setImages((prevImages) => {
-      const updatedImages = [...prevImages];
-
-      if (index >= updatedImages.length) {
-        return updatedImages;
-      }
-      if (index === 0) {
-        updatedImages[0] = null;
-      } else {
-        updatedImages.splice(index, 1);
-      }
-
-    if (!updatedImages.includes(null) && updatedImages.length < 1) {
-      updatedImages.push(null);
-    }
-      setValue("images", updatedImages);
-      return updatedImages;
-    });
-};
-  const hanldeSaveDraft = () =>{
-
+    const hanldeSaveDraft = () =>{
   }
 
-   return (
+  return (
   <form 
     className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
     onSubmit={handleSubmit(onSubmit)}>
@@ -151,7 +243,10 @@ const page = () => {
             size="765 x 850"
             small={false}
             index={0}
+            images={images}
+            pictureUploadLoader={pictureUploadLoader}
             onImageChange={handleImageChange}
+            setSelectedImage={setSelectedImage}
             onRemove={handleRemoveImage}
             />
           )}
@@ -162,7 +257,10 @@ const page = () => {
               key={index}
               small
               index={index + 1}
+              images={images}
+              pictureUploadLoader={pictureUploadLoader}
               setOpenImageModal={setOpenImageModal}
+              setSelectedImage={setSelectedImage}
               size="765 x 850"
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
@@ -202,8 +300,8 @@ const page = () => {
             validate: (value) => {
               const wordCount = value.trim().split(/\s+/).length;
               return (
-                wordCount <= 150 ||
-                `Description cannot exceed 150 words (Current: ${wordCount})`
+                wordCount <= 100 ||
+                `Description cannot exceed 100 words (Current: ${wordCount})`
               );
             },
           })}
@@ -267,6 +365,9 @@ const page = () => {
                 message: "Slug must be at most 50 characters long.",
               },
             })}
+            className={`p-2 bg-transparent border rounded-md text-white ${
+              errors.slug ? "border-red-500" : "border-gray-600"
+            }`}
           />
               {errors.slug && (
           <p className="text-xs mt-1">
@@ -300,9 +401,9 @@ const page = () => {
         </div>
         
         {/* CUSTOM _ PROPERTIES */}
-      <div className='mt-2'>
-        <CustomProperties control={control} errors={errors}/>
-      </div>
+        <div className='mt-2'>
+          <CustomProperties control={control} errors={errors}/>
+        </div>
 
           {/* CASH ON DELIVERY */}
        <div className="mt-2">
@@ -344,12 +445,9 @@ const page = () => {
             render={({ field }) => (
               <select
                 {...field}
-                className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2
-                        focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all
-                        [&>option]:bg-zinc-900 [&>option]:text-white"
-              >
-            <option value="" disabled className="bg-zinc-900 text-white">
-                {selectedCategory  ? "☑️ Select Category" : "Select a category"}
+                className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2">
+                  <option value="" disabled className="bg-transparent text-white">
+                  {selectedCategory  ? "☑️ Select Category" : "Select a category"}
               </option>
                   {categories?.map((category: string) => (
                     <option
@@ -387,10 +485,8 @@ const page = () => {
                 <select
                   {...field}
                   className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2
-                      focus:border-blue-500 transition-all
-                      [&>option]:bg-zinc-900 [&>option]:text-white"
-                        >
-                    <option value="" disabled className="bg-zinc-900 text-white">
+                     ">
+                    <option value="" disabled className="bg-transparent text-white">
                       {selectedSubCategory ? "☑️ Select Sub-Category" : "Select a category first"}
                     </option>
                     {subCategories?.map((subCategory: string) => (
@@ -423,14 +519,18 @@ const page = () => {
             rules={{
               required: "Detailed description is required!",
               validate: (value: string) => {
-                const wordCount = value
-                  ?.trim()
-                  ?.split(/\s+/)
-                  ?.filter((word: string) => word).length || 0;
+                if (!value) return "Detailed description is required!";
 
-                return (
-                  wordCount >= 100 || "Description must be at least 100 words!"
-                );
+                const plainText = value.replace(/<[^>]*>/g, ' ')
+                .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>').replace(/&#?\w+;/g, ' ') .trim();
+
+                const wordCount = plainText
+                  .split(/\s+/)
+                  .filter(Boolean).length; // Cleanest way to filter out empty strings
+
+                return wordCount >= 100 || `Description must be at least 100 words! 
+                  You need ${100 - wordCount} more words.`;
               }
             }}
             render={({ field }) => (
@@ -468,15 +568,15 @@ const page = () => {
         <div className="mt-2">
           <Input
             label="Regular Price"
-            {...register("regular_price", {
+            {...register("regularPrice", {
               valueAsNumber: true,
               min: { value: 1, message: "Price must be at least 1" },
               validate: (value) => !isNaN(value) || "Only numbers are allowed",
             })}
           />
-          {errors.regular_price && (
-            <p className="text-xs mt-1">
-              {errors.regular_price.message as string}
+          {errors.regularPrice && (
+            <p className="text-xs mt-1 text-red-500">
+              {errors.regularPrice.message as string}
             </p>
         )}
       </div>
@@ -484,7 +584,7 @@ const page = () => {
           <Input
             label="Sale Price"
             placeholder="15"
-            {...register("sale_price", {
+            {...register("salePrice", {
               required: "Sale Price is required",
               valueAsNumber: true,
               min: { 
@@ -500,15 +600,16 @@ const page = () => {
               }
             })}
           />
-          {errors.sale_price && (
+          {errors.salePrice && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.sale_price.message as string}
+              {errors.salePrice.message as string}
             </p>
           )}
         </div>
 
         <div className="mt-2">
           <Input
+            className='bg-transparent'
             label="Stock"
             {...register("stock", {
               required: "Stock is required!",
@@ -548,30 +649,103 @@ const page = () => {
             <p>Loading discount codes...</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {discountCodes?.map((code : any) => (
+          {discountCodes?.map((code: any) => {
+              const isSelected = watch("discountCodes")?.includes(code.id);
+              
+              return (
                 <button
                   key={code.id}
-                  className={`px-3 py-1 rounded-md text-sm font-semibold border ${watch("countCodes") 
-                    ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"
-                  } hover:opacity-90 transition`}
-
+                  type="button" // Prevents accidental form submission
+                  className={`px-3 py-1 rounded-md text-sm font-semibold border transition ${
+                    isSelected 
+                      ? "bg-blue-600 text-white border-blue-700" 
+                      : "bg-gray-200 text-gray-800 border-gray-300"
+                  }`}
                   onClick={() => {
-                  const currentSelection = watch("discountCodes") || [];
-                  const updatedSelection = currentSelection.includes(code.id)
-                    ? currentSelection.filter(
-                      (id: string) => id !== code.id)
-                    : [...currentSelection, code.id];
-                  setValue("discountCodes", updatedSelection);
-                }}
+                    const currentSelection = watch("discountCodes") || [];
+                    const updatedSelection = isSelected
+                      ? currentSelection.filter((id: string) => id !== code)
+                      : [...currentSelection, code.id];
+                    setValue("discountCodes", updatedSelection);
+                  }}
                 >
-                  {code?.public_name} {" "} ({code?.discount_value} 
-                  {code?.discount_type === "percentage" ? "%" : "$"})
+                  {code?.public_name} ({code?.discount_value}{code?.discount_type === "percentage" ? "%" : "$"})
                 </button>
-              ))}
+              );
+            })}
+
             </div>
           )}
         </div>
-            <div className="mt-6 flex justify-end gap-3">
+
+       {openImageModal && (
+          <section className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
+            <aside className='bg-gray-800 p-6 rounded-lg w-full max-w-[500px] text-white shadow-2xl border border-gray-700'>
+              
+              {/* Header - Fixed layout */}
+              <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+                <h1 className="text-lg font-semibold">Enhance Product Image</h1>
+                <button 
+                  onClick={() => setOpenImageModal(false)}
+                  className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="relative w-full aspect-video bg-black rounded-md overflow-hidden border border-gray-700 mb-6">
+                  <Image
+                    src={selectedImage}
+                    alt="Preview"
+                    fill
+                    className={`object-contain transition-opacity duration-300 ${processing ? 'opacity-50' : 'opacity-100'}`}
+                    priority
+                  />
+                  {processing && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. AI Enhancements Section */}
+                <div className="space-y-3">
+                  <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">
+                    AI Enhancements
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {enhancements.map((item) => (
+                      <button
+                        key={item.effect}
+                        disabled={processing}
+                        onClick={() => applyTransformation(item.effect)}
+                        className={`p-3 rounded-md flex items-center gap-3 transition-all text-sm border ${
+                          activeEffect === item.effect
+                            ? "bg-blue-600 border-blue-400 text-white shadow-lg"
+                            : "bg-[#2a2d31] border-gray-700 text-gray-300 hover:bg-[#35393f]"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        <Wand size={16} className={activeEffect === item.effect ? "text-white" : "text-gray-500"} />
+                        <span className="font-medium">{item.label}</span>
+                      </button>
+                    ))}
+            </div>
+          </div>
+
+              {/* Optional: Add a close button at the bottom for better UX */}
+              <div className="mt-4 flex justify-end">
+                <button 
+                  onClick={() => setOpenImageModal(false)}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md transition-colors"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </aside>
+          </section> 
+        )}
+          <div className="mt-6 flex justify-end gap-3">
           {isChanged && (
            <>
              <button
@@ -583,7 +757,7 @@ const page = () => {
             </button>
              <button
               type="button"
-              onClick={hanldeSaveDraft}
+              onClick={handleSubmit(onSubmit, onInvalid)}
               className="px-4 py-2 bg-gray-500 text-white rounded-md transition-colors hover:bg-gray-600"
             >
               Create

@@ -265,6 +265,7 @@ pre {
 
 
 
+
 @media screen and (min-width: 768px) {
   #hero {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -275,4 +276,28 @@ pre {
   #middle-content {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+
+
+/*!. MY CUSTOM FIX for Input Autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 50000s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+  background-color: transparent !important;
+}
+
+/* Note: Browsers are extremely restrictive with <option> styling. */
+/* This forces the options to inherit the dark background of the select. */
+select option {
+  background-color: #18181b !important; /* Matches bg-zinc-900 */
+  color: white !important;
+}
+
+/* This targets the select container itself to ensure it stays transparent */
+select {
+  background-color: transparent !important;
 }

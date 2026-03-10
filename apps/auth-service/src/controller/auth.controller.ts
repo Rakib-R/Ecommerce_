@@ -99,21 +99,21 @@ export const loginUser = async (
     res.clearCookie("seller-refresh-token");
       
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
-    return next(new AuthError("Internal Server Error: Missing Token Secrets"));
+    return next(new AuthError("Internal Server Error: Missing Token Secrets (for user)"));
   }
 
-      const accessToken = jwt.sign(
-      { id: user.id, role: "user" },
-      process.env.JWT_ACCESS_SECRET as string,
-      { expiresIn: "15m" }
-    );
+    const accessToken = jwt.sign(
+    { id: user.id, role: "user" },
+    process.env.JWT_ACCESS_SECRET as string,
+    { expiresIn: "15m" }
+  );
 
-    // Generate refresh token if needed
-      const refreshToken = jwt.sign(
-      { id: user.id, role: 'user' },
-      process.env.JWT_REFRESH_SECRET as string,
-      { expiresIn: "7d" }
-    );
+  // Generate refresh token if needed
+    const refreshToken = jwt.sign(
+    { id: user.id, role: 'user' },
+    process.env.JWT_REFRESH_SECRET as string,
+    { expiresIn: "7d" }
+  );
 
     setCookie(res, "refresh_token", refreshToken);
     setCookie(res, "access_token", accessToken);
@@ -441,7 +441,7 @@ export const loginSeller = async (
     res.clearCookie("refressToken");
     
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
-    return next(new AuthError("Internal Server Error: Missing Token Secrets"));
+    return next(new AuthError("Internal Server Error: Missing Token Secrets (for seller)"));
     }
       const accessToken = jwt.sign(
       { id: seller.id, role: "seller" },

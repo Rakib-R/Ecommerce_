@@ -37,7 +37,7 @@ const Page = () => {
 
   const handleDeleteClick = async(discount: any) => {
     setSelectedDiscount(discount);
-    setShowModal(true);
+    setShowDeleteModal(true);
   }
 
   const onSubmit = (data: any) => {
@@ -57,7 +57,7 @@ const {
       discountCode: "",
     },
 });
-    const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const publicName = watch("public_name");
 
   // Dynamic class based on focus OR has value
@@ -80,10 +80,14 @@ const {
     mutationFn: async (discountId: string) => {
       await axiosInstance.post(`/product/api/delete-discount-code/${discountId}`);
     },
-    onSuccess: () => {
+      onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shop-discounts"] });
-      setShowModal(false);
+      toast.success("Discount code deleted successfully!");
+      setShowDeleteModal(false);
     },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "Failed to delete discount code");
+  }
   });
     return (
     <main className="min-h-screen p-8">
@@ -119,7 +123,7 @@ const {
       <table className="w-full text-white">
         <thead>
           <tr className="border-b border-gray-800">
-            <th className="p-3 text-left">Title</th>
+            <th className="p-3 text-left ">Title</th>
             <th className="p-3 text-left">Code</th>
             <th className="p-3 text-left">Value</th>
             <th className="p-3 text-right">Action</th>
@@ -167,16 +171,16 @@ const {
       </div>
       {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}   
 
-              {showModal && (
-                  <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-gray-800 p-4 rounded-lg w-[450px] shadow-lg">
-                      <div className="flex justify-between items-center border-b border-gray-700 pb-3">
-                        <h3 className="text-xl text-white">Create Discount Code</h3>
+            {showModal && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-gray-800 p-4 rounded-lg w-[450px] shadow-lg">
+                    <div className="flex justify-between items-center border-b border-gray-700 pb-3">
+                      <h3 className="text-xl text-white">Create Discount Code</h3>
 
-                        <button
-                          onClick={() => setShowModal(false)}
-                          className="text-gray-400 hover:text-white"
-                        >
+                      <button
+                        onClick={() => setShowModal(false)}
+                        className="text-gray-400 hover:text-white"
+                      >
                           <X size={22} />
                         </button>
                       </div>
@@ -186,7 +190,7 @@ const {
                         {/* Title */}
                         <Input
                           label="Title (Public Name)"
-                          className={`${isFocused ? "text-black/90 bg-white" : "bg-transparent text-white"}`}
+                          className={inputClass}
                           {...register("public_name", { required: "Title is required" })}
 
                             onFocus={() => setIsFocused(true)}
@@ -248,7 +252,7 @@ const {
                         {
                           createDiscountCodeMutation.isError &&
                           (
-                            <p className="text-sm mt-2">
+                            <p className="text-red-500 text-sm mt-2">
                               {
                                 (createDiscountCodeMutation.error as AxiosError<{
                                   message: string;
