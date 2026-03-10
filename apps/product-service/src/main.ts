@@ -30,41 +30,35 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
-  app.use(express.json());
+  app.use(express.json({ limit: "50mb" }));
   app.use(cookieParser());
   const port = process.env.PORT || 6099;
 
+
+app.use('/product/api', router);  
+
 // Health Check Route
 app.get('/product/health', (req, res) => {  
-  res.send({
-    message: `🎗🎗🎁🎀 Product Service running at http://127.0.0.1:${port}/product`,
-    status: 'Active'
+  res.send({ message: `🎗🎗Product Service running at http://127.0.0.1:${port}/product`,
   });
 });
 
 // Static assets
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// All API routes
-app.use(
-  '/product/api',
-  (req, res, next) => {
-    console.log('🟡 Hit /product/api middleware:', req.method, req.path); 
-     next();
-  },
-  router
-);
-
+  // product-service app.ts — add express body limit error handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'File too large. Max size is 10MB.' });
+  }
+  next(err);
+});
 
 const server = app.listen(port, () => {
-  console.log(`.🎗🎗🎁🎀🎀 Product Service running http://127.0.0.1:${port}/product 🎀🎀🎁`);
+  console.log(`.🎗 Product Service running http://127.0.0.1:${port}/product 🎀🎀🎁`);
   console.log(`Swagger Docs at http://127.0.0.1:${port}/api/docs`);
 });
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('💥 Global error handler:', err.message);
-  res.status(500).json({ error: err.message || 'Internal server error' });
-});
 
 server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {

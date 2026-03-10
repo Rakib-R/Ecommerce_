@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axios.post(
-          await axiosInstance.post("/refresh-token")
+          await axiosInstance.post("/api/refresh-token")
         );
 
         isRefreshing = false;

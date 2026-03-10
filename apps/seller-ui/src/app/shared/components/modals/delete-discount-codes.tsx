@@ -5,12 +5,13 @@ import { X } from 'lucide-react'
 
 const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any, onClose:() => void; onConfirm?: any}) => {
   return (
-      <section className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+      <main className=" flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full bg-black/60 bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg border-4 border-red-700">
           {/* Header */}
-          <div className="flex justify-between items-center border-b border-gray-700 pb-2">
-            <h3 className="text-white">Delete Discount Code</h3>
-            <button className="hover:text-white">
+          <div className="flex w-[16vw] justify-between items-center ">
+            <h3 className="text-black">Delete Code: {discount.discountCode}</h3>
+            <button className="bg-red-500"
+              onClick={onClose}>
               <X size={22} />
             </button>
           </div>
@@ -31,10 +32,10 @@ const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any,
           </p>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
+        <section className="flex justify-end gap-3 mt-6">
             <button
               className="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition"
-            >
+              onClick={onClose}>
               Cancel
             </button>
 
@@ -44,8 +45,8 @@ const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any,
             >
               Delete
             </button>
-          </div>
-      </section>
+          </section>
+      </main>
   )
 }
 

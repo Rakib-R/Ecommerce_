@@ -25,7 +25,7 @@ app.use(
           'http://127.0.0.1:7777',
           'http://127.0.0.1:6001',
           'http://127.0.0.1:6099',
-          'ws://localhost:*', // Next.js HMR
+          'ws://localhost:*',
         ],
       },
     },
@@ -73,28 +73,19 @@ app.get('/gateway-health', (req, res) => {
 });
 
 // ─── Auth Service Proxy → http://127.0.0.1:6001 ─────────────────────────────
-// Gateway: /api/*  →  Auth Service: /auth/*
 app.use(
-  '/api',
-  proxy('http://127.0.0.1:6001', {
+  '/api', proxy('http://127.0.0.1:6001', {
     proxyReqPathResolver: (req) =>
       req.originalUrl.replace(/^\/api/, '/auth'),
-
+    
     proxyReqBodyDecorator: (bodyContent) => bodyContent,
 
     proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-      if (srcReq.headers['cookie']) {
-        proxyReqOpts.headers['cookie'] = srcReq.headers['cookie'];
-      }
-      return proxyReqOpts;
+      if (srcReq.headers['cookie']) { proxyReqOpts.headers['cookie'] = srcReq.headers['cookie']; } return proxyReqOpts;
     },
 
     userResDecorator: (proxyRes, proxyResData, req, res) => {
-      if (proxyRes.headers['set-cookie']) {
-        res.setHeader('set-cookie', proxyRes.headers['set-cookie']);
-      }
-      return proxyResData;
-    },
+      if (proxyRes.headers['set-cookie']) { res.setHeader('set-cookie', proxyRes.headers['set-cookie']);} return proxyResData; },
 
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Auth Service proxy error:', err.message);
@@ -105,26 +96,22 @@ app.use(
 
 // ─── Product Service Proxy → http://127.0.0.1:6099 ──────────────────────────
 // Gateway: /product/api/*  →  Product Service: /product/api/*  (no rewrite needed)
-app.use(
-  '/product/api',
-  proxy('http://127.0.0.1:6099', {
+app.use('/product/api', 
+  (req, res, next) => {
+  // Reject oversized requests before they hit the proxy
+  const contentLength = parseInt(req.headers['content-length'] || '0');
+  const limitBytes = 10 * 1024 * 1024; // 10MB
+  
+  if (contentLength > limitBytes) {
+    return res.status(413).json({ error: 'Request entity too large' });
+  }
+    next();
+
+    },proxy('http://127.0.0.1:6099', {
 
     proxyReqPathResolver: (req) => req.originalUrl,
 
-    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-      if (srcReq.headers['cookie']) {
-        proxyReqOpts.headers['cookie'] = srcReq.headers['cookie'];
-      }
-      return proxyReqOpts;
-    },
-
-    userResDecorator: (proxyRes, proxyResData, req, res) => {
-      if (proxyRes.headers['set-cookie']) {
-        res.setHeader('set-cookie', proxyRes.headers['set-cookie']);
-      }
-      return proxyResData;
-    },
-
+    //! DO NOT NEED EITHER OF THEM proxyReqOptDecorator OR userResDecorator
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Product Service proxy error:', err.message);
       res.status(503).json({ error: 'Product Service is down or misconfigured' });

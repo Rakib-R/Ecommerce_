@@ -1,13 +1,13 @@
 
 
-//!!!!!!  THIS IS ONE FROM  TUTORIAL !!!!!!!!!!!!!!
+//!!!!!!  THIS IS ONE FROM   !!!!!!!!!!!!!!
 
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,   //! IT WAS EMPTY FOR A REASON !
-   withCredentials: true,  // ✅ sends cookies automatically
+   withCredentials: true,  // sends cookies automatically
 });
 
 let isRefreshing = false;
@@ -22,7 +22,7 @@ const onRefreshSuccess = () => {
   refreshSubscribers = [];
 };
 
-// ✅ Attach request interceptor
+
 axiosInstance.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error)
@@ -47,7 +47,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axiosInstance.post(`product/api/refresh-token`);
+        await axiosInstance.post(`/api/refresh-token`);
         isRefreshing = false;
         onRefreshSuccess();
         return axiosInstance(originalRequest);
@@ -60,8 +60,8 @@ axiosInstance.interceptors.response.use(
     
     // Handle 503 - service unavailable (backend down)
     if (status === 503) {
-      console.error("Service unavailable:", originalRequest.url);
-     
+      console.error("Service unavailable:", originalRequest?.url || "Unknown URL");
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

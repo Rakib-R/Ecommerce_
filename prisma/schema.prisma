@@ -19,6 +19,8 @@ model images {
   userId    String? @db.ObjectId @unique
   shop      shops? @relation(fields: [shopId], references: [id])
   user      users?  @relation(fields: [userId], references: [id])
+  products  product? @relation(fields: [productId], references: [id])
+  productId String? @db.ObjectId @unique
 }
 
 model users {
@@ -75,6 +77,8 @@ model shops {
   reviews    shopReviews[] 
   sellers    sellers      @relation(fields: [sellerId], references: [id])
   sellerId   String       @unique @db.ObjectId
+  product    product[]    
+
   createdAt  DateTime      @default(now())
   updatedAt  DateTime     @updatedAt
  }
@@ -94,4 +98,58 @@ model discount_codes {
   sellerId      String   @db.ObjectId
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  product       product? @relation("ProductDiscountCodes", fields: [productId], references: [id])
+  productId     String?  @db.ObjectId
 }
+
+// Separate type for structured image data
+type Image {
+  fileId   String
+  file_url String
+}
+
+enum productStatus{
+  Active
+  Pending
+  Draft
+}
+
+model product {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  title               String
+  slug                String   @unique
+  category            String
+  subCategory         String
+  description         String
+  detailed_description String 
+  images              images[] 
+  tags                String[]
+  colors              String[] @default([])
+  sizes               String[] @default([])
+  
+  video_url           String?
+  brand               String?
+  regular_price       Float
+  ratings             Float   @default(5)
+  warranty            String?
+  sale_price          Float?   @default(0)
+  stock               Int      @default(0)
+  custom_specification Json?
+  custom_property      Json?
+  isDeleted            Boolean? @default(false)
+  cashOnDelivery       String 
+  status               productStatus  @default(Active)
+  shopId               String  @db.ObjectId
+  Shop                 shops   @relation(fields: [shopId], references: [id])
+
+  // AI Assistance Defined ERROR
+  discount_codes  discount_codes[] @relation("ProductDiscountCodes")
+
+  // Meta
+  createdAt           DateTime @default(now())
+  starting_date       DateTime?
+  deleteAt            DateTime?
+  updatedAt           DateTime @updatedAt
+}
+

@@ -1,7 +1,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import prisma from "@packages/prisma";
-import { NotFoundError, ValidationError } from "@packages/error-handler";
+import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "packages/libs/imageKit";
 
 // GET product categories
@@ -12,9 +12,7 @@ export const getCategories = async (
 ) => {
   try {
 
-    console.log('🟢 Querying DB...');
     const config = await prisma.site_config.findFirst();
-    console.log('🟢 DB done:🟢 DB done:', config); 
     
     if(!config) {
         return res.status(404).json({ message: "Categories are not found"})
@@ -152,9 +150,138 @@ export const uploadProductImage = async (
       fileName: `product-${Date.now()}.jpg`,
       folder: "/products" 
     });
-
-    res.status(200).json({ data: response , file_url: response.url, fileName: response.fileId});
+    
+    res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
   } catch (error) {
     next(error);
+    }
+};
+
+export const deleteProductImage = async (
+  req: Request, res: Response, next: NextFunction) => {
+
+  try {
+    const { fileId } = req.body;
+    const response = await imagekit.deleteFile(fileId);
+        res.status(200).json(
+          {success : true,
+            response });
+    }
+    catch (error){
+      console.log('Image can not be deleted')
+    }
+}
+
+export const createProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+
+    const {
+      title,
+      description,
+      detailed_description,
+      category,
+      slug,
+      subCategory,
+      brand,
+      regularPrice,
+      sale_price,
+      stock,
+      videoUrl,
+      cashOnDelivery,
+      tags,
+      colors,
+      sizes,
+      discountCodes,
+      images, // ARRAYS Of IMAGES
+      customProperties,
+      custom_specifications,
+    } = req.body;
+
+    //todo . Basic Validation
+  // 1. Define fields as an object
+    const requiredFields = { title, slug, description, category, subCategory, tags, images, regularPrice, sale_price, stock };
+
+    //todo. Filter the object keys
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value || (Array.isArray(value) && value.length === 0))
+      .map(([key]) => key);
+      
+    if (missingFields.length > 0) {
+      throw new ValidationError(`Missing required fields: ${missingFields.join(", ")}`);
+    }
+
+    //todo .AuthError
+    if (!(req as any).seller.id){
+      return next (new AuthError('Only seller can create product!'))
+    }
+
+    //todo SLUG CHECKING
+    const slugChecking = await prisma.product.findUnique({
+      where: {
+        slug: slug,
+    },  
+  });
+    if (slugChecking) {
+    return next( new ValidationError("Slug already exist! Please use a different slug!") );
+  }
+    // Convert comma-separated tags string into a clean array
+    const formattedTags = Array.isArray(tags)
+        ? tags  : tags.split(',');
+
+    const newProduct = await prisma.product.create({
+        data: {
+        title,
+        description,
+        detailed_description,
+        category,
+        subCategory,
+        brand,
+        slug, 
+        shopId: (req as any).seller?.shop.id!,
+        sizes: sizes || [],
+        stock: parseInt(stock),
+        sale_price: parseFloat(sale_price),
+        regular_price: parseFloat(regularPrice),
+        colors: colors || [],
+        custom_property: customProperties || {},
+        custom_specification: custom_specifications || {},
+        images: { 
+          create :images
+          .filter((img: any) => img && img.fileId && img.file_url)
+          .map((img: any) => ({
+            file_id: img.fileId,
+            url: img.file_url,
+          }))},
+
+        starting_date: new Date(), 
+        video_url: videoUrl,
+        cashOnDelivery : String(cashOnDelivery),
+        tags: formattedTags,
+       discount_codes: discountCodes && discountCodes.length > 0 ? { connect: discountCodes
+        .filter((id: string) => id && id.trim() !== "")
+        .map((id: string) => ({ id })) }   : undefined,
+      },
+      include: { images: true } 
+    });
+        
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      newProduct
+    });
+
+  } catch (error: any) {
+    console.error("Creating Product Error:", error);
+    
+    res.status(500).json({ 
+      success: false,  message: "Internal Server Error (Creating Product)", 
+      error: error.message 
+      
+    });
   }
 };
