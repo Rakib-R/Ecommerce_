@@ -5,34 +5,36 @@ import { X } from 'lucide-react'
 
 const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any, onClose:() => void; onConfirm?: any}) => {
   return (
-      <main className=" flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full bg-black/60 bg-opacity-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg border-4 border-red-700">
+      <main className="flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 backdrop-blur-sm">
+        <div className='flex flex-col justify-center bg-zinc-900 border border-zinc-800 p-6 rounded-lg w-full max-w-[450px] shadow-lg'>
+
+        <section className="bg-white p-6 rounded-lg shadow-lg border-4 border-red-700">
           {/* Header */}
-          <div className="flex w-[16vw] justify-between items-center ">
-            <h3 className="text-black">Delete Code: {discount.discountCode}</h3>
-            <button className="bg-red-500"
+          <div className="flex justify-between items-center ">
+            <h3 className="text-black">Delete Code: <span className='text-red-600'>{discount.discountCode}</span></h3>
+            <button className="bg-red-500 text-center"
               onClick={onClose}>
               <X size={22} />
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Warning Message */}
-        <div className="mt-4 text-sm text-gray-300 leading-relaxed">
-          <p>
+        <section className=" py-3 text-sm text-center text-gray-300 leading-relaxed shadow-lg">
+          <p className='flex justify-center'>
             Are you sure you want to delete{" "}
-            <span className="text-red-400 font-semibold">
+            <span className="text-xl text-red-600 font-bold self-start px-1">
               {discount.public_name}
             </span>
             ?
           </p>
 
-          <p className="mt-2 text-red-500 font-medium">
+          <p className="mt-2 text-red-600 font-medium">
             This action cannot be undone.
           </p>
-        </div>
+        </section>
 
-        <section className="flex justify-end gap-3 mt-6">
+        <section className="flex justify-center gap-4">
             <button
               className="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition"
               onClick={onClose}>
@@ -46,6 +48,8 @@ const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any,
               Delete
             </button>
           </section>
+        </div>
+        
       </main>
   )
 }

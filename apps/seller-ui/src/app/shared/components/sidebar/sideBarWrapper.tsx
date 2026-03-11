@@ -183,6 +183,7 @@ const SideBarWrapper = () => {
   </Sidebar.Body>
   </main>
 </Box>
+
   )
 }
 

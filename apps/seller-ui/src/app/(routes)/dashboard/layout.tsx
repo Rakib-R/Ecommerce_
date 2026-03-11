@@ -24,8 +24,8 @@
     return (
       <div className="min-h-screen flex">
         {/* Sidebar */}
-        <aside className=" min-w-[230px] border-r border-r-slate-200 bg-black">
-          <div className="sticky top-0 p-3">
+        <aside className=" min-w-[260px] border-r border-r-slate-200 bg-black">
+          <div className="sticky top-0 p-4">
             <SideBarWrapper />
           </div>
         </aside>

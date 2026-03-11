@@ -8,6 +8,14 @@ const axiosInstance = axios.create({
   withCredentials: true,  // ✅ sends cookies automatically
 });
 
+// export const productApi = axios.create({
+//   baseURL: process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URI, // set once here
+// });
+
+// export const authApi = axios.create({
+//   baseURL: process.env.NEXT_PUBLIC_AUTH_SERVICE_URI,
+// });
+
 let isRefreshing = false;
 let refreshSubscribers: Array<() => void> = [];
 
@@ -43,9 +51,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post(
           await axiosInstance.post("/api/refresh-token")
-        );
 
         isRefreshing = false;
         onRefreshSuccess();
