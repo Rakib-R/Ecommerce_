@@ -1,10 +1,14 @@
 import express from 'express';
 import cors from 'cors';
+import "./jobs/product-cron.job"
 import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import router from './routes/product.routes';
+import swaggerUi from 'swagger-ui-express';
 
 const app = express();
+
+const swaggerDocument = require('./swagger-output.json')
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -34,6 +38,11 @@ app.use(cors({
   app.use(cookieParser());
   const port = process.env.PORT || 6099;
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.get("/docs-json", (req, res) => {
+  res.json(swaggerDocument);
+});
 
 app.use('/product/api', router);  
 

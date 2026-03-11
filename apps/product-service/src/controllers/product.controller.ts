@@ -285,3 +285,124 @@ export const createProduct = async (
     });
   }
 };
+
+
+export const getShopProducts = async ( req : Request, res: Response, next: NextFunction) => {
+  try {
+  const products = await prisma.product.findMany({
+    where: {
+      shopId: (req as any)?.seller?.shop?.id,
+    },
+    include: {
+      images: true,
+    },
+  });
+
+    res.status(201).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId } = req.params; // Make sure the route has /:productId
+    const sellerId = (req as any).seller?.shop?.id; // Assuming you have seller info in req
+
+    if (!sellerId) {
+      return res.status(403).json({ message: "Unauthorized: No seller found." });
+    }
+
+    // Find the product
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, shopId: true, isDeleted: true },
+    });
+
+    if (!product) {
+      return next(new ValidationError('Product Not Found!'));
+    }
+
+    if (product.shopId !== sellerId) {
+      return res.status(403).json({ message: "Unauthorized:This is  not your product." });
+    }
+
+    if (product.isDeleted){
+      return next(new ValidationError('Product is already deleted'))
+    }
+
+    // Mark the product as deleted (soft delete)
+    const deletedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: {
+         isDeleted: true,
+        deleteAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+       },
+    });
+
+    res.status(200).json({ message: "Product deleted successfully.", deletedProduct });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+export const restoreProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId } = req.params; // Ensure your route is /:productId
+    const sellerId = (req as any).seller?.shop?.id;
+
+    if (!sellerId) {
+      return res.status(403).json({ message: "Unauthorized: No seller found." });
+    }
+
+    // Find the product
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, shopId: true, isDeleted: true },
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    // Check if the product belongs to this seller
+    if (product.shopId !== sellerId) {
+      return next(new ValidationError("Unauthorized: Not your product."));
+    }
+
+    // Check if the product is actually deleted
+    if (!product.isDeleted) {
+      return res.status(400).json({ message: "Product is not deleted." });
+    }
+
+    // Restore the product
+    const restoredProduct = await prisma.product.update({
+      where: { id: productId },
+      data: { isDeleted: false, deleteAt: null },
+    });
+
+    res.status(200).json({
+      message: "Product successfully restored!", restoredProduct,
+    });
+    
+  } catch (error) {
+    return  res.status(500).json({
+      success: false,
+      message: "Error restorring product!",
+    });
+  }
+};

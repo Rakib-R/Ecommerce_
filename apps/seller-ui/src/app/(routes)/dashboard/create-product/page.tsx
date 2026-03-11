@@ -21,7 +21,6 @@ import axiosInstance from '../../../utils/axiosInstance';
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../utils/AI.enhancements';
 import { useRouter } from 'next/navigation';
-import { setDragLock } from 'framer-motion';
 
 // Fix — explicitly grab the default export and type it
 // At module level, outside your component
@@ -58,7 +57,7 @@ const page = () => {
       queryKey: ["categories"],
       queryFn: async () => {
         try {
-          const res = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-categories`);
+          const res = await axiosInstance.get(`/product/api/get-categories`);
           return res.data;
         }  catch (error) {
             if (error instanceof AxiosError) {
@@ -75,7 +74,7 @@ const page = () => {
   const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
         queryKey: ["shop-discounts"],
         queryFn: async () => {
-      const res = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-discount-codes`);
+      const res = await axiosInstance.get(`/product/api/get-discount-codes`);
         return res?.data?.discount_codes || [];
     },
   });
@@ -106,7 +105,7 @@ const page = () => {
     const onSubmit = async (data: any) => {
       try {
         setLoading(true);
-        await axiosInstance.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/create-product`, data);
+        await axiosInstance.post('/product/api/create-product', data);
         router.push('/dashboard/all-products');
       }
       catch (error: any){

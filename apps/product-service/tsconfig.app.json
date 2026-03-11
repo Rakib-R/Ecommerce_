@@ -17,5 +17,5 @@
   "include": [
     "src/**/*.ts",
     "../../packages/**/*.ts"
-, "../../packages/components/rich-text-editor/index.tsx"  ]
+, "../../packages/components/rich-text-editor/index.tsx", "src/swagger.ts"  ]
 }

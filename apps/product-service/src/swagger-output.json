@@ -1,0 +1,261 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Product Service API",
+    "description": "API documentation for product-service in ecommerce platform",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:6099",
+      "description": "Local product service"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Categories",
+      "description": "Product categories"
+    },
+    {
+      "name": "Products",
+      "description": "Product management"
+    },
+    {
+      "name": "Discount Codes",
+      "description": "Discount code management"
+    },
+    {
+      "name": "Images",
+      "description": "Product image management"
+    }
+  ],
+  "paths": {
+    "/get-categories": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/create-discount-code": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/get-discount-codes": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/delete-discount-code/{id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/upload-product-image": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/delete-product-image": {
+      "delete": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/create-product": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/get-shop-products": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/delete-product/{productId}": {
+      "delete": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/restore-product/{productId}": {
+      "put": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "{{where{id}}": {
+      "delete": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "string"
+          },
+          "description": {
+            "type": "string",
+            "example": "string"
+          },
+          "detailed_description": {
+            "type": "string",
+            "example": "string"
+          },
+          "slug": {
+            "type": "string",
+            "example": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "string"
+          },
+          "subCategory": {
+            "type": "string",
+            "example": "string"
+          },
+          "brand": {
+            "type": "string",
+            "example": "string"
+          },
+          "stock": {
+            "type": "number",
+            "example": 10
+          },
+          "regular_price": {
+            "type": "number",
+            "example": 100
+          },
+          "sale_price": {
+            "type": "number",
+            "example": 90
+          },
+          "tags": {
+            "type": "array",
+            "example": [
+              "electronics",
+              "phone"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "colors": {
+            "type": "array",
+            "example": [
+              "red",
+              "black"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "sizes": {
+            "type": "array",
+            "example": [
+              "S",
+              "M"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DiscountCode": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "string"
+          },
+          "public_name": {
+            "type": "string",
+            "example": "Black Friday"
+          },
+          "discountType": {
+            "type": "string",
+            "example": "percentage"
+          },
+          "discountValue": {
+            "type": "number",
+            "example": 20
+          },
+          "discountCode": {
+            "type": "string",
+            "example": "BF2025"
+          }
+        }
+      },
+      "ImageUpload": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "example": "base64-string"
+          }
+        }
+      }
+    }
+  }
+}

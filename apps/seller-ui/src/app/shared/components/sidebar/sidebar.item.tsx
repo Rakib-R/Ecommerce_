@@ -17,8 +17,8 @@ const SidebarItem = ({ icon, title, isActive, href }: SidebarItemProps) => {
           ${isActive 
             ? "bg-blue-500 shadow-sm scale-[0.98]" 
             : "text-gray-200 hover:bg-gray-100 hover:text-gray-900"}
-        `}
-      >
+        `}>
+          
         {/* Icon Container */}
         <div className={`text-xl ${isActive ? "bg-blue-300" : "text-gray-400 group-hover:text-gray-900"}`}>
           {icon}

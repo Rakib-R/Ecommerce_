@@ -124,18 +124,19 @@ const {
         <thead>
           <tr className="border-b border-gray-800">
             <th className="p-3 text-left ">Title</th>
-            <th className="p-3 text-left">Code</th>
+            <th className="p-3 text-left">Discount Type</th>
             <th className="p-3 text-left">Value</th>
-            <th className="p-3 text-right">Action</th>
+            <th className="p-3 text-left">Code</th>
+            <th className="p-3 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
         {discountCodes?.map((discount: any) => (
           <tr
             key={discount?.id}
-            className="border-b border-gray-800 hover:bg-gray-800 transition"
-          >
+            className="border-b border-gray-800 hover:bg-gray-800 transition">
             <td className="p-3">{discount?.public_name}</td>
+
             <td className="p-3 capitalize">
               {discount.discountType === "percentage"
                 ? "Percentage (%)"
@@ -147,17 +148,19 @@ const {
               ? `${discount.discountValue}%`
               : `$${discount.discountValue}`}
           </td>
+
           <td className="p-3">
             {discount.discountCode}
           </td>
+
           <td className="p-3">
             <button
               onClick={() => handleDeleteClick(discount)}
-              className="text-red-400 hover:text-red-300 transition"
-            >
+              className="text-red-400 hover:text-red-300 transition">
               <Trash size={18} />
             </button>
           </td>
+          
           </tr>
         ))}
       </tbody>
@@ -273,8 +276,7 @@ const {
                 onConfirm={() => deleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
                 />
               )}
-
-  </main>
+    </main>
   );
 };
 
