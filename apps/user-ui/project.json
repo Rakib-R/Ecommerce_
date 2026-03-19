@@ -4,7 +4,9 @@
     "build": {
       "executor": "@nx/next:build",
       "options": {
-        "outputPath": "dist/apps/user-ui"
+        "outputPath": "dist/apps/user-ui",
+        "tailwindConfig": "apps/user-ui/tailwind.config.js",
+        "postcssConfig": "apps/user-ui/postcss.config.js"
       },
       "configurations": {
         "development": {},
@@ -16,7 +18,18 @@
       "options": {
         "buildTarget": "user-ui:build",
         "dev": true,
-        "port": 3000
+        "port": 3000,
+        "turbo": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "user-ui:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "user-ui:build:production",
+          "dev": false
+        }
       }
     }
   }

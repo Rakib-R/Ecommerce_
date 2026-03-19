@@ -1,7 +1,6 @@
 
 import './global.css';
-import Providers from './providers';
-import Header from './shared/widget/header';
+import Providers from '../../../utils/providers';
 import {Poppins,Roboto} from "next/font/google"
 
   export const metadata = {
@@ -21,7 +20,6 @@ import {Poppins,Roboto} from "next/font/google"
     variable: "--font-poppins",
   });
 
-
 export default function RootLayout({
   children,
 }: {
@@ -31,10 +29,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${poppins.variable} ${roboto.variable}`}>
         <Providers> 
-           <Header />
+          
           {children}
+          
         </Providers>
-       
         </body>
     </html>
   );

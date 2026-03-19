@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { initializeSiteConfig } from './libs/initializeSiteConfig.js';
+import { globalMiddleware } from '@packages/middleware';
 
 const app = express();
 
@@ -22,9 +23,9 @@ app.use(
         objectSrc:  ["'none'"],
         connectSrc: [
           "'self'",
-          'http://127.0.0.1:7777',
-          'http://127.0.0.1:6001',
-          'http://127.0.0.1:6099',
+          'http://localhost:7777',
+          'http://localhost:6001',
+          'http://localhost:6099',
           'ws://localhost:*',
         ],
       },
@@ -40,15 +41,24 @@ app.use(
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:4000',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001',
-      'http://127.0.0.1:4000',
-      'http://192.168.0.100:3000',
-      'http://192.168.0.100:3001',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:4000',
+      'http://192.168.0.105:3000',
+      'http://192.168.0.105:3001',
     ],
     credentials: true,
   })
 );
+
+// COOKIE FORWARDING LOGIC--------------------------------------------------
+
+const forwardCookies = (proxyReqOpts: any, srcReq: any) => {
+  if (srcReq.headers['cookie']) {
+    proxyReqOpts.headers['cookie'] = srcReq.headers['cookie'];
+  }
+  return proxyReqOpts;
+};
 
 // ─── General Middleware ──────────────────────────────────────────────────────
 app.use(morgan('dev'));
@@ -72,20 +82,38 @@ app.get('/gateway-health', (req, res) => {
   res.json({ message: 'Gateway is healthy ✅' });
 });
 
-// ─── Auth Service Proxy → http://127.0.0.1:6001 ─────────────────────────────
+// ─── Auth Service Proxy → http://localhost:6001 ─────────────────────────────
+app.use(globalMiddleware);
+
 app.use(
-  '/api', proxy('http://127.0.0.1:6001', {
+  '/api', proxy('http://localhost:6001', {
     proxyReqPathResolver: (req) =>
       req.originalUrl.replace(/^\/api/, '/auth'),
     
     proxyReqBodyDecorator: (bodyContent) => bodyContent,
 
-    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-      if (srcReq.headers['cookie']) { proxyReqOpts.headers['cookie'] = srcReq.headers['cookie']; } return proxyReqOpts;
-    },
+    proxyReqOptDecorator: forwardCookies,
 
-    userResDecorator: (proxyRes, proxyResData, req, res) => {
-      if (proxyRes.headers['set-cookie']) { res.setHeader('set-cookie', proxyRes.headers['set-cookie']);} return proxyResData; },
+   userResDecorator: (proxyRes, proxyResData, req, res) => {
+    const cookies = proxyRes.headers['set-cookie'];
+    if (cookies) {
+      const rewritten = cookies.map((cookie: string) => {
+        let c = cookie
+          .replace(/SameSite=None/gi, 'SameSite=Lax')
+          .replace(/SameSite=Strict/gi, 'SameSite=Lax')
+          .replace(/;\s*Secure/gi, '')
+
+      // If no Domain attribute at all, inject it
+      if (!/domain=/i.test(c)) {
+        c += '; Domain=localhost';
+      }
+
+      return c;
+    });
+    res.setHeader('set-cookie', rewritten);
+  }
+  return proxyResData;
+},
 
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Auth Service proxy error:', err.message);
@@ -94,7 +122,7 @@ app.use(
   })
 );
 
-// ─── Product Service Proxy → http://127.0.0.1:6099 ──────────────────────────
+// ─── Product Service Proxy → http://localhost:6099 ──────────────────────────
 // Gateway: /product/api/*  →  Product Service: /product/api/*  (no rewrite needed)
 app.use('/product/api', 
   (req, res, next) => {
@@ -107,9 +135,12 @@ app.use('/product/api',
   }
     next();
 
-    },proxy('http://127.0.0.1:6099', {
+    },proxy('http://localhost:6099', {
 
     proxyReqPathResolver: (req) => req.originalUrl,
+    
+     // ✅ Forward cookies — required for isAuthenticated middleware
+    proxyReqOptDecorator: forwardCookies,
 
     //! DO NOT NEED EITHER OF THEM proxyReqOptDecorator OR userResDecorator
     proxyErrorHandler: (err, res, next) => {
@@ -124,8 +155,8 @@ const port = process.env.PORT || 7777;
 
 const server = app.listen(port, () => {
   console.log(`🚪 API Gateway running at http://localhost:${port}`);
-  console.log(`   Auth proxy:    /api/*         → http://127.0.0.1:6001/auth/*`);
-  console.log(`   Product proxy: /product/api/* → http://127.0.0.1:6099/product/api/*`);
+  console.log(`   Auth proxy:    /api/*         → http://localhost:6001/auth/*`);
+  console.log(`   Product proxy: /product/api/* → http://localhost:6099/product/api/*`);
 
   try {
     initializeSiteConfig();

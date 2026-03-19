@@ -86,6 +86,10 @@ export const loginUser = async (
       return next(new ValidationError("Email and password are required!"));
     }
 
+    const rememberMe = req.headers['x-remember-me'] === 'true';
+    const accessTokenExpiry = rememberMe ? '2d' : '15m'; // Longer if remember me
+    const refreshTokenExpiry = rememberMe ? '15' : '7d';
+
     const user = await prisma.users.findUnique({ where: { email } });
     if (!user) return next(new AuthError("User doesn't exist!"));
     const isMatch = await bcrypt.compare(password, user.password!);
@@ -105,18 +109,34 @@ export const loginUser = async (
     const accessToken = jwt.sign(
     { id: user.id, role: "user" },
     process.env.JWT_ACCESS_SECRET as string,
-    { expiresIn: "15m" }
+    { expiresIn: accessTokenExpiry }
   );
 
   // Generate refresh token if needed
     const refreshToken = jwt.sign(
     { id: user.id, role: 'user' },
     process.env.JWT_REFRESH_SECRET as string,
-    { expiresIn: "7d" }
+    { expiresIn: refreshTokenExpiry }
   );
 
+    const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+  
     setCookie(res, "refresh_token", refreshToken);
     setCookie(res, "access_token", accessToken);
+
+    // setCookie(res, "seller-refresh-token", refreshToken, {
+    //   maxAge: cookieMaxAge,
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax'
+    // });
+    
+    // setCookie(res, "seller-access-token", accessToken, {
+    //   maxAge: cookieMaxAge,
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax'
+    // });
 
     res.status(200).json({ message: "Login successful!", 
       user: { id: user.id, name: user.name, email: user.email } 
@@ -184,11 +204,13 @@ export const refreshToken = async (
 };
   export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
-    res.status(201).json({ success: true });
+    const user = req.user
+    res.status(201).json({ success: true , user});
   } catch (error) {
     next(error);
   }
 }
+
 export const userForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   await  handleForgotPassword(req, res, next, "buyer");
 };
@@ -241,8 +263,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2026-01-28.clover", // Use the stable version provided in your Stripe dashboard
-  typescript: true, // Optional: enables better type support if you are using TS
+  apiVersion: "2026-02-25.clover", // Use the stable version provided in your Stripe dashboard
 });
 
 export const registerSeller = async (
@@ -429,6 +450,10 @@ export const loginSeller = async (
       return next(new ValidationError("Email and password are required!"));
     }
 
+    const rememberMe = req.headers['x-remember-me'] === 'true';
+    const accessTokenExpiry = rememberMe ? '2d' : '15m'; // Longer if remember me
+    const refreshTokenExpiry = rememberMe ? '15' : '7d';
+
     const seller = await prisma.sellers.findUnique({ where: { email } });
     if (!seller) return next(new AuthError("Seller doesn't exist!"));
     const isMatch = await bcrypt.compare(password, seller.password!);
@@ -436,9 +461,12 @@ export const loginSeller = async (
     if (!isMatch) {
       return next(new ValidationError("Invalid email or password!"));
     }
-    //!!!  ------------  WE HAVE TO GET RID OF PREVIOUS TOKENS ------- IT MIGHT BE SELLER OR USER @@ -------------
-    res.clearCookie("accessToken");
-    res.clearCookie("refressToken");
+
+    const cookieMaxAge = rememberMe ? 15 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days vs 7 days
+
+    // Clear any existing buyer tokens so sessions don't conflict
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
     
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
     return next(new AuthError("Internal Server Error: Missing Token Secrets (for seller)"));
@@ -446,14 +474,14 @@ export const loginSeller = async (
       const accessToken = jwt.sign(
       { id: seller.id, role: "seller" },
       process.env.JWT_ACCESS_SECRET as string,
-      { expiresIn: "15m" }
+      { expiresIn: accessTokenExpiry }
     );
 
     // Generate refresh token if needed
       const refreshToken = jwt.sign(
      { id: seller.id, role: "seller" },
       process.env.JWT_REFRESH_SECRET as string,
-      { expiresIn: "7d" }
+      { expiresIn: refreshTokenExpiry }
     );
     //!  USE THIS IF YOU HAVE BUYER ACCOUNT AND WANT TO AUTOMATICALLY SWITCH 
     // ! BETWEEN TWO ACCOUNT BECAUSE THIS COOKIE NAME SAME AS BUYER ONE
@@ -463,6 +491,21 @@ export const loginSeller = async (
     
     setCookie(res, "seller-refresh-token", refreshToken);
     setCookie(res, "seller-access-token", accessToken);
+
+    //! OPTIONAL FOR FULLY FUNCTIONAL REMEMBER-ME!
+    setCookie(res, "seller-refresh-token", refreshToken, {
+      maxAge: cookieMaxAge,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+    
+    // setCookie(res, "seller-access-token", accessToken, {
+    //   maxAge: cookieMaxAge,
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax'
+    // });
 
     res.status(200).json({ message: "Login successful!", 
       seller: { id: seller.id, name: seller.name, email: seller.email } 
@@ -571,3 +614,26 @@ export const resetSellerPassword = async (
   }
 };
 
+
+export const logout = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
+      path: "/",
+    };
+
+    // Clear all role-based tokens
+    res.clearCookie("access_token",          cookieOptions);
+    res.clearCookie("refresh_token",         cookieOptions);
+    res.clearCookie("seller-access-token",   cookieOptions);
+    res.clearCookie("seller-refresh-token",  cookieOptions);
+    res.clearCookie("admin-access-token",    cookieOptions);
+    res.clearCookie("admin-refresh-token",   cookieOptions);
+
+    res.status(200).json({ message: "Logged out successfully." });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -3,30 +3,30 @@
 //!!!!!!  THIS IS ONE FROM   !!!!!!!!!!!!!!
 
 import axios from "axios";
-import { useAuthStore } from "../store/authStore";
+import { useAuthState } from "../store/authStore";
+import { queryClient } from '../../../../utils/queryClient';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,   //! IT WAS EMPTY FOR A REASON !
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
    withCredentials: true,  // sends cookies automatically
 });
 
 let isRefreshing = false;
-let refreshSubscribers: Array<() => void> = [];
+let refreshSubscribers: Array<(success: boolean) => void> = [];
 
-const subscribeTokenRefresh = (callback: () => void) => {
+const subscribeTokenRefresh = (callback: (success: boolean) => void) => {
   refreshSubscribers.push(callback);
 };
 
 const onRefreshSuccess = () => {
-  refreshSubscribers.forEach((callback) => callback());
+  refreshSubscribers.forEach((cb) => cb(true));
   refreshSubscribers = [];
 };
 
-
-axiosInstance.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error)
-);
+const onRefreshFailure = () => {
+  refreshSubscribers.forEach((cb) => cb(false));
+  refreshSubscribers = [];
+};
 
 
 axiosInstance.interceptors.response.use(
@@ -34,14 +34,25 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+  // Only handle 401s, skip everything else
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
 
-    // Handle token refresh on 401
-    if (status === 401 && !originalRequest._retry) {
+    // Don't retry the refresh endpoint itself — would cause infinite loop
+    if (originalRequest.url?.includes('/api/refresh-token')) {
+      useAuthState.getState().logout();
+      queryClient.setQueryData(['seller'], null);
+      return Promise.reject(error);
+    }
+
+    if (!originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve) =>
           subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
         );
       }
+      
 
       originalRequest._retry = true;
       isRefreshing = true;
@@ -50,12 +61,20 @@ axiosInstance.interceptors.response.use(
         await axiosInstance.post(`/api/refresh-token`);
         isRefreshing = false;
         onRefreshSuccess();
+
+        // Invalidate user query to refetch with new token
+        queryClient.invalidateQueries({ queryKey: ['seller'] });
         return axiosInstance(originalRequest);
-      } catch (err) {
-        isRefreshing = false;
-        useAuthStore.getState().handleLogout()
-        return Promise.reject(err);
-      }
+      }  
+      catch (err) {
+          isRefreshing = false;
+          onRefreshFailure(); 
+          useAuthState.getState().handleLogout();
+
+        // Clear user data on refresh failure
+        queryClient.setQueryData(['seller'], null);
+          return Promise.reject(err);
+        }
     }
     
     // Handle 503 - service unavailable (backend down)

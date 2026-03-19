@@ -170,7 +170,7 @@ const SideBarWrapper = () => {
         <SidebarItem
           isActive={activeSidebar === "/logout"}
           title="Logout"
-          href="/login"
+          href="/seller-login"
           icon={
             <LogOut
               size={22}

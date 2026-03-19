@@ -1,0 +1,9 @@
+{
+  "name": "api-gateway",
+  "type": "commonjs", 
+  "scripts": {
+    "start": "node src/main.js",
+    "dev": "nodemon src/main.js"
+  },
+  "main": "src/main.js"
+}

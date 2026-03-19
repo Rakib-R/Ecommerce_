@@ -7,8 +7,9 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, Loader2, Mail, ArrowLeft, KeyRound, Lock, Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthState } from '../../store/authStore';
 import toast from 'react-hot-toast'
+import axiosInstance from '../../utils/axios';
 
 type Step = "email" | "otp" | "reset";
 
@@ -29,7 +30,7 @@ const ForgotPassword = () => {
   const router = useRouter();
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { tempEmail, setTempEmail } = useAuthStore();
+  const { tempEmail, setTempEmail } = useAuthState();
   const { register, handleSubmit, setValue } = useForm<FormData>();
 
   useEffect(() => {
@@ -55,8 +56,8 @@ const ForgotPassword = () => {
   // 1. Request OTP (Used for both initial send and Resend)
   const requestOtpMutation = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/forgot-password-buyer`, 
+      const response = await axiosInstance.post(
+        `/api/forgot-password-buyer`, 
         { email }
       );
       return response.data;
@@ -97,7 +98,7 @@ const ForgotPassword = () => {
   // 3. Reset Password
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ password }: { password: string }) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-user-password`, {
+      const response = await axiosInstance.post(`/api/reset-user-password`, {
         email: userEmail,
         newPassword: password,
       });

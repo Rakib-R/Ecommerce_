@@ -1,16 +1,16 @@
 
 import express, { Router } from "express";
-import { createShop, createStripeConnectLink, getSeller, getUser, loginSeller, loginUser, refreshToken, registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, stripeWebhook, userForgotPassword, userRegistration, verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
-import { isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
+import { createShop, createStripeConnectLink, getSeller, getUser, loginSeller, loginUser, logout, refreshToken, registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, stripeWebhook, userForgotPassword, userRegistration, verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { isBuyer, isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
 import {isAuthenticated} from "@packages/middleware"
 
 const router: Router = express.Router();
 
 router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUser); 
-router.post("/login-user", loginUser);
+router.post("/login-user",loginUser);
 router.post("/refresh-token", refreshToken);
-router.get("/logged-in-user" ,isAuthenticated, getUser);
+router.get("/logged-in-user", isAuthenticated, isBuyer, getUser);
 
 router.post("/forgot-password-buyer", userForgotPassword);
 router.post("/reset-user-password", resetUserPassword);
@@ -29,6 +29,8 @@ router.post("/verify-forgot-password-seller", verifySellerForgotPassword);
 
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
+
+router.post("/logout", logout);
 
 // router.post(
 //   "/webhook/stripe",

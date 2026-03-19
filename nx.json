@@ -65,6 +65,9 @@
     }
   ],
   "targetDefaults": {
+     "serve": {
+    
+    },
     "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],

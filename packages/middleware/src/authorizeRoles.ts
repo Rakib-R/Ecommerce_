@@ -13,7 +13,7 @@ export const isSeller = (req: any, res: Response, next: NextFunction) => {
 // Middleware to restrict access to Users only
 export const isBuyer = (req: any, res: Response, next: NextFunction) => {
   if (req.user?.role !== "user") {
-    return next(new AuthError("Access denied: Sellers only!"));
+    return next(new AuthError("Access denied: Buyers only!"));
   }
   next();
 };

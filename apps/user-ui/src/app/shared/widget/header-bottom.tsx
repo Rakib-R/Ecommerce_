@@ -2,147 +2,165 @@
 
 import { AlignLeft, ChevronDown, HeartIcon } from 'lucide-react';
 import Link from 'next/link';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { navItems } from '../../configs/constants';
 import Cart from "../../../../assests/svgs/cart.png"
 import useUser from "apps/user-ui/src/app/hooks/useUser"
+import { useAuthState, useStore } from '../../store/authStore';
+import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
+import LogOutIcon from '../../../../../public/logOut.svg'
+import SignInIcon from '../../../../../public/signIn.svg'
+import axiosInstance from '../../utils/axios';
+import { queryClient } from 'apps/utils/queryClient';
+import { useRouter } from 'next/navigation';
 
+interface HeaderBottomProps {
+  topHeaderHeight?: number;
+}
 
-const HeaderBottom = () => {
+const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
   const [show, setShow] = useState(false);
-  const [isFixed, setIsFixed] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const{ user, isLoading} = useUser();
-
+  const [isSticky, setIsSticky] = useState(false);
+  const { user, isLoading} = useUser();
+  const wishlist = useStore((state: any) => state.wishlist);
+  const cart = useStore((state: any) => state.cart);
+  
+  const router = useRouter();
+  const handleLogout = async () => {
+    await axiosInstance.post("/api/logout");
+    useAuthState.getState().logout();
+    queryClient.setQueryData(['user'], null);
+    router.push("/login");
+  };
 
   useEffect(() => {
-    const initialPos = containerRef.current?.offsetTop || 0;
-
     const handleScroll = () => {
-      if (window.scrollY > initialPos) {
-        setIsFixed(true);
+      // Check if we've scrolled past the top header
+      if (window.scrollY > topHeaderHeight) {
+        setIsSticky(true);
       } else {
-        setIsFixed(false);
+        setIsSticky(false);
       }
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [topHeaderHeight]);
 
   return (
-    /*
-       When the child becomes 'fixed', this div prevents the content below from jumping up.  */
-    <div ref={containerRef} className={`relative w-full h-[80px] ${isFixed ? "shadow-md" : '' }` }>
-      <main
-        className={`relative w-[1300px] left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${
-            isFixed 
-            ? "fixed top-0 left-0 shadow-lg bg-blue-500 animate-in fade-in slide-in-from-top-4" 
-            : "relative bg-blue-500"
-        }`}
+    <>
+      {/* Spacer that appears when sticky to prevent content jump */}
+      {isSticky && <div style={{ height: '80px' }} />}
+      
+      <header
+        className={`
+          w-full transition-all duration-300
+          ${isSticky 
+            ? 'fixed top-0 left-0 z-[90] bg-white/90 text-black backdrop-blur-sm shadow-lg animate-in fade-in slide-in-from-top-4' 
+            : 'relative bg-black/85 text-white shadow-[0_2px_4px_-2px_rgba(255,255,255,0.3)] z-[90]'
+          }
+        `}
       >
-        {/*  THE MARGIN/WIDTH CONTAINER: This mirrors the 'mx-8'  */}
-          <menu 
-            className={`relative flex items-center justify-between transition-all duration-300 ${
-              isFixed ? "py-3" : "py-4"
-            }`}
-          >
-            {/* ALL DROPDOWNS SECTION */}
-            <nav aria-label="department_navigation"
-                className="w-1/7 h-[50px] flex items-center justify-between cursor-pointer text-white bg-blue-500 rounded-sm"
-                onClick={() => setShow(!show)}
-              >
-                <div className="flex items-center gap-2 mx-4">
-                  <AlignLeft color="white" />
-                  <span className=" font-medium">All Departments</span>
-                </div>
-                <ChevronDown 
-                  color="white" 
-                  className={`transition-transform duration-300 ${show ? "rotate-180" : ""}`} 
-                />
-              {/* Dropdown menu: */}
-
-              {show && (
-              <div className="absolute left-0 top-full mt-1 w-[260px] h-[400px] bg-[#f5f5f5] shadow-xl z-[110] 
-              border-t-2 border-blue-500">
-                  <ul className="p-4 text-gray-700">
-                  <li className="py-2 hover:text-blue-500 cursor-pointer border-b">Category 1</li>
-                  <li className="py-2 hover:text-blue-500 cursor-pointer border-b">Category 2</li>
-                  <li className="py-2 hover:text-blue-500 cursor-pointer">Category 3</li>
-              </ul>
+        <div className="w-[1350px] mx-auto">
+          <menu className={`flex items-center gap-8 transition-all duration-300 ${
+            isSticky ? "py-3" : "py-4"
+          }`}>
+            {/* All Departments Dropdown */}
+            <section 
+              aria-label="department_navigation"
+              className="w-1/6 h-[50px] flex items-center cursor-pointer relative"
+              onClick={() => setShow(!show)}
+            >
+              <div className="flex items-center gap-2 mx-4">
+                <AlignLeft color={`${isSticky ? 'black' : 'white'}` } />
+                <span className="font-medium">All Departments</span>
               </div>
-            )}
-            </nav>
-           
-            {/* NAVIGATION LINKS */}
-            <section aria-label="nav" className="flex items-center">
-                {navItems.map((i: any, index: number) => (
-                <Link
-                    key={index}
-                    href={i.href}
-                    className="px-5 font-medium text-lg text-white hover:text-blue-200 transition-colors"
-                >
-                    {i.title}
-                </Link>
-                ))}
+              <ChevronDown 
+                color={`${isSticky ? 'black' : 'white'}` }
+                className={`transition-transform duration-300 ${show ? "rotate-180" : ""}`} 
+              />
+              
+              {show && (
+                <div className={`${isSticky ? 'text-black bg-[#f6f5f5]' : 'text-white bg-[#262626]'} absolute w-[110%] h-[400px] left-0 top-full mt-[13.5px] border-2 border-white shadow-xl z-[110]`}>
+                  <ul className="relative p-4">
+                    <li className="absolute w-[88%] left-8 top-8 py-2 hover:text-blue-500 cursor-pointer border-b">Category 1</li>
+                    <li className="absolute w-[88%] left-8 top-20 py-2 hover:text-blue-500 cursor-pointer border-b">Category 2</li>
+                    <li className="absolute w-[88%] left-8 top-32 py-2 hover:text-blue-500 cursor-pointer border-b">Category 3</li>
+                  </ul>
+                </div>
+              )}
             </section>
+           
+            {/* Navigation Links */}
+            <nav aria-label="nav" className="flex items-center justify-start bg-red-500 w-1/2">
+              {navItems.map((i: any, index: number) => (
+                <Link
+                  key={index}
+                  href={i.href}
+                  className="px-5 font-medium text-lg hover:text-blue-200 transition-colors"
+                >
+                  {i.title}
+                </Link>
+              ))}
+            </nav>
 
-          {/* FLEX GROW SPACE */}
-          <aside className="flex items-center gap-4 w-[36vw]">
-          {isFixed && (
-            <> 
-              {isLoading || !user ? (
-                /* GUEST / LOADING STATE */
+            {/* Right Side Icons - Only show when sticky */}
+            <aside className="flex items-center ml-[1.2rem] gap-4 w-[350px]">
+              {isSticky && (
                 <>
-                  <Link href="/login">
-                    <span className="block font-medium">
-                      Hello, <span className="font-semibold">Sign In</span>
-                    </span>
+                 {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
+                <div className="bg-blue-500 w-[140px]">
+                  {!isLoading && user && (
+                    <Link href="/profile" className="flex items-center gap-2">
+                    <img src={ProfileIcon.src} alt="Profile" className="" />
+                    <p className="font-medium text-black">
+                      <span className='text-md'>Hello, </span>
+                      <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
+                    </p>
                   </Link>
-
-                  <Link href={"/wishlist"} className="relative">
-                    <HeartIcon className="w-6 h-6" />
-                    <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 text-slate-100 rounded-full flex items-center justify-center ">
-                      <span className="text-red font-medium text-sm">0</span>
-                    </sup>
-                  </Link>
-
-                  <Link href={"/cart"} className="relative">
-                    <img src={Cart.src} alt="Cart icon" className="w-6 h-6" />
+                  )}
+              </div>
+                  {!isLoading && user ? (
+                    <Link href="/login" className="flex items-center gap-1">
+                      <img src={LogOutIcon.src} alt="Profile" className="w-6 h-6" 
+                      style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/>
+                      <span   
+                        className="text-lg font-medium text-red-800 cursor-pointer"
+                        onClick={handleLogout}
+                      >
+                        Log Out
+                      </span>
+                    </Link>
+                  ) : ( 
+                    <Link href="/login" className="flex items-center">
+                      <img src={SignInIcon.src} alt="Login" className="w-6 h-6" />
+                      <span className="text-lg font-medium text-cyan-600 ">
+                        {isLoading ? '...' : 'Sign In'}
+                      </span>
+                    </Link>
+                  )}
+                <aside className="flex items-center gap-3">
+                  <Link href="/wishlist" className="relative">
+                    <HeartIcon className="w-6 h-6 " />
                     <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 text-slate-100 rounded-full flex items-center justify-center">
-                      <span className="text-red font-medium text-sm">0</span>
-                    </sup>
-                  </Link>
-                </>
-              ) : (
-                /* LOGGED IN STATE */
-                <>
-                  <Link href="/login">
-                    <span className="block font-medium">
-                      Hello, <span className="font-semibold">{user.name?.split(" ")[0]}</span>
-                    </span>
-                  </Link>
-
-                  <Link href={"/wishlist"} className="relative">
-                    <HeartIcon className="w-6 h-6" />
-                    <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 text-slate-100 rounded-full flex items-center justify-center ">
-                      <span className="text-red font-medium text-sm">0</span>
+                      <span className="text-xs">{wishlist?.length || 0}</span>
                     </sup>
                   </Link>
 
-                  <Link href={"/cart"} className="relative">
+                  <Link href="/cart" className="relative">
                     <img src={Cart.src} alt="Cart icon" className="w-6 h-6" />
-                    <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 text-slate-100 rounded-full flex items-center justify-center">
-                      <span className="text-red font-medium text-sm">0</span>
+                    <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 rounded-full flex items-center justify-center">
+                      <span className="text-xs">{cart?.length || 0}</span>
                     </sup>
                   </Link>
+                </aside>
                 </>
               )}
-            </> 
-          )}
             </aside>
           </menu>
-      </main>
-    </div>
+        </div>
+      </header>
+    </>
   );
 };
 

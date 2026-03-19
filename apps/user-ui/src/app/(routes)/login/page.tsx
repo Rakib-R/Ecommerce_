@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useForm } from "react-hook-form";
-import GoogleButton from "../../shared/widget/components/google-button";
+import GoogleButton from "../../shared/components/google-button";
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
-import FacebookButton from '../../shared/widget/components/facebook-button';
+import FacebookButton from '../../shared/components/facebook-button';
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
-import { useAuthStore } from '../../store/authStore'; // Import your store
+import { AxiosError } from 'axios';
+import { useAuthState } from '../../store/authStore'; // Import your store
+import axiosInstance from '../../utils/axios';
+import { queryClient } from 'apps/utils/queryClient';
 
 type FormData = {
   email: string;
@@ -31,9 +33,10 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
 
   const router = useRouter();
-  
+  const { setUser } = useAuthState()
+
   // Zustand: Get the temp email and the clear function
-  const { tempEmail, clearTempEmail } = useAuthStore();
+  const { tempEmail, clearTempEmail } = useAuthState();
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
 
@@ -51,16 +54,26 @@ const Login = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-user`, 
-        data,
+      const response = await axiosInstance.post('/api/login-user', 
+          data,
         { withCredentials: true }
       );
+      queryClient.setQueryData(['user'], response.data.user);
       return response.data;
     },
+
     onSuccess: (data) => {
       setServerError(null);
       clearTempEmail(); // Security: Clear the temp email from memory on success
-      router.push("/");
+      setUser(data.user);
+
+      if (rememberMe) {
+        localStorage.setItem('rememberedSellerEmail', data.email);
+      } else {
+        localStorage.removeItem('rememberedSellerEmail');
+      }
+      router.push("/home");
+ 
     },
     onError: (error: AxiosError) => {
       const errorMessage =
@@ -149,6 +162,7 @@ const Login = () => {
                 <input
                   type={passwordVisible ? "text" : "password"}
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
                     errors.password ? 'border-red-500 ring-1 ring-red-100 bg-red-50' : 'border-gray-300 focus:border-black focus:ring-2 focus:ring-gray-100'
                   }`}

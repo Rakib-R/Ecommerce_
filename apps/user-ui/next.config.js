@@ -7,10 +7,27 @@ const { composePlugins, withNx } = require('@nx/next');
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
+   webpack: (config, { isServer }) => {
+    // Disable webpack cache
+    // config.cache = false;
+    return config;
+  },
+  
+  env: {
+    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
+  },
+  
   nx: {
     // Set this to true if you would like to use SVGR
-    // See: https://github.com/gregberge/svgr
     svgr: false,
+  },
+    images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+      },
+    ],
   },
 };
 
@@ -20,3 +37,5 @@ const plugins = [
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
+
+

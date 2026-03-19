@@ -1,18 +1,26 @@
-
-import { Response } from "express";
+import { Response, CookieOptions } from "express";
 
 export const setCookie = (
   res: Response,
   name: string,
-  value: string
+  value: string,
+  options?: Partial<CookieOptions>
 ) => {
-  // 7 days in milliseconds
-  const maxAge = 7 * 24 * 60 * 60 * 1000;
-
-  res.cookie(name, value, {
+  // Default options with proper typing
+  const defaultOptions: CookieOptions = {
+    // httpOnly: true,
+    // secure: process.env.NODE_ENV === "production",
+    // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    // path: "/",
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    maxAge,
-  });
+    secure: false,      //!SHOULD BE FALSE IN DEV MODE AND SAMESITE =lax
+    sameSite: "lax", //! NONE ONLY WORKS WITH SECURE==true
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+
+  // Merge defaults with provided options
+  const cookieOptions = { ...defaultOptions, ...options };
+
+  res.cookie(name, value, cookieOptions);
 };

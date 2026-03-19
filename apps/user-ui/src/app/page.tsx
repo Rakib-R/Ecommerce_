@@ -1,13 +1,10 @@
 
 
-import Link from "next/link";
-export default function Index() {
-
+export default function Page() {
+ 
   return (
-    <div>
-      <div className="">
-          
-      </div>
-    </div>
+    <main>
+      
+    </main>
   );
 }

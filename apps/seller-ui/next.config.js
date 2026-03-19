@@ -8,10 +8,15 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
 
+   webpack: (config, { isServer }) => {
+    // Disable webpack cache
+    // config.cache = false;
+    return config;
+  },
+  
   reactStrictMode: false,
   nx: {
-    // Set this to true if you would like to use SVGR
-    // See: https://github.com/gregberge/svgr
+
     svgr: false,
   },
   images: {

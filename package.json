@@ -2,11 +2,10 @@
   "name": "ecommerce-monorepo",
   "version": "0.0.0",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "dev": "npx nx run-many --target=serve --all",
-    "dev:backend": "npx nx run-many --target=serve --projects=api,api-gateway,auth-service,product-service",
-    "dev:frontend": "npx nx run-many --target=serve --projects=seller-ui,user-ui",
+    "dev:backend": "npx nx run-many --target=serve --projects=product-service,api-gateway,auth-service,api",
+    "dev:frontend": "npx nx run-many --target=serve --projects=seller-ui,user-ui --turbo",
     "auth-docs": "node apps/auth-service/src/swagger.js",
     "product-docs": "node apps/product-service/src/swagger.js",
     "prisma:generate": "prisma generate"
@@ -45,6 +44,7 @@
     "@types/react-dom": "19.0.0",
     "@types/swagger-ui-express": "^4.1.8",
     "autoprefixer": "10.4.13",
+    "cross-env": "^10.1.0",
     "eslint-config-prettier": "^9.0.0",
     "i": "^0.3.7",
     "jest": "^29.7.0",
@@ -85,6 +85,7 @@
     "helmet": "^8.1.0",
     "imagekit": "^6.0.0",
     "ioredis": "^5.9.3",
+    "jose": "^6.2.1",
     "jotai": "^2.18.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.575.0",
@@ -103,6 +104,7 @@
     "styled-components": "^6.3.11",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
+    "ua-parser-js": "^2.0.9",
     "zustand": "^5.0.11"
   }
 }

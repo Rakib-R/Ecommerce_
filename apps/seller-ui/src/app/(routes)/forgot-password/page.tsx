@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, Loader2, Mail, ArrowLeft, KeyRound, Lock, Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthState } from '../../store/authStore';
 import toast from 'react-hot-toast'
 
 type Step = "email" | "otp" | "reset";
@@ -29,7 +29,7 @@ const ForgotPassword = () => {
   const router = useRouter();
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { tempEmail, setTempEmail } = useAuthStore();
+  const { tempEmail, setTempEmail } = useAuthState();
   const { register, handleSubmit, setValue } = useForm<FormData>();
 
   useEffect(() => {

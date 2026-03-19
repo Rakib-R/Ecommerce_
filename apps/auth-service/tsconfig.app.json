@@ -8,8 +8,8 @@
   },
   
   "include": [
-    "src/**/*.ts"
-, "src/utils/axios.ts"  ],
+    "src/**/*.ts",  
+],
   "exclude": [
     "out-tsc",
     "dist",

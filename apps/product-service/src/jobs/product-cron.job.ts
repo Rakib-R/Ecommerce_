@@ -10,7 +10,7 @@ cron.schedule('0 * * * *', async () => {
     const deletedProducts = await prisma.product.deleteMany({
       where: {
         isDeleted: true,
-        deletedAt: { lte: now },
+        deleteAt: { lte: now },
       },
     });
 

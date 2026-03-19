@@ -19,6 +19,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import DeleteConfirmationModal from '../../../shared/components/modals/delete.confirmation.modal';
 
+type CreateProductPayload = {
+  title: string
+  description: string
+  detailed_description: string
+  category: string
+  slug: string
+  subCategory: string
+  brand?: string
+  regularPrice: number
+  sale_price?: number
+  stock: number
+  videoUrl?: string
+  cashOnDelivery: string
+  tags: string[]
+  colors?: string[]
+  sizes?: string[]
+  discountCodes?: string[]
+  images: {
+    fileId: string
+    file_url: string
+  }[]
+  customProperties?: Record<string, any>
+  custom_specifications?: Record<string, any>
+}
+
 const fetchProducts = async () => {
   const res = await axiosInstance.get(`/product/api/get-shop-products`);
   return res.data?.products;
@@ -39,13 +64,17 @@ const ProductList = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [ toggleShowDeleteIcon, setToggleShowDeleteIcon ] = useState<boolean>(true);
 
     const queryClient = useQueryClient();
     const { data: products , isLoading } = useQuery({
       queryKey: ["shop-products"],
-      queryFn: fetchProducts,
-      staleTime: 1000 * 60, // 1 minute
-    });
+      queryFn: async () => {
+      const data = await fetchProducts();
+      return data;
+      },
+      staleTime: 1000 * 60,
+});
 
     // Delete Product Mutation
     const deleteMutation = useMutation({
@@ -53,6 +82,8 @@ const ProductList = () => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["shop-products"] });
         setShowDeleteModal(false);
+        setToggleShowDeleteIcon(true);
+
       },
     });
 
@@ -61,10 +92,12 @@ const ProductList = () => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["shop-products"] });
         setShowDeleteModal(false);
+        setToggleShowDeleteIcon(false);
+
       },
     });
 
-    const openDeleteModal = useCallback((product: any) => {
+    const openDeleteModal = useCallback((product: CreateProductPayload) => {
       setSelectedProduct(product);
       setShowDeleteModal(true);
   }, []);
@@ -73,7 +106,12 @@ const ProductList = () => {
     {
       accessorKey: "image",
       header: "Image",
-      cell: ({ row }: any) => (
+      cell: ({ row }: any) => { 
+
+      const imageUrl = row.original.images?.[0]?.url;
+      console.log('seller-ui all-products Image URL:', imageUrl); // Debug
+      return imageUrl ? (
+
         <Image
           src={row.original.images?.[0]?.url}
           alt="product-image"
@@ -81,7 +119,12 @@ const ProductList = () => {
           height={48}
           className="w-12 h-12 rounded-md object-cover"
         />
-      ),
+        ) : (
+        <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center">
+          <span className="text-xs text-gray-400">No img</span>
+      </div>
+        )
+      },
     },
     {
       accessorKey: "name",
@@ -162,7 +205,7 @@ const ProductList = () => {
         e.stopPropagation();
         openDeleteModal(row.original)
       }}>
-        <Trash2 size={18} />
+       {toggleShowDeleteIcon ? <Trash size={18}/> : <Trash2 size={18} /> } 
       </button>
     </div>
   ),

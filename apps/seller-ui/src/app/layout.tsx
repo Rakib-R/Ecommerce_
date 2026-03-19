@@ -1,6 +1,6 @@
 
 import './global.css';
-import Providers from './providers';
+import Providers from '../../../../apps/utils/providers'
 import { Poppins } from 'next/font/google';
 
 export const metadata = {

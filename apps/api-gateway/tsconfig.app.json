@@ -1,10 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "../../",  
     "outDir": "../../dist/out-tsc",
-   "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "CommonJS",
     "types": ["node", "express"]
   },
   "include": ["src/**/*.ts"],

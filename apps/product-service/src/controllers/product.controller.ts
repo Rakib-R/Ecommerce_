@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "packages/libs/imageKit";
+import { Prisma } from "@prisma/client";
 
 // GET product categories
 export const getCategories = async (
@@ -172,12 +173,42 @@ export const deleteProductImage = async (
     }
 }
 
+type CreateProductPayload = {
+  title: string
+  description: string
+  detailed_description: string
+  category: string
+  slug: string
+  subCategory: string
+  brand?: string
+  regularPrice: number
+  sale_price?: number
+  stock: number
+  videoUrl?: string
+  cashOnDelivery: string
+  tags: string[] | string
+  colors?: string[]
+  sizes?: string[]
+  starting_date: Date
+  ending_date: Date
+  discountCodes?: string[]
+  images: {
+    fileId: string
+    file_url: string
+  }[]
+  customProperties?: Record<string, any>
+  custom_specifications?: Record<string, any>
+}
+
+
 export const createProduct = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+
+    const body = req.body as CreateProductPayload;
 
     const {
       title,
@@ -199,7 +230,12 @@ export const createProduct = async (
       images, // ARRAYS Of IMAGES
       customProperties,
       custom_specifications,
-    } = req.body;
+    } = body;
+
+    //! AUTH-ERROR
+    if (!(req as any).seller.id){
+      return next (new AuthError('Only seller can create product!'))
+    }
 
     //todo . Basic Validation
   // 1. Define fields as an object
@@ -213,24 +249,27 @@ export const createProduct = async (
     if (missingFields.length > 0) {
       throw new ValidationError(`Missing required fields: ${missingFields.join(", ")}`);
     }
+      
+    // Convert comma-separated tags string into a clean array
+    let formattedTags: string[] = [];
 
-    //todo .AuthError
-    if (!(req as any).seller.id){
-      return next (new AuthError('Only seller can create product!'))
+    if (Array.isArray(tags)) {
+       formattedTags = tags as string[];
+    } else if (tags && typeof tags === 'string') {
+      formattedTags = tags.split(',').map(tag => tag.trim());
     }
 
-    //todo SLUG CHECKING
+    //todo . SLUG Checking
     const slugChecking = await prisma.product.findUnique({
       where: {
         slug: slug,
     },  
-  });
-    if (slugChecking) {
-    return next( new ValidationError("Slug already exist! Please use a different slug!") );
-  }
-    // Convert comma-separated tags string into a clean array
-    const formattedTags = Array.isArray(tags)
-        ? tags  : tags.split(',');
+    });
+      if (slugChecking) {
+      return next( new ValidationError("Slug already exist! Please use a different slug!") );
+    }
+
+
 
     const newProduct = await prisma.product.create({
         data: {
@@ -243,9 +282,9 @@ export const createProduct = async (
         slug, 
         shopId: (req as any).seller?.shop.id!,
         sizes: sizes || [],
-        stock: parseInt(stock),
-        sale_price: parseFloat(sale_price),
-        regular_price: parseFloat(regularPrice),
+        stock: parseInt(String(stock)),
+        sale_price: sale_price ? parseFloat(String(sale_price)) : 0,
+        regular_price: parseFloat(String(regularPrice)),
         colors: colors || [],
         custom_property: customProperties || {},
         custom_specification: custom_specifications || {},
@@ -257,17 +296,16 @@ export const createProduct = async (
             url: img.file_url,
           }))},
 
-        starting_date: new Date(), 
+        starting_date: body.starting_date ? new Date(body.starting_date) : new Date(), 
         video_url: videoUrl,
         cashOnDelivery : String(cashOnDelivery),
         tags: formattedTags,
        discount_codes: discountCodes && discountCodes.length > 0 ? { connect: discountCodes
         .filter((id: string) => id && id.trim() !== "")
         .map((id: string) => ({ id })) }   : undefined,
-      },
+      } ,
       include: { images: true } 
     });
-        
 
     res.status(201).json({
       success: true,
@@ -298,6 +336,7 @@ export const getShopProducts = async ( req : Request, res: Response, next: NextF
     },
   });
 
+  console.log("Raw product count:", products.length);
     res.status(201).json({
       success: true,
       products,
@@ -354,8 +393,6 @@ export const deleteProduct = async (
   }
 };
 
-
-
 export const restoreProduct = async (
   req: Request,
   res: Response,
@@ -406,3 +443,107 @@ export const restoreProduct = async (
     });
   }
 };
+
+export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
+
+  try {
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const type = req.query.type;
+    const now = new Date();
+    
+    // Correct date filter with proper Prisma typing
+    const baseFilter: Prisma.productWhereInput = {
+      isDeleted: false,
+      status: "Active",
+      // AND: [
+      //   { OR: [
+      //       { starting_date: { equals: null } },       // ✅ no start date = always visible
+      //       { starting_date: { lte: now } }
+      //     ]
+      //   },
+      //   {
+      //     OR: [
+      //       { starting_date: { equals: null } },
+      //       { ending_date: { gte: now } }
+      //     ]
+      //   }
+      //   ]
+    };
+
+    const orderBy: Prisma.productOrderByWithRelationInput =
+      type === "latest"
+        ? { createdAt: "desc" }
+        : { totalSales: "desc" };
+
+    const [products, total, top10Products] = await Promise.all([
+      // Fetch paginated products
+      prisma.product.findMany({
+        skip,
+        take: limit,
+        include: {
+          images: true,
+          Shop: true,
+        },
+        where: baseFilter,
+        orderBy
+      }),
+
+      // Count total products matching filter
+      prisma.product.count({
+        where: baseFilter,
+      }),
+
+    // Fetch top 10 products by totalSales
+    prisma.product.findMany({
+        take: 10,
+        orderBy: { totalSales: "desc" },
+        include: {
+          images: true,
+          Shop: true,
+        },
+        where: {
+          isDeleted: false,
+          status: "Active",
+          AND: [
+              {
+                OR: [
+                  { starting_date: { equals: null } },         // ✅ no start date = always visible
+                  { starting_date: { lte: now } }
+                ]
+              },
+              {
+                OR: [
+                  { starting_date: { equals: null } },
+                  { ending_date: { gte: now } }
+                ]
+              }
+            ]
+        }
+      }),
+    ]);
+
+  const count = await prisma.product.count({ where: { isDeleted: false } });
+const countWithStatus = await prisma.product.count({ where: { isDeleted: false, status: "Active" } });
+// console.log("count (no status):", count);
+// console.log("count (with status):", countWithStatus);
+// console.log("count (full filter):", countWithFullFilter);
+
+  const response = {
+      products,
+      topBy: type,           
+      top10Products,
+      total,
+      currentPage: page,
+      orderType: type === "latest" ? "latest" : "topSales",
+      totalPages: Math.ceil(total / limit),
+    };
+      res.status(200).json(response)
+
+    } catch (error) {
+      next(error);
+  }
+};
+

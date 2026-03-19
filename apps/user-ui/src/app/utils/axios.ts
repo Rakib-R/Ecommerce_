@@ -1,20 +1,12 @@
-
-//!!!!!!  THIS IS ONE FROM  TUTORIAL !!!!!!!!!!!!!!
+// utils/axios-instance.ts
 import axios from "axios";
-import { useAuthStore } from "../store/authStore";
+import { useAuthState } from "../store/authStore";
+import { queryClient } from "../../../../utils/queryClient"; // Import the SAME instance
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,  // ✅ points to gateway
-  withCredentials: true,  // ✅ sends cookies automatically
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
+  withCredentials: true,
 });
-
-// export const productApi = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URI, // set once here
-// });
-
-// export const authApi = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_AUTH_SERVICE_URI,
-// });
 
 let isRefreshing = false;
 let refreshSubscribers: Array<() => void> = [];
@@ -28,44 +20,54 @@ const onRefreshSuccess = () => {
   refreshSubscribers = [];
 };
 
-// ✅ Attach request interceptor
-axiosInstance.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error)
-);
-
-// ✅ Attach response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+     // Only handle 401s, skip everything else
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // Don't retry the refresh endpoint itself — would cause infinite loop
+    if (originalRequest.url?.includes('/api/refresh-token')) {
+      useAuthState.getState().logout();
+      queryClient.setQueryData(['user'], null);
+      return Promise.reject(error);
+    }
+
+    if (!originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve) =>
           subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
         );
       }
-
+      
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-          await axiosInstance.post("/api/refresh-token")
+        await axiosInstance.post("/api/refresh-token")
 
         isRefreshing = false;
         onRefreshSuccess();
+        
+        // Invalidate user query to refetch with new token
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        
         return axiosInstance(originalRequest);
       } catch (err) {
         isRefreshing = false;
-        useAuthStore.getState().logout();
+        useAuthState.getState().logout();
+        
+        // Clear user data on refresh failure
+        queryClient.setQueryData(['user'], null);
         return Promise.reject(err);
       }
     }
-
     return Promise.reject(error);
   }
 );
 
-// ✅ Export the instance itself
 export default axiosInstance;

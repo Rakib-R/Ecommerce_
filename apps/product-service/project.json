@@ -14,7 +14,7 @@
         "outputPath": "dist/apps/product-service",
         "main": "apps/product-service/src/main.ts",
         "tsConfig": "apps/product-service/tsconfig.app.json",
-        "webpackConfig": "apps/product-service/webpack.config.cjs" 
+        "webpackConfig": "apps/product-service/webpack.config.js" 
       },
       "configurations": {
         "production": { "optimization": true },

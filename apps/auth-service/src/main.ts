@@ -7,6 +7,7 @@ import { errorMiddleware } from '@packages/error-handler';
 import router from './routes/auth.router';
 import swaggerDocument from './swagger-output.json';
 
+
 const app = express();
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
@@ -17,10 +18,10 @@ app.use(
       if (!origin) return callback(null, true);
 
       const allowedOrigins = [
-        'http://127.0.0.1:7777', // API Gateway
-        'http://localhost:7777',
-        'http://localhost:3000',
+        'http://localhost:7777', // API Gateway
+        'http://127.0.0.1:7777',
         'http://127.0.0.1:3000',
+        'http://localhost:3000',
         'http://localhost:4000',
         'http://127.0.0.1:4000',
         'http://192.168.0.105:3000',
@@ -78,6 +79,6 @@ app.use(errorMiddleware);
 const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
-  console.log(`🔑 Auth Service running at http://127.0.0.1:${port}/auth`);
-  console.log(`📖 Swagger Docs at   http://127.0.0.1:${port}/auth/docs`);
+  console.log(`🔑 Auth Service running at http://localhost:${port}/auth`);
+  console.log(`📖 Swagger Docs at   http://localhost:${port}/auth/docs`);
 });

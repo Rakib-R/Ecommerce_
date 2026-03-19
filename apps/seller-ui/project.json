@@ -9,13 +9,18 @@
   
   "targets": {
 
-    "build": {
+  "build": {
   "executor": "@nx/next:build",
   "options": {
     "outputPath": "dist/apps/seller-ui"
   },
   "configurations": {
-    "development": {},
+    "development": {
+        "buildTarget": "seller-ui:build:development",
+        "dev": true,
+        "port": 4000,
+        "turbo": true  
+      },
     "production": {}
   }
 },
@@ -24,7 +29,8 @@
     "options": {
       "buildTarget": "seller-ui:build",
       "dev": true,
-      "port": 4000
+      "port": 4000,
+      "turbo": true
     },
     "configurations": {
       "development": {

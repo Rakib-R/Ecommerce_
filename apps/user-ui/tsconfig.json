@@ -34,8 +34,9 @@
     "../../dist/apps/user-ui/.next/types/**/*.ts",
     "next-env.d.ts",
     "next.config.mjs",
+    "next.config.js",
     ".next/types/**/*.ts"
-  ],
+, "tailwind.config.js", "postcss.config.js", "../utils/providers.tsx", "../utils/queryClient.ts"  ],
   "exclude": [
     "node_modules",
     "jest.config.ts",

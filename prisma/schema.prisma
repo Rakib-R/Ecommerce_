@@ -145,10 +145,12 @@ model product {
 
   // AI Assistance Defined ERROR
   discount_codes  discount_codes[] @relation("ProductDiscountCodes")
-
+  totalSales  Int      @default(0) 
+  
   // Meta
   createdAt           DateTime @default(now())
   starting_date       DateTime?
+  ending_date         DateTime?
   deleteAt            DateTime?
   updatedAt           DateTime @updatedAt
 }

@@ -15,12 +15,12 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      "http://127.0.0.1:7777",
+      "http://localhost:7777",
       "http://localhost:7777", 
       "http://localhost:3000",
-      "http://127.0.0.1:3000", 
+      "http://localhost:3000", 
       "http://localhost:4000",
-      "http://127.0.0.1:4000",
+      "http://localhost:4000",
     ];
 
     if (allowedOrigins.includes(origin)) {
@@ -48,7 +48,7 @@ app.use('/product/api', router);
 
 // Health Check Route
 app.get('/product/health', (req, res) => {  
-  res.send({ message: `🎗🎗Product Service running at http://127.0.0.1:${port}/product`,
+  res.send({ message: `🎗🎗Product Service running at http://localhost:${port}/product`,
   });
 });
 
@@ -64,8 +64,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 const server = app.listen(port, () => {
-  console.log(`.🎗 Product Service running http://127.0.0.1:${port}/product 🎀🎀🎁`);
-  console.log(`Swagger Docs at http://127.0.0.1:${port}/api/docs`);
+  console.log(`.🎗 Product Service running http://localhost:${port}/product 🎀🎀🎁`);
+  console.log(`Swagger Docs at http://localhost:${port}/api/docs`);
 });
 
 
