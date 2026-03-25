@@ -17,6 +17,8 @@ export const setCookie = (
     secure: false,      //!SHOULD BE FALSE IN DEV MODE AND SAMESITE =lax
     sameSite: "lax", //! NONE ONLY WORKS WITH SECURE==true
     maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+    domain: undefined
   };
 
   // Merge defaults with provided options

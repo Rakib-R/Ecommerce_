@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "types": ["node", "express"],
+    "rootDir": "../../",
+    "baseUrl": ".",
+    "paths": {
+      "@packages/*": ["../../packages/*"]
+    },
+
+  },
+  "include": ["src/**/*.ts" , "../../packages/**/*.ts"]
+}

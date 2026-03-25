@@ -34,6 +34,21 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+
+    const skipRefreshRoutes = [
+      '/api/login-seller',
+      '/api/seller-registration',
+      '/api/register-user',
+    ];
+
+      const isAuthRoute = skipRefreshRoutes.some(r => 
+      originalRequest.url?.includes(r)
+    );
+
+    if (isAuthRoute) {
+      return Promise.reject(error); // ← return immediately, no refresh
+    }
+
   // Only handle 401s, skip everything else
     if (error.response?.status !== 401) {
       return Promise.reject(error);
@@ -52,7 +67,6 @@ axiosInstance.interceptors.response.use(
           subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
         );
       }
-      
 
       originalRequest._retry = true;
       isRefreshing = true;
@@ -66,10 +80,13 @@ axiosInstance.interceptors.response.use(
         queryClient.invalidateQueries({ queryKey: ['seller'] });
         return axiosInstance(originalRequest);
       }  
-      catch (err) {
+      catch (err: any) {
+        
           isRefreshing = false;
           onRefreshFailure(); 
-          useAuthState.getState().handleLogout();
+          if (err.response?.status === 401 || err.response?.status === 400) {
+              useAuthState.getState().handleLogout();
+          }
 
         // Clear user data on refresh failure
         queryClient.setQueryData(['seller'], null);

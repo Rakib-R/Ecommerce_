@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface User {
+interface Seller {
   id: string;
   role: string;
   name?: string;
@@ -11,8 +11,8 @@ interface User {
 
 interface AuthState {
   // User state
-  user: User | null;
-  setUser: (user: User | null) => void;
+  seller: Seller | null;
+  setSeller: (seller: Seller | null) => void;
   logout: () => void;
   
   // Temp email for registration flow
@@ -28,10 +28,10 @@ export const useAuthState = create<AuthState>()(
   persist(
     (set) => ({
       // User state
-      user: null,
-      setUser: (user) => set({ user }),
+      seller: null,
+      setSeller: (seller) => set({ seller }),
       logout: () => {
-        set({ user: null, tempEmail: null });
+        set({ seller: null, tempEmail: null });
         // Clear any other auth-related state
       },
 
@@ -43,7 +43,7 @@ export const useAuthState = create<AuthState>()(
       // Logout handler with redirect
       handleLogout: () => {
         // Clear all auth state
-        set({ user: null, tempEmail: null });
+        set({ seller: null, tempEmail: null });
         
         // Remove persisted storage
         if (typeof window !== 'undefined') {
@@ -53,8 +53,8 @@ export const useAuthState = create<AuthState>()(
         // Redirect to login if not already there
         if (typeof globalThis.window !== "undefined") {
           const location = globalThis.window.location;
-          if (location.pathname !== "/login") {
-            location.href = "/login";
+          if (location.pathname !== "/seller-login") {
+            location.href = "/seller-login";
           }
         }
       },
@@ -63,7 +63,7 @@ export const useAuthState = create<AuthState>()(
       name: 'auth-storage', // localStorage key
       // Only persist specific fields
       partialize: (state) => ({ 
-        user: state.user,
+        seller: state.seller,
         tempEmail: state.tempEmail 
       }),
     }
@@ -71,5 +71,5 @@ export const useAuthState = create<AuthState>()(
 );
 
 // Optional: Add selectors for better performance
-export const useUser_State = () => useAuthState((state) => state.user);
+export const useSeller_State = () => useAuthState((state) => state.seller);
 export const useTempEmail = () => useAuthState((state) => state.tempEmail);

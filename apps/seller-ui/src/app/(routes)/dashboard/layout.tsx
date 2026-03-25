@@ -32,15 +32,15 @@
 
         {/* Main Content */}
         <main className="flex-1 bg-black text-white">
-          {/* <PersistQueryClientProvider client={queryClient} persistOptions={{
+          <PersistQueryClientProvider client={queryClient} persistOptions={{
             persister,
             dehydrateOptions: {
               shouldDehydrateQuery: (query) =>
                 query.state.status === "success", // never cache errors
             },
-          }}> */}
+          }}>
             {children}
-        {/* </PersistQueryClientProvider> */}
+        </PersistQueryClientProvider>
         </main>
       </div>
     );

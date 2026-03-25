@@ -64,7 +64,7 @@ const ProductList = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
-    const [ toggleShowDeleteIcon, setToggleShowDeleteIcon ] = useState<boolean>(true);
+    const [deletedProductIds, setDeletedProductIds] = useState<Set<string>>(new Set());
 
     const queryClient = useQueryClient();
     const { data: products , isLoading } = useQuery({
@@ -74,16 +74,14 @@ const ProductList = () => {
       return data;
       },
       staleTime: 1000 * 60,
-});
-
+  });
     // Delete Product Mutation
     const deleteMutation = useMutation({
       mutationFn: deleteProduct,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["shop-products"] });
         setShowDeleteModal(false);
-        setToggleShowDeleteIcon(true);
-
+         setDeletedProductIds(prev => new Set(prev).add(selectedProduct.id));
       },
     });
 
@@ -92,7 +90,11 @@ const ProductList = () => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["shop-products"] });
         setShowDeleteModal(false);
-        setToggleShowDeleteIcon(false);
+        setDeletedProductIds(prev => {
+          const next = new Set(prev);
+          next.delete(selectedProduct.id);
+          return next;
+        });
 
       },
     });
@@ -178,7 +180,12 @@ const ProductList = () => {
      },
      {
       header: "Actions",
-      cell: ({ row }: any) => (
+      cell: ({ row }: any) => { 
+
+      const isDeleted = deletedProductIds.has(row.original.id);
+      console.log("---- isDeleted Product------ ", isDeleted);
+
+      return (
       <div className="flex gap-3">
         <Link
           href={`/product/${row.original.id}`}
@@ -205,15 +212,15 @@ const ProductList = () => {
         e.stopPropagation();
         openDeleteModal(row.original)
       }}>
-       {toggleShowDeleteIcon ? <Trash size={18}/> : <Trash2 size={18} /> } 
+        {isDeleted ? <Trash2 size={18} color='green'/> : <Trash size={18} color='red'/>}
       </button>
     </div>
-  ),
-
+    )
+  }
 }
-  ], [openDeleteModal])
 
-    
+  ], [openDeleteModal, deletedProductIds])
+
     const table = useReactTable({
         data: products,
         columns,

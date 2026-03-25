@@ -17,10 +17,10 @@ app.use(cors({
     const allowedOrigins = [
       "http://localhost:7777",
       "http://localhost:7777", 
+      "http://127.0.0.1:3000",
       "http://localhost:3000",
-      "http://localhost:3000", 
       "http://localhost:4000",
-      "http://localhost:4000",
+      "http://127.0.0.1:4000",
     ];
 
     if (allowedOrigins.includes(origin)) {

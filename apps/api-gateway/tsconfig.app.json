@@ -6,6 +6,6 @@
     "module": "CommonJS",
     "types": ["node", "express"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../auth-service/src/controller/track-router-kafka.ts"],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

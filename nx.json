@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "master",
+  "nxCloudAccessToken": " ",
+  "tui": {
+    "enabled": false
+  },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
@@ -65,13 +69,13 @@
     }
   ],
   "targetDefaults": {
-     "serve": {
-    
-    },
+    "serve": {},
     "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     }
-  }
+  },
+  "analytics": true,
+  "useDaemonProcess": false
 }

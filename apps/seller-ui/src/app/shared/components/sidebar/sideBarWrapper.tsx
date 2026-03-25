@@ -13,16 +13,27 @@ import Image from 'next/image';
 import SidebarItem from './sidebar.item';
 import { BellPlus, BellRing, CalendarPlus, CreditCard, Home, ListOrdered, LogOut, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from 'lucide-react';
 import SidebarMenu from './sidebar.menu';
-
+import axiosInstance from '../../../utils/axiosInstance';
+import { useAuthState } from '../../../store/authStore';
+import { queryClient } from 'apps/utils/queryClient';
+import { useRouter } from 'next/navigation';
 
 const SideBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
   const {seller } = useSeller();
+  const router = useRouter();
 
   useEffect(() => {
     setActiveSidebar(pathName);
   }, [pathName, setActiveSidebar]);
+
+  const handleLogout = async () => {
+    await axiosInstance.post("/api/logout");
+    useAuthState.getState().logout();
+    queryClient.setQueryData(['seller'], null);
+    router.push("/seller-login");
+  };
 
   const getIconColor = (route: string) => activeSidebar === route ? "#0085ff" : "#969696"
   return (
@@ -171,6 +182,7 @@ const SideBarWrapper = () => {
           isActive={activeSidebar === "/logout"}
           title="Logout"
           href="/seller-login"
+          logOutFunc={handleLogout}
           icon={
             <LogOut
               size={22}

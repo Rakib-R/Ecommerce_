@@ -38,11 +38,11 @@ app.use(
 app.use(
   cors({
     origin: [
+      'http://127.0.0.1:3000',
       'http://localhost:3000',
+      'http://127.0.0.1:3001',
       'http://localhost:3001',
-      'http://localhost:4000',
-      'http://localhost:3000',
-      'http://localhost:3001',
+      'http://127.0.0.1:4000',
       'http://localhost:4000',
       'http://192.168.0.105:3000',
       'http://192.168.0.105:3001',
@@ -102,6 +102,7 @@ app.use(
           .replace(/SameSite=None/gi, 'SameSite=Lax')
           .replace(/SameSite=Strict/gi, 'SameSite=Lax')
           .replace(/;\s*Secure/gi, '')
+          .replace(/;\s*Domain=[^;]*/gi, '')
 
       // If no Domain attribute at all, inject it
       if (!/domain=/i.test(c)) {
@@ -115,9 +116,9 @@ app.use(
   return proxyResData;
 },
 
-    proxyErrorHandler: (err, res, next) => {
-      console.error('❌ Auth Service proxy error:', err.message);
-      res.status(503).json({ error: 'Auth Service is down' });
+  proxyErrorHandler: (err, res, next) => {
+    console.error('❌ Auth Service proxy error:', err.message);
+    res.status(503).json({ error: 'Auth Service is down' });
     },
   })
 );
@@ -142,7 +143,6 @@ app.use('/product/api',
      // ✅ Forward cookies — required for isAuthenticated middleware
     proxyReqOptDecorator: forwardCookies,
 
-    //! DO NOT NEED EITHER OF THEM proxyReqOptDecorator OR userResDecorator
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Product Service proxy error:', err.message);
       res.status(503).json({ error: 'Product Service is down or misconfigured' });

@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -12,7 +14,6 @@ import useDeviceTracking from '../../hooks/useDeviceTracking'
 import type { Store, Product } from '../../store/authStore'
 
 
-
 const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: boolean) => void }) => {
 
     const [activeImage, setActiveImage] = useState(0)
@@ -22,10 +23,10 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
     const [quantity, setQuantity] = useState(1)
 
     const addToCart = useStore((state: Store) => state.addToCart)
-    const removeToCart = useStore((state: Store) => state.removeFromCart)
     const addToWishlist = useStore((state: Store) => state.addToWishlist)
-    const removeFromWishlist = useStore((state: Store) => state.removeFromWishlist)
     const wishlist = useStore((state : Store) => state.wishlist)
+    const removeToCart = useStore((state: Store) => state.removeFromCart)
+    const removeFromWishlist = useStore((state: Store) => state.removeFromWishlist)
     const isWishlisted = wishlist?.some((item : Product) => item.id === data.id)
     const cart = useStore((state : Store) => state.cart)
     const isInCart = cart?.some((item : Product) => item.id === data.id)
@@ -40,7 +41,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
     if (!data) return null
     return (
         <div
-            className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4"
+            className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[500] p-4"
             onClick={() => setOpen(false)}>
             <div
                 className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl"
@@ -103,12 +104,12 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                             <div className="flex items-center gap-3">
                                 <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
                                     <Image
-                                        src={data?.Shop?.avatar || '/default-shop-logo.png'}
+                                        src={data?.Shop?.avatar || '/default-shop.jpg'}
                                         alt="Shop"
                                         fill
                                         className="object-cover"
                                         sizes="48px"
-                                        onError={(e) => { e.currentTarget.src = '/default-shop-logo.png' }}
+                                        onError={(e) => { e.currentTarget.src = '/default-shop.jpg' }}
                                     />
                                 </div>
                                 <div>

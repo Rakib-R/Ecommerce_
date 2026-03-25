@@ -121,22 +121,24 @@ export const loginUser = async (
 
     const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
   
-    setCookie(res, "refresh_token", refreshToken);
-    setCookie(res, "access_token", accessToken);
+    // setCookie(res, "refresh_token", refreshToken);
+    // setCookie(res, "access_token", accessToken);
 
-    // setCookie(res, "seller-refresh-token", refreshToken, {
-    //   maxAge: cookieMaxAge,
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax'
-    // });
+    setCookie(res, "refresh_token", refreshToken, {
+      maxAge: cookieMaxAge,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+       path: "/",
+    });
     
-    // setCookie(res, "seller-access-token", accessToken, {
-    //   maxAge: cookieMaxAge,
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax'
-    // });
+    setCookie(res, "access_token", accessToken, {
+      maxAge: cookieMaxAge,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+       path: "/",
+    });
 
     res.status(200).json({ message: "Login successful!", 
       user: { id: user.id, name: user.name, email: user.email } 
@@ -158,6 +160,9 @@ export const refreshToken = async (
       req.cookies["refresh_token"] || 
       req.cookies["seller-refresh-token"] ||
       req.headers.authorization?.split(" ")[1];
+
+    console.log('REFRESH TOKEN FOUND:', refreshToken ? 'YES' : 'NO');
+    // console.log('COOKIE HEADER:', req.headers.cookie); 
 
     if (!refreshToken) {
       throw new ValidationError("Unauthorized! No refresh token.");
@@ -488,24 +493,27 @@ export const loginSeller = async (
 
     // setCookie(res, "refreshToken", refreshToken);
     // setCookie(res, "accessToken", accessToken);
-    
-    setCookie(res, "seller-refresh-token", refreshToken);
-    setCookie(res, "seller-access-token", accessToken);
+    // SHORT CUT 
+    // setCookie(res, "seller-refresh-token", refreshToken);
+    // setCookie(res, "seller-access-token", accessToken);
 
+    // --------------- ~ LONG CUT ~  ----------------------
     //! OPTIONAL FOR FULLY FUNCTIONAL REMEMBER-ME!
     setCookie(res, "seller-refresh-token", refreshToken, {
       maxAge: cookieMaxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      sameSite: 'lax',
+       path: "/",
     });
     
-    // setCookie(res, "seller-access-token", accessToken, {
-    //   maxAge: cookieMaxAge,
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax'
-    // });
+    setCookie(res, "seller-access-token", accessToken, {
+      maxAge: cookieMaxAge,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+       path: "/",
+    });
 
     res.status(200).json({ message: "Login successful!", 
       seller: { id: seller.id, name: seller.name, email: seller.email } 
@@ -517,14 +525,13 @@ export const loginSeller = async (
 };
 
 // Get logged-in seller
-
 export const getSeller = async (
   req: any,
   res: Response,
   next: NextFunction
 ) => {
 
-  if (!req.seller) {
+  if (!req.user || req.user.role !== 'seller') {
     return res.status(403).json({ success: false, message: "Forbidden: Not a seller" });
   }
   try {

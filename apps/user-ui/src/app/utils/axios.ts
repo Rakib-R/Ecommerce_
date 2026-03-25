@@ -9,14 +9,18 @@ const axiosInstance = axios.create({
 });
 
 let isRefreshing = false;
-let refreshSubscribers: Array<() => void> = [];
+let refreshSubscribers: Array<(success: boolean) => void> = [];
 
-const subscribeTokenRefresh = (callback: () => void) => {
+const subscribeTokenRefresh = (callback: (success: boolean) => void) => {
   refreshSubscribers.push(callback);
 };
 
 const onRefreshSuccess = () => {
-  refreshSubscribers.forEach((callback) => callback());
+  refreshSubscribers.forEach((cb) => cb(true));
+  refreshSubscribers = [];
+};
+const onRefreshFailure = () => {
+  refreshSubscribers.forEach((cb) => cb(false));
   refreshSubscribers = [];
 };
 
@@ -57,9 +61,13 @@ axiosInstance.interceptors.response.use(
         queryClient.invalidateQueries({ queryKey: ['user'] });
         
         return axiosInstance(originalRequest);
-      } catch (err) {
-        isRefreshing = false;
-        useAuthState.getState().logout();
+      } catch (err:any) {
+          onRefreshFailure(); 
+          isRefreshing = false;
+          if (err.response?.status === 401 || err.response?.status === 400) {
+              useAuthState.getState().handleLogout();
+        }
+
         
         // Clear user data on refresh failure
         queryClient.setQueryData(['user'], null);

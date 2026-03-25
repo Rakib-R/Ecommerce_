@@ -5,11 +5,16 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import Ratings from './Ratings'
 import { Eye, Heart, ShoppingBag } from 'lucide-react'
+
 import ProductDetailsCard from './product-details'
+import ProductDetails_experimental from './ProductDetails_experimental'
+
 import { useStore } from '../../store/authStore'
 import useUser from '../../hooks/useUser'
 import { useLocationTracking } from '../../hooks/useLocationTracking'
 import useDeviceTracking from '../../hooks/useDeviceTracking'
+
+
 
 const ProductCard = ({product, isEvent} : {product: any, isEvent?: boolean}) => { 
 
@@ -22,18 +27,31 @@ const addToWishlist = useStore((state: any) => state.addToWishlist)
 const removeFromWishlist = useStore((state: any) => state.removeFromWishlist)
 const wishlist = useStore((state : any) => state.wishlist)
 const isWishlisted = wishlist?.some((item : any) => item.id === product.id)
-const cart = useStore((state : any) => state.cart)
-const isInCart = cart?.some((item : any) => item.id === product.id)
 
-const {user} = useUser() 
-const location = useLocationTracking
-const deviceInfo = useDeviceTracking
+  const cart = useStore((state : any) => state.cart)
+  const isInCart = cart?.some((item : any) => item.id === product.id)
+  const setModalOpen = useStore((state) => state.setModalOpen)
+
+  const {user} = useUser() 
+  const location = useLocationTracking()
+  const deviceInfo = useDeviceTracking()
+
+  
+  // HEADER TURNING OFF MECHANISM
+useEffect(() => {
+    setModalOpen(open)           // ← syncs local `open` state → global store
+    document.body.classList.toggle('overflow-hidden', open)
+    return () => {
+      setModalOpen(false)        // ← cleanup on unmount
+      document.body.classList.remove('overflow-hidden')
+    }
+  }, [open])
 
 // Fix: Only run timer for event products with ending_date
 useEffect(() => {
   // Only run if it's an event AND has ending_date
   if (!isEvent || !product?.ending_date) {
-    setTimeLeft(""); // Clear any existing timeLeft
+    setTimeLeft(""); 
     return;
   }
 
@@ -59,19 +77,8 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [isEvent, product?.ending_date]); // Dependencies are correct
+}, [isEvent, product?.ending_date]);
 
-  useEffect(() => {
-  if (open) {
-    document.body.classList.add('overflow-hidden');
-  } else {
-    document.body.classList.remove('overflow-hidden');
-  }
-
-  return () => {
-    document.body.classList.remove('overflow-hidden');
-  };
-}, [open]);
 
   // If no product data, don't render
   if (!product) {
@@ -206,7 +213,7 @@ return(
 
     {/* Product Details Modal */}
     {open && (
-      <ProductDetailsCard data={product} setOpen={setOpen} />
+      <ProductDetails_experimental data={product} setOpen={setOpen} />
     )}
   </div>
   )

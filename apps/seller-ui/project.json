@@ -19,7 +19,7 @@
         "buildTarget": "seller-ui:build:development",
         "dev": true,
         "port": 4000,
-        "turbo": true  
+        "turbo": false  
       },
     "production": {}
   }
@@ -30,7 +30,8 @@
       "buildTarget": "seller-ui:build",
       "dev": true,
       "port": 4000,
-      "turbo": true
+      "host": "localhost", 
+      "turbo": false
     },
     "configurations": {
       "development": {

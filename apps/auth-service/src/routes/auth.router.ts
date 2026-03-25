@@ -3,6 +3,7 @@ import express, { Router } from "express";
 import { createShop, createStripeConnectLink, getSeller, getUser, loginSeller, loginUser, logout, refreshToken, registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, stripeWebhook, userForgotPassword, userRegistration, verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import { isBuyer, isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
 import {isAuthenticated} from "@packages/middleware"
+import track_router_kafka, { kafka_batch } from "../controller/track-router-kafka";
 
 const router: Router = express.Router();
 
@@ -30,6 +31,8 @@ router.post("/verify-forgot-password-seller", verifySellerForgotPassword);
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
 
+router.post('/track-user-kafka', track_router_kafka);
+router.post('/kafka_batch' , kafka_batch)
 router.post("/logout", logout);
 
 // router.post(

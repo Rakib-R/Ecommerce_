@@ -1,7 +1,9 @@
 
+'use client'
 
 import {useQuery} from '@tanstack/react-query';
 import axiosInstance from "../utils/axios"
+import { useEffect, useState } from 'react';
 
 // fetch user data from API
  const fetchUser = async () => {
@@ -11,13 +13,20 @@ import axiosInstance from "../utils/axios"
 
   } catch (error: any) {
     if (error?.response?.status === 401) {
-      return null;  //! ✅ Unauthenticated = null, not undefined and NOT ERROR
+      return null;  //! Unauthenticated = null, not undefined and NOT ERROR
     }
     throw error; 
   }
 };
 
 const useUser = () => {
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const { data: user, isLoading, isError, refetch } = useQuery({
    queryKey: ["user"],
     queryFn: fetchUser,
@@ -27,8 +36,7 @@ const useUser = () => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-
-    // 🔥 This ensures that when the query fails (401), 
+    enabled: mounted, //todo ← ADDING this ENSURES query fails (401), 
     // React Query doesn't keep retrying and sets data to undefined
     retryOnMount: false,
 });

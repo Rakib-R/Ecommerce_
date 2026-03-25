@@ -2,8 +2,6 @@
 'use client'
 
 import React from 'react'
-import Hero from '../../shared/modules/hero';
-import Header from '../../shared/widget/header';
 import axiosInstance from '../../utils/axios';
 import { useQuery } from '@tanstack/react-query';
 import useUser from '../../hooks/useUser'; // Import the hook, not fetchUser
@@ -32,14 +30,11 @@ const Home = () => {
   });
 
   console.log("Products data:", products);
-  console.log("Products count:", products?.length);
   
   if (userLoading) return <div>Loading...</div>; // Optional loading state
   
   return (
     <main>
-      <Header />
-      <Hero />
       {isUser && (
         <section>
           <h2>Recommended for you</h2>

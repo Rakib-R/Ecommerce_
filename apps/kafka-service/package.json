@@ -1,0 +1,7 @@
+
+{
+  "name": "@ecommerce/kafka-service",
+  "version": "1.0.0",
+  "description": "Kafka consumer service for analytics",
+  "main": "src/index.ts"
+}

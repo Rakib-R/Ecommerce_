@@ -2,6 +2,7 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join, resolve } = require('path'); // Added resolve
 
 module.exports = {
+  entry: './src/main.ts', 
   output: {
     path: join(__dirname, '../../dist/apps/api-gateway'),
   },

@@ -11,7 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useAuthState } from '../../store/authStore'; // Import your store
 import axiosInstance from '../../utils/axios';
-import { queryClient } from 'apps/utils/queryClient';
+import { queryClient } from '@apps/utils/queryClient';
 
 type FormData = {
   email: string;
@@ -88,7 +88,6 @@ const Login = () => {
       <h1 className="text-4xl mb-8 font-Poppins font-semibold text-black text-center">
         Ecommerce_
       </h1>
-  
 
       <div className="flex justify-center px-4">
         <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">

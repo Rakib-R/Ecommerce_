@@ -13,13 +13,12 @@ import { X } from 'lucide-react';
 const WishlistPage = () => {
     const { user } = useUser();
     const addToCart = useStore((state: any) => state.addToCart);
-    const removeFromCart = useStore((state: any) => state.removeFromCart);
     const removeFromWishlist = useStore((state: any) => state.removeFromWishlist);
     const wishlist = useStore((state: any) => state.wishlist);
 
     const location = useLocationTracking();
     const deviceInfo = useDeviceTracking();
-
+    
     const increaseQuantity = (id: string) => {
     useStore.setState((state: any) => ({
         wishlist: state.wishlist.map((item: any) => 

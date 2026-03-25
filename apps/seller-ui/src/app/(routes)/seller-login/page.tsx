@@ -32,7 +32,7 @@ const Login = () => {
   const router = useRouter();
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
-  const { setUser } = useAuthState();
+  const { setSeller } = useAuthState();
 
   // Pre-fill email if remembered
   useEffect(() => {
@@ -62,7 +62,7 @@ const Login = () => {
     },
     onSuccess: (data) => {
       setServerError(null);
-      setUser(data.user);
+      setSeller(data.user);
       // Store email if remember me is checked
       if (rememberMe) {
         localStorage.setItem('rememberedSellerEmail', data.email);

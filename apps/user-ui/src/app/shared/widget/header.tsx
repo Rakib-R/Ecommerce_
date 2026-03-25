@@ -8,10 +8,8 @@ import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
 import HeaderBottom from "./header-bottom";
 import useUser from "../../hooks/useUser";
 import { useAuthState, useStore } from "../../store/authStore";
-import LogOutIcon from '../../../../../public/logOut.svg'
-import SignInIcon from '../../../../../public/signIn.svg'
 import {useRouter} from "next/navigation";
-import { queryClient } from "apps/utils/queryClient";
+import { queryClient } from "@apps/utils/queryClient";
 import axiosInstance from "../../utils/axios";
 
 const Header = () => {
@@ -36,7 +34,7 @@ const Header = () => {
   };
 
   return (
-    <div className="z-[100]">
+    <div className="z-[90]">
       <div ref={topHeaderRef}>
         <main className="max-w-[1300px] mx-auto relative z-[10]">
           <div className="px-5 py-5 h-32 flex items-center justify-between gap-4">
@@ -61,7 +59,7 @@ const Header = () => {
               <div className="flex items-center">
 
                 {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
-                <div className="bg-blue-500 w-[140px]">
+                <div className={`${user && 'bg-blue-500/10 outline outline-[5px] outline-blue-500/10 '} w-[140px]`}>
                 {!isLoading && user && (
                   <Link href="/profile" className="flex items-center gap-2">
                     <img src={ProfileIcon.src} alt="Profile" className="" />
@@ -75,14 +73,14 @@ const Header = () => {
 
                 {!isLoading && user ? (
                   <Link href="/login" className="flex items-center gap-1">
-                    <img src={LogOutIcon.src} alt="Profile" className="w-6 h-6 ml-2" 
+                    <img src="/logOut.svg" alt="Profile" className="w-6 h-6 ml-2" 
                     style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/>
                     <span className="text-md font-medium text-red-800"
                       onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
                   </Link>
                 ) : (
                   <Link href="/login" className="flex items-center gap-1">
-                    <img src={SignInIcon.src} alt="Login" className="w-6 h-6" />
+                    <img src="/signIn.svg" alt="Login" className="w-6 h-6" />
                     <span className="font-medium text-black">
                       <span className="text-lg text-cyan-600 font-medium">{isLoading ? '...' : 'Sign In'}</span>
                     </span>

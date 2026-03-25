@@ -5,14 +5,12 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { navItems } from '../../configs/constants';
 import Cart from "../../../../assests/svgs/cart.png"
-import useUser from "apps/user-ui/src/app/hooks/useUser"
+import useUser from "@apps/user-ui/src/app/hooks/useUser"
 import { useAuthState, useStore } from '../../store/authStore';
 import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
-import LogOutIcon from '../../../../../public/logOut.svg'
-import SignInIcon from '../../../../../public/signIn.svg'
-import axiosInstance from '../../utils/axios';
-import { queryClient } from 'apps/utils/queryClient';
+import { queryClient } from '@apps/utils/queryClient';
 import { useRouter } from 'next/navigation';
+import axiosInstance from 'src/app/utils/axios';
 
 interface HeaderBottomProps {
   topHeaderHeight?: number;
@@ -56,8 +54,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
         className={`
           w-full transition-all duration-300
           ${isSticky 
-            ? 'fixed top-0 left-0 z-[90] bg-white/90 text-black backdrop-blur-sm shadow-lg animate-in fade-in slide-in-from-top-4' 
-            : 'relative bg-black/85 text-white shadow-[0_2px_4px_-2px_rgba(255,255,255,0.3)] z-[90]'
+            ? 'fixed top-0 left-0 z-[200] bg-white/90 text-black backdrop-blur-sm shadow-lg animate-in fade-in slide-in-from-top-4' 
+            : 'relative bg-black/85 text-white shadow-[0_2px_4px_-2px_rgba(255,255,255,0.3)] z-[50]'
           }
         `}
       >
@@ -92,7 +90,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
             </section>
            
             {/* Navigation Links */}
-            <nav aria-label="nav" className="flex items-center justify-start bg-red-500 w-1/2">
+            <nav aria-label="nav" className="flex items-center justify-start w-1/2">
               {navItems.map((i: any, index: number) => (
                 <Link
                   key={index}
@@ -109,7 +107,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
               {isSticky && (
                 <>
                  {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
-                <div className="bg-blue-500 w-[140px]">
+                <div className={`${user && 'bg-blue-500/10 outline outline-[5px] outline-blue-500/10 '} w-[140px]`}>
                   {!isLoading && user && (
                     <Link href="/profile" className="flex items-center gap-2">
                     <img src={ProfileIcon.src} alt="Profile" className="" />
@@ -122,10 +120,10 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
               </div>
                   {!isLoading && user ? (
                     <Link href="/login" className="flex items-center gap-1">
-                      <img src={LogOutIcon.src} alt="Profile" className="w-6 h-6" 
+                      <img src="/logOut.svg" alt="Profile" className="w-6 h-6" 
                       style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/>
                       <span   
-                        className="text-lg font-medium text-red-800 cursor-pointer"
+                        className="text-lg font-medium text-purple-900 cursor-pointer"
                         onClick={handleLogout}
                       >
                         Log Out
@@ -133,7 +131,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     </Link>
                   ) : ( 
                     <Link href="/login" className="flex items-center">
-                      <img src={SignInIcon.src} alt="Login" className="w-6 h-6" />
+                      <img src="/signIn.svg" alt="Login" className="w-6 h-6" />
                       <span className="text-lg font-medium text-cyan-600 ">
                         {isLoading ? '...' : 'Sign In'}
                       </span>

@@ -24,16 +24,6 @@ type FormData = {
   country: string;
 };
 
-const { data: seller, isLoading } = useQuery({
-  queryKey: ["logged-in-seller"],
-  queryFn: async () => {
-    const res = await axiosInstance.get("/api/logged-in-seller", {
-      withCredentials: true,
-    });
-    return res.data;
-  },
-  retry: false,
-});
 
 const FieldError = ({ message }: { message?: string }) => {
   if (!message) return null;
@@ -76,6 +66,17 @@ const SignUp = () => {
   const [dialCode, setDialCode] = useState("+880");
   // sellerData only needed within the current OTP flow session
   const [sellerData, setSellerData] = useState<FormData | null>(null);
+
+    const { data: seller, isLoading } = useQuery({
+    queryKey: ["logged-in-seller"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/api/logged-in-seller", {
+        withCredentials: true,
+      });
+      return res.data;
+    },
+    retry: false,
+  });
 
   // Pre-fill step-1 form with persisted values so nothing is re-typed after refresh
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({

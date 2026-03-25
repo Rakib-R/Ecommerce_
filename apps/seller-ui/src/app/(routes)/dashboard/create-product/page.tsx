@@ -66,7 +66,6 @@ const page = () => {
             throw error;
           }
       },              
-      // ← comma here
       staleTime: 1000 * 60 * 5,
       retry: 2,
     });
@@ -98,19 +97,24 @@ const page = () => {
         message: errors[field]?.message,
     });
   });
-
-  toast.error("Please fix the errors in the form before submitting.");
+    toast.error("Please fix the errors in the form before submitting.");
  };
 
     const onSubmit = async (data: any) => {
+
       try {
+        const payload = {
+        ...data,
+        starting_date: new Date(data.starting_date),
+        ending_date: data.ending_date ? new Date(data.ending_date) : null,
+    };
         setLoading(true);
-        await axiosInstance.post('/product/api/create-product', data);
+        await axiosInstance.post('/product/api/create-product', payload);
         router.push('/dashboard/all-products');
       }
       catch (error: any){
         console.log("Backend error status:", error?.response?.status);
-         console.log("Backend error data:", error?.response?.data);
+        console.log("Backend error data:", error?.response?.data);
         toast.error(error?.data?.message)
         }
       finally{
@@ -122,8 +126,8 @@ const page = () => {
       if (!selectedImage || processing) return;
       setProcessing(true);
       setActiveEffect(transformation);
-    try {
 
+    try {
       let source = selectedImage;
       if (selectedImage.includes("_next/image")) {
       const urlParams = new URLSearchParams(selectedImage.split('?')[1]);

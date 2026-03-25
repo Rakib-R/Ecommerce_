@@ -10,6 +10,10 @@ declare global {
         id: string;
         role: string;
       };
+        seller?: {
+        id: string;
+        role: string;
+      };
     }
   }
 }
@@ -28,11 +32,19 @@ const ROLE_PORT_MAP: Record<string, number[]> = {
   admin:  [9999],
 };
 
+// ✅ Only look for tokens that belong to this port's role
+const roleByPort: Record<number, string> = {
+  3000: 'user',
+  4000: 'seller',
+  9999: 'admin',
+}
+
 const ROLE_TOKENS: Record<string, string[]> = {
   user:   ['access_token'],
   seller: ['seller-access-token'],
   admin:  ['admin-access-token', 'admin-refresh-token'],
 };
+
 
 export const globalMiddleware = (
   req: Request,
@@ -41,18 +53,44 @@ export const globalMiddleware = (
 ) => {
   try {
     // ── 1. Origin / Port Guard ───────────────────────────────────────────────
-    const env = (process.env.NODE_ENV as "production" | "development") || "development";
-    const origin = req.headers.origin || req.headers.referer || "";
-    const allowedOrigins = ALLOWED_ORIGINS[env];
+    // const env = (process.env.NODE_ENV as "production" | "development") || "development";
+    
+    // const allowedOrigins = ALLOWED_ORIGINS[env];
+    
+    // if (origin && !allowedOrigins.some((o) => origin.startsWith(o))) {
+      //   return next(new AuthError("Access denied: Invalid origin."));
+      // }
+      
+    const origin = req.headers.origin || "";
+    const originPort = parseInt(origin.split(":")?.[2] || "80");
 
-    if (origin && !allowedOrigins.some((o) => origin.startsWith(o))) {
-      return next(new AuthError("Access denied: Invalid origin."));
-    }
-
-    // ── 2. Token Extraction ──────────────────────────────────────────────────
+    // -------── 1.9 ---── SUPERIOR TOken XTraction ────────────────────────────────────────
     let token: string | undefined;
-    let tokenFromCookie;
 
+      const expectedRole = roleByPort[originPort];
+      const tokenNamesToCheck = expectedRole 
+      ? ROLE_TOKENS[expectedRole]           // ← seller app only checks seller tokens
+      : Object.values(ROLE_TOKENS).flat();
+      
+    // Only check tokens relevant to this app's role
+      let tokenFromCookie: string | undefined;
+      if (req.cookies) {
+        for (const tokenName of tokenNamesToCheck) {
+          if (req.cookies[tokenName]) {
+            tokenFromCookie = req.cookies[tokenName];
+            break;
+          }
+        }
+      }
+    
+    const authHeader = req.headers.authorization;
+     const tokenFromHeader = authHeader?.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : undefined;
+
+     token = tokenFromCookie ?? tokenFromHeader;
+    if (!token) return next(); // unauthenticated requests pass through
+    
     // Check cookies first
     if (req.cookies) {
       for (const tokenName of Object.values(ROLE_TOKENS).flat()) {
@@ -62,18 +100,10 @@ export const globalMiddleware = (
           }
       }
     }
-    const authHeader = req.headers.authorization;
-    const tokenFromHeader = authHeader?.startsWith('Bearer ')
-      ? authHeader.slice(7)
-      : undefined;
-
-     token = tokenFromCookie ?? tokenFromHeader;
-    if (!token) return next(); // unauthenticated requests pass through
-
+ 
     // ── 3. Verify & Decode Token ─────────────────────────────────────────────
     let decoded = jwt.decode(token) as any;
     try {
-        // console.log('TOKEN PAYLOAD:', decoded);
         // console.log('TOKEN EXPIRED?', decoded?.exp < Math.floor(Date.now() / 1000));
         // console.log('SECRET LENGTH:', process.env.JWT_ACCESS_SECRET?.length);
         // console.log('SECRET PREVIEW:', process.env.JWT_ACCESS_SECRET?.slice(0, 6));
@@ -98,7 +128,6 @@ export const globalMiddleware = (
       }
     }
 
-
     // ── 5. Role Tampering Guard ───────────────────────────────────────────────
     if (req.body?.role || req.query?.role) {
       const injectedRole = req.body?.role || req.query?.role;
@@ -110,27 +139,21 @@ export const globalMiddleware = (
       if (req.query?.role) delete req.query.role;
     }
 
-    // ── 6. Port Mismatch Guard ────────────────────────────────────────────────
-    if (env === "development") {
-      const origin = req.headers.origin || "";
-      const originPort = parseInt(origin.split(":")?.[2] || "80"); // gets port from origin URL
+  // ── 7. Attach clean user to request ──────────────────────────────────────
+  const payload = {
+    id: decoded.id,
+    role: decoded.role,
+  };
 
-      const allowedPorts = ROLE_PORT_MAP[decoded.role] || [];
+  if (decoded.role === 'seller') {
+      req.seller = payload;
+  } else if (decoded.role === 'user') {
+      req.user = payload;
+  } else if (decoded.role === 'admin') {
+      req.user = payload; // or req.admin if you add that too
+  }
 
-      if (allowedPorts.length && originPort && !allowedPorts.includes(originPort)) {
-        return next(
-          new AuthError(
-            `Access denied: Role "${decoded.role}" is not allowed on port ${originPort}.`
-          )
-        );
-      }
-    }
-
-    // ── 7. Attach clean user to request ──────────────────────────────────────
-    req.user = {
-      id: decoded.id,
-      role: decoded.role,
-    };
+   
 
     next();
   } catch (error) {
