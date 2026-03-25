@@ -24,6 +24,10 @@
         "name": "next"
       }
     ],
+    "paths": {
+      "@/*": ["src/*"],
+      "@utils": ["src/utils/*"]
+    },
 
     "outDir": "dist",
     "rootDir": "../../",

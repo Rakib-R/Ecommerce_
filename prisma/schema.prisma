@@ -160,10 +160,10 @@ model product {
   
   video_url           String?
   brand               String?
-  regular_price       Float
+  regularPrice       Float
   ratings             Float    @default(5)
   warranty            String?
-  sale_price          Float    @default(0)
+  salePrice          Float    @default(0)
   stock               Int      @default(0)
   custom_specification Json?
   custom_property      Json?

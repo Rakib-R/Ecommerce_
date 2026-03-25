@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import { ChevronRight, Wand, X } from 'lucide-react';
+import { ChevronRight, Redo2, RotateCcw, Undo2, Wand, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react'
 import ImagePlaceholder from '../../../shared/components/image-placeholderr';
 import Input from 'packages/components/input';
@@ -11,8 +11,6 @@ import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
 import { queryClient } from 'apps/utils/queryClient';
 import { SizeSelector } from 'packages/components/size-selector';
-import { convertFileToBase64 } from '../../../utils/convertFile2Base64' 
-
 import Image from 'next/image';
 import { AxiosError } from "axios";
 import Link from 'next/link';
@@ -20,18 +18,49 @@ import { Controller, useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
 import toast from 'react-hot-toast';
-import { enhancements } from '../../../utils/AI.enhancements';
+import { enhancements } from '../../../configs/AI.enhancements';
 import { useRouter } from 'next/navigation';
+import { useImageManagement } from '../../../utils/useImageManagement';
 
-// Fix — explicitly grab the default export and type it
-// At module level, outside your component
-const RichTextEditor = dynamic(
-  () => import('packages/components/rich-text-editor').then(mod => mod.default),
-  {
-    ssr: false,
-    loading: () => <div className="h-40 w-full bg-zinc-800 animate-pulse rounded-md" />
-  }
-);
+  const {
+    images,
+    openImageModal,
+    processing,
+    activeEffect,
+    pictureUploadLoader,
+    selectedImage,
+    selectedImageIndex,
+
+    // Actions
+    handleImageChange,
+    handleRemoveImage,
+    openModal,
+    closeModal,
+    applyTransformation,
+    undoTransformation,      
+    redoTransformation,      
+    resetTransformations,
+    isTransformationActive,
+    getActiveTransformations,
+    
+    // Setters
+    setImages,
+    setOpenImageModal,
+    setSelectedImage,
+    setSelectedImageIndex,
+  } = useImageManagement({
+    maxImages: 8,
+    formFieldName: "images"
+  });
+
+    // Fix — explicitly grab the default export and type it
+    const RichTextEditor = dynamic(
+      () => import('packages/components/rich-text-editor').then(mod => mod.default),
+      {
+        ssr: false,
+        loading: () => <div className="h-40 w-full bg-zinc-800 animate-pulse rounded-md" />
+      }
+    );
 
 interface UploadedImage {
   fileId : string;
@@ -39,7 +68,7 @@ interface UploadedImage {
 }
 interface ProductFormData {
   title: string;
-  description: string; // Short description
+  short_descriptio: string; // Short description
   detailed_description: string; // Rich text
   tags: string;
   warranty: string;
@@ -66,16 +95,11 @@ interface ProductFormData {
 const page = () => {
 
    const [openImageModal, setOpenImageModal] = useState(false);
-   const [processing, setProcessing] = useState<boolean>(false);
-   const [activeEffect, setActiveEffect] = useState<String | null>(null);
-   const [pictureUploadLoader, setPictureUploadLoader] = useState<boolean>(false)
    const [selectedImage, setSelectedImage] = useState('');
-   const [images, setImages] = useState<(UploadedImage | null)[]>([null])
-
   const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = 
         useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
          title: "",
-        description: "",
+        short_descriptio: "",
         detailed_description: "",
         tags: "",
         warranty: "",
@@ -158,8 +182,10 @@ const page = () => {
         ...data,
         cashOnDelivery: data.cash_on_delivery === "yes", 
         starting_date: new Date(data.starting_date),
-
       }
+    
+    delete payload.cash_on_delivery;
+
     try {
     await toast.promise(createProduct(payload), {
       loading: 'Saving product details...',
@@ -180,100 +206,7 @@ const page = () => {
   }
     };
 
-    const applyTransformation = async (transformation: string) => {
-      if (!selectedImage || processing) return;
-      setProcessing(true);
-      setActiveEffect(transformation);
 
-    try {
-      let source = selectedImage;
-      if (selectedImage.includes("_next/image")) {
-      const urlParams = new URLSearchParams(selectedImage.split('?')[1]);
-      source = decodeURIComponent(urlParams.get('url') || "");
-    }
-      const baseUrl = source.split('?')[0];
-      const transformedUrl = `${baseUrl}?tr=${transformation}`;
-
-    setSelectedImage(transformedUrl);
-    setActiveEffect(transformation);
-    
-  } catch (error) {
-      console.error("AI Error:", error);
-  } finally {
-      setProcessing(false);
-    }
-  }
-
-  const handleImageChange = async (file: File | null, index: number) => {
-    if (!file) return;
-    setPictureUploadLoader(true);
-    
-    try {
-        const fileName = await convertFileToBase64(file);    
-        const response = await axiosInstance.post("/product/api/upload-product-image", { fileName });    
-                 
-        const uploadedImage: UploadedImage = {
-          fileId: response.data.fileId,
-          file_url: response.data.file_url
-        };
-
-        // Use the callback version of setImages to get the LATEST state
-        setImages((prevImages) => {
-          const updated = [...prevImages];
-          updated[index] = uploadedImage;
-
-          // Check if we need to add the next "plus" slot
-          if (index === prevImages.length - 1 && updated.length < 8) {
-            updated.push(null);
-          }
-          // Sync with the form immediately
-          setValue("images", updated);
-          return updated;
-        });
-
-    } catch (error) {
-          console.error("Upload failed!", error);
-          toast.error("One or more images failed to upload.");
-    } finally {
-      setPictureUploadLoader(false);
-    }
-};
-
-    const handleRemoveImage = async (index: number) => {
-      
-    try{
-      const updatedImages = [...images];
-      const imageToDelete = updatedImages[index];
-      
-      if (imageToDelete && typeof imageToDelete === 'object'){
-          await axiosInstance.delete('/product/api/delete-product-image', 
-          {data: { fileId : imageToDelete.fileId} 
-          });
-      }
-      setImages((prevImages) => {
-        const updatedImages = [...prevImages];
-
-        if (index >= updatedImages.length) {
-          return updatedImages;
-        }
-        if (index === 0) {
-          updatedImages[0] = null;
-        } else {
-          updatedImages.splice(index, 1);
-        }
-
-      if (!updatedImages.includes(null) && updatedImages.length < 1) {
-        updatedImages.push(null);
-      }
-        setValue("images", updatedImages);
-        return updatedImages;
-      });
-      
-    }
-    catch (error){
-        console.log('Image Can"t be removed', error as string)
-      }
-  };
 
     const hanldeSaveDraft = () =>{
 
@@ -282,7 +215,7 @@ const page = () => {
   return (
   <form 
     className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
-    onSubmit={handleSubmit(onSubmit)}>
+    onSubmit={handleSubmit(onSubmit, onInvalid)}>
 
     <h2 className="py-2 font-semibold font-Poppins text-white"> Create Product</h2>
     <div className="flex items-center gap-2 text-gray-400">
@@ -357,7 +290,7 @@ const page = () => {
           cols={10}
           label="Short Description * (Max 150 words)"
           placeholder="Enter product description for quick view"
-          {...register("description", {
+          {...register("short_descriptio", {
             required: "Description is required",
             validate: (value) => {
               const wordCount = value.trim().split(/\s+/).length;
@@ -368,9 +301,9 @@ const page = () => {
             },
           })}
         />
-          {errors.description && (
+          {errors.short_descriptio && (
           <p className="text-xs text-red-500 mt-1">
-            {errors.description.message as string}
+            {errors.short_descriptio.message as string}
           </p>
         )}
       </div>
@@ -676,8 +609,7 @@ const page = () => {
               },
               validate: (value) => {
                 if (value && isNaN(value)) return "Only numbers are allowed";
-                if (regularPrice && value) {
-                  value >= regularPrice
+                if (regularPrice && value &&  value >= regularPrice) {
                   return "Sale Price must be less than Regular Price";
                 }
                 return true;
@@ -734,8 +666,9 @@ const page = () => {
           ) : (
             <div className="flex flex-wrap gap-2">
           {discountCodes?.map((code: any) => {
-              const isSelected = watch("discountCodes")?.includes(code.id);
-              
+
+              const selectedDiscountCodes = watch("discountCodes") || [];
+              const isSelected = selectedDiscountCodes.includes(code.id);
               return (
                 <button
                   key={code.id}
@@ -762,89 +695,146 @@ const page = () => {
           )}
         </div>
 
-       {openImageModal && (
-          <section className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
-            <aside className='bg-gray-800 p-6 rounded-lg w-full max-w-[500px] text-white shadow-2xl border border-gray-700'>
+      {openImageModal && (
+        <section className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
+          <aside className='bg-gray-800 p-6 rounded-lg w-full max-w-[500px] text-white shadow-2xl border border-gray-700'>
+            
+            {/* Header with Undo/Reset buttons */}
+            <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+            <h1 className="text-lg font-semibold">Enhance Product Image</h1>
+            <div className="flex gap-2">
+              {/* Undo button */}
+              <button 
+                onClick={undoTransformation}  // ← Now works!
+                disabled={processing}
+                className="p-1 bg-yellow-500/20 hover:bg-yellow-500/30 rounded-md transition-colors disabled:opacity-50"
+                title="Undo last transformation">
+                <Undo2 size={18} />
+              </button>
               
-              {/* Header - Fixed layout */}
-              <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
-                <h1 className="text-lg font-semibold">Enhance Product Image</h1>
-                <button 
-                  onClick={() => setOpenImageModal(false)}
-                  className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors">
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="relative w-full aspect-video bg-black rounded-md overflow-hidden border border-gray-700 mb-6">
-                  <Image
-                    src={selectedImage}
-                    alt="Preview"
-                    fill
-                    className={`object-contain transition-opacity duration-300 ${processing ? 'opacity-50' : 'opacity-100'}`}
-                    priority
-                  />
-                  {processing && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. AI Enhancements Section */}
-                <div className="space-y-3">
-                  <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-                    AI Enhancements
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {enhancements.map((item) => (
-                      <button
-                        key={item.effect}
-                        disabled={processing}
-                        onClick={() => applyTransformation(item.effect)}
-                        className={`p-3 rounded-md flex items-center gap-3 transition-all text-sm border ${
-                          activeEffect === item.effect
-                            ? "bg-blue-600 border-blue-400 text-white shadow-lg"
-                            : "bg-[#2a2d31] border-gray-700 text-gray-300 hover:bg-[#35393f]"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        <Wand size={16} className={activeEffect === item.effect ? "text-white" : "text-gray-500"} />
-                        <span className="font-medium">{item.label}</span>
-                      </button>
-                    ))}
+              {/* Redo button (optional) */}
+              <button 
+                onClick={redoTransformation}  // ← Add if you want redo
+                disabled={processing}
+                className="p-1 bg-blue-500/20 hover:bg-blue-500/30 rounded-md transition-colors disabled:opacity-50"
+                title="Redo last transformation">
+                <Redo2 size={18} />
+              </button>
+              
+              {/* Reset button */}
+              <button 
+                onClick={resetTransformations}  // ← Now works!
+                disabled={processing}
+                className="p-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors disabled:opacity-50"
+                title="Reset to original">
+                <RotateCcw size={18} />
+              </button>
+              
+              {/* Close button */}
+              <button 
+                onClick={closeModal}
+                className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors">
+                <X size={20} />
+              </button>
             </div>
           </div>
 
-              {/* Optional: Add a close button at the bottom for better UX */}
-              <div className="mt-4 flex justify-end">
-                <button 
-                  onClick={() => setOpenImageModal(false)}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md transition-colors"
-                >
-                  Close Preview
-                </button>
+            {/* Image Preview */}
+            <div className="relative w-full aspect-video bg-black rounded-md overflow-hidden border border-gray-700 mb-6">
+              <Image
+                src={selectedImage}
+                alt="Preview"
+                fill
+                className={`object-contain transition-opacity duration-300 ${processing ? 'opacity-50' : 'opacity-100'}`}
+                priority
+              />
+              {processing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              )}
+            </div>
+
+            {/* AI Enhancements with Active State */}
+            <div className="space-y-3">
+              <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">
+                AI Enhancements
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {enhancements.map((item) => {
+                  // Check if this transformation is currently active
+                  const isActive = selectedImage.includes(`tr=`) && 
+                    selectedImage.split('?tr=')[1]?.split(',').includes(item.effect);
+                  
+                  return (
+                    <button
+                      key={item.effect}
+                      disabled={processing}
+                      onClick={() => applyTransformation(item.effect)}
+                      className={`p-3 rounded-md flex items-center gap-3 transition-all text-sm border ${
+                        isActive
+                          ? "bg-blue-600 border-blue-400 text-white shadow-lg"
+                          : "bg-[#2a2d31] border-gray-700 text-gray-300 hover:bg-[#35393f]"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      <Wand size={16} className={isActive ? "text-white" : "text-gray-500"} />
+                      <span className="font-medium">{item.label}</span>
+                      {isActive && (
+                        <span className="ml-auto text-xs bg-blue-500/30 px-2 py-0.5 rounded-full">
+                          Active
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </aside>
-          </section> 
-        )}
+              
+              {/* Active Transformations List */}
+              {selectedImage.includes('?tr=') && (
+                <div className="mt-4 p-3 bg-zinc-900/50 rounded-md">
+                  <p className="text-xs text-gray-400 mb-2">Active Effects:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedImage.split('?tr=')[1]?.split(',').map((effect, idx) => (
+                      <span key={idx} className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">
+                        {effect.replace(/-/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <div className="mt-4 flex justify-end">
+              <button 
+                onClick={() => setOpenImageModal(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md transition-colors"
+              >
+                Close Preview
+              </button>
+            </div>
+          </aside>
+        </section> 
+      )}
           <div className="mt-6 flex justify-end gap-3">
-          {isDirty && (
            <>
-             <button
+           {isDirty && (
+            <button
               type="button"
               onClick={hanldeSaveDraft}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md transition-colors hover:bg-gray-600">
-                  Save Draft
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Save Draft
             </button>
-             <button
-              type="submit"
-              onClick={handleSubmit(onSubmit, onInvalid)}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md transition-colors hover:bg-gray-600">
-                 {isPending ? "Creating..." : "Create"}
-            </button>
-           </>
           )}
+          <button
+            type="submit"
+            disabled={isPending}
+            className="px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600 disabled:opacity-50">
+            {isPending ? "Creating..." : "Create Product"}
+          </button>
+           </>
         </div>
     </aside>
 

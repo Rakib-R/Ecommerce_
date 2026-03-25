@@ -850,6 +850,7 @@ export const restoreProduct = async (
 };
 
  export const getTopShops = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
