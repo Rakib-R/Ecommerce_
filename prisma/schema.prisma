@@ -168,7 +168,7 @@ model product {
   custom_specification Json?
   custom_property      Json?
   isDeleted            Boolean? @default(false)
-  cashOnDelivery       String 
+  cashOnDelivery       Boolean 
   status               productStatus  @default(Active)
   analytics            productAnalytics?
   totalSales           Int      @default(0) 

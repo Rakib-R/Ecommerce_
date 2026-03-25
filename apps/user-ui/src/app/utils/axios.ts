@@ -1,7 +1,7 @@
 // utils/axios-instance.ts
 import axios from "axios";
 import { useAuthState } from "../store/authStore";
-import { queryClient } from "../../../../utils/queryClient"; // Import the SAME instance
+import { queryClient } from "@apps/utils/queryClient"; // Import the SAME instance
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,

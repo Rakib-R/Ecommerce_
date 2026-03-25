@@ -3,7 +3,6 @@ import './global.css';
 import Providers from '../../../utils/providers';
 import { Poppins, Roboto } from "next/font/google";
 import Header from './shared/widget/header';
-import Hero from './shared/modules/hero';
 import { headers } from 'next/headers';
 
 export const metadata = {

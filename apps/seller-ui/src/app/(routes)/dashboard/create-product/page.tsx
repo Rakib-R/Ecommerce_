@@ -9,6 +9,7 @@ import Input from 'packages/components/input';
 import { ColorSelector } from 'packages/components/color-selector';
 import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
+import { queryClient } from 'apps/utils/queryClient';
 import { SizeSelector } from 'packages/components/size-selector';
 import { convertFileToBase64 } from '../../../utils/convertFile2Base64' 
 
@@ -16,7 +17,7 @@ import Image from 'next/image';
 import { AxiosError } from "axios";
 import Link from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../utils/AI.enhancements';
@@ -36,20 +37,65 @@ interface UploadedImage {
   fileId : string;
   file_url: string;
 }
+interface ProductFormData {
+  title: string;
+  description: string; // Short description
+  detailed_description: string; // Rich text
+  tags: string;
+  warranty: string;
+  slug: string;
+  brand?: string;
+  category: string;
+  subCategory: string;
+  cash_on_delivery: "yes" | "no";
+  prepayment_confirmed?: boolean;
+  video_url?: string;
+  regularPrice: number;
+  salePrice?: number;
+  stock: number;
+  images: (UploadedImage | null)[];
+  colors?: string[]; // Assuming your ColorSelector returns an array
+  sizes?: string[];  // Assuming your SizeSelector returns an array
+  specifications?: any[]; 
+  properties?: any[];
+  discountCodes?: string[];
+  starting_date: string; // or Date
+  ending_date?: string;
+}
 
 const page = () => {
 
    const [openImageModal, setOpenImageModal] = useState(false);
-   const [isChanged, setIsChanged] = useState(true);
    const [processing, setProcessing] = useState<boolean>(false);
    const [activeEffect, setActiveEffect] = useState<String | null>(null);
    const [pictureUploadLoader, setPictureUploadLoader] = useState<boolean>(false)
    const [selectedImage, setSelectedImage] = useState('');
-   const [loading, setLoading] = useState(false);
    const [images, setImages] = useState<(UploadedImage | null)[]>([null])
 
-  const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors },} = 
-        useForm({ reValidateMode: "onChange"});
+  const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = 
+        useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
+         title: "",
+        description: "",
+        detailed_description: "",
+        tags: "",
+        warranty: "",
+        slug: "",
+        brand: "",
+        category: "",
+        subCategory: "",
+        cash_on_delivery: "no",
+        prepayment_confirmed: false,
+        video_url: "",
+        regularPrice: 0,
+        salePrice: 0,
+        stock: 1,
+        images: [null],
+        discountCodes: [],
+        colors: [],
+        specifications: [],
+        properties: []
+      }
+  });
         
   const router = useRouter();
 
@@ -85,6 +131,7 @@ const page = () => {
     const selectedCategory = watch("category");
     const selectedSubCategory = watch("subCategory");
     const regularPrice = watch('regularPrice')
+    const cashOnDelivery = watch("cash_on_delivery");
 
     const subCategories = useMemo(() => {
         return categories ? subCategoriesData[selectedCategory] || [] : []
@@ -97,29 +144,40 @@ const page = () => {
         message: errors[field]?.message,
     });
   });
-    toast.error("Please fix the errors in the form before submitting.");
  };
+    
+  const { mutateAsync: createProduct, isPending } = useMutation({
+      mutationFn: async (payload: any) => {
+        const res = await axiosInstance.post('/product/api/create-product', payload);
+        return res.data;
+      },
+    });
 
     const onSubmit = async (data: any) => {
-
-      try {
-        const payload = {
+    const payload = {
         ...data,
+        cashOnDelivery: data.cash_on_delivery === "yes", 
         starting_date: new Date(data.starting_date),
-        ending_date: data.ending_date ? new Date(data.ending_date) : null,
-    };
-        setLoading(true);
-        await axiosInstance.post('/product/api/create-product', payload);
-        router.push('/dashboard/all-products');
+
       }
-      catch (error: any){
-        console.log("Backend error status:", error?.response?.status);
-        console.log("Backend error data:", error?.response?.data);
-        toast.error(error?.data?.message)
-        }
-      finally{
-        setLoading(false)
-      }
+    try {
+    await toast.promise(createProduct(payload), {
+      loading: 'Saving product details...',
+      success: 'Product created successfully! 🎉',
+      error: (err) => err?.response?.data?.message || 'Failed to create product.',
+    });
+    
+    queryClient.invalidateQueries({ queryKey: ['products'] });
+    router.push('/dashboard/all-products');
+  } catch (error : any) {
+    // Handle field-specific errors if needed
+    if (error.response?.data?.field) {
+      setError(error.response.data.field as keyof ProductFormData, {
+        type: "server",
+        message: error.response.data.message,
+      });
+    }
+  }
     };
 
     const applyTransformation = async (transformation: string) => {
@@ -133,8 +191,8 @@ const page = () => {
       const urlParams = new URLSearchParams(selectedImage.split('?')[1]);
       source = decodeURIComponent(urlParams.get('url') || "");
     }
-    const baseUrl = source.split('?')[0];
-    const transformedUrl = `${baseUrl}?tr=${transformation}`;
+      const baseUrl = source.split('?')[0];
+      const transformedUrl = `${baseUrl}?tr=${transformation}`;
 
     setSelectedImage(transformedUrl);
     setActiveEffect(transformation);
@@ -218,6 +276,7 @@ const page = () => {
   };
 
     const hanldeSaveDraft = () =>{
+
   }
 
   return (
@@ -410,23 +469,45 @@ const page = () => {
 
           {/* CASH ON DELIVERY */}
        <div className="mt-2">
-      <label className="block mb-1 font-semibold text-gray-200">
-        Cash On Delivery *
-      </label>
-      <select
-        {...register("cash_on_delivery", {
-          required: "Cash on Delivery is required",
-        })}
-        className="w-full border border-gray-700 outline-none bg-transparent p-2 rounded-md text-sm focus:border-blue-500 transition-all"
-      >
-        <option value="yes" className="bg-gray-900">Yes</option>
-        <option value="no" className="bg-gray-900">No</option>
-      </select>
-      {errors.cash_on_delivery && (
-        <p className="text-red-400 text-xs mt-1 italic">
-          {errors.cash_on_delivery.message as string}
-        </p>
-      )}
+          <label className="block mb-1 font-semibold text-gray-200">
+            Cash On Delivery *
+          </label>
+        <select
+          {...register("cash_on_delivery", {
+            required: "Cash on Delivery is required",
+          })}
+          className="w-full border border-gray-700 outline-none bg-transparent p-2 rounded-md text-sm 
+            focus:border-blue-500 transition-all">
+          <option value="yes" className="bg-gray-900">Yes</option>
+          <option value="no" className="bg-gray-900">No</option>
+        </select>
+          {errors.cash_on_delivery && (
+            <p className="text-red-400 text-xs mt-1 italic">
+              {errors.cash_on_delivery.message as string}
+            </p>
+        )}
+      </div>
+        {/* ------ PAYMENT OPTIONS -----  */}
+        <div>
+          {cashOnDelivery === "no" && (
+          <div className="mt-4 p-3 border border-blue-500/30 bg-blue-500/5 rounded-md flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+            <input
+              type="checkbox"
+              id="prepayment_confirmed"
+              {...register("prepayment_confirmed", { 
+                required: "You must confirm prepayment if COD is disabled" 
+              })}
+              className="w-4 h-4 accent-blue-600"
+            />
+            <label htmlFor="prepayment_confirmed" className="text-sm text-blue-200">
+              I confirm that this product requires **Full Prepayment** via digital gateway.
+            </label>
+          </div>
+        )}
+
+        {errors.cash_on_delivery && (
+          <p className="text-red-400 text-xs mt-1">{errors.cash_on_delivery.message as string}</p>
+        )}
       </div>
   </aside>
     
@@ -456,8 +537,7 @@ const page = () => {
                     <option
                       key={category}
                       value={category}
-                      className="bg-zinc-800"
-                    >
+                      className="bg-zinc-800">
                       {category}
                     </option>
                   ))}
@@ -595,8 +675,9 @@ const page = () => {
                 message: "Sale Price must be at least 1" 
               },
               validate: (value) => {
-                if (isNaN(value)) return "Only numbers are allowed";
-                if (regularPrice && value >= regularPrice) {
+                if (value && isNaN(value)) return "Only numbers are allowed";
+                if (regularPrice && value) {
+                  value >= regularPrice
                   return "Sale Price must be less than Regular Price";
                 }
                 return true;
@@ -669,7 +750,7 @@ const page = () => {
                     const updatedSelection = isSelected
                       ? currentSelection.filter((id: string) => id !== code)
                       : [...currentSelection, code.id];
-                    setValue("discountCodes", updatedSelection);
+                    setValue("discountCodes", updatedSelection, { shouldDirty: true });
                   }}
                 >
                   {code?.public_name} ({code?.discount_value}{code?.discount_type === "percentage" ? "%" : "$"})
@@ -690,8 +771,7 @@ const page = () => {
                 <h1 className="text-lg font-semibold">Enhance Product Image</h1>
                 <button 
                   onClick={() => setOpenImageModal(false)}
-                  className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors"
-                >
+                  className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors">
                   <X size={20} />
                 </button>
               </div>
@@ -749,21 +829,19 @@ const page = () => {
           </section> 
         )}
           <div className="mt-6 flex justify-end gap-3">
-          {isChanged && (
+          {isDirty && (
            <>
              <button
               type="button"
               onClick={hanldeSaveDraft}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md transition-colors hover:bg-gray-600"
-            >
-              Save Draft
+              className="px-4 py-2 bg-blue-600 text-white rounded-md transition-colors hover:bg-gray-600">
+                  Save Draft
             </button>
              <button
-              type="button"
+              type="submit"
               onClick={handleSubmit(onSubmit, onInvalid)}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md transition-colors hover:bg-gray-600"
-            >
-              Create
+              className="px-4 py-2 bg-gray-500 text-white rounded-md transition-colors hover:bg-gray-600">
+                 {isPending ? "Creating..." : "Create"}
             </button>
            </>
           )}

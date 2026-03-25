@@ -67,7 +67,7 @@ const SignUp = () => {
   // sellerData only needed within the current OTP flow session
   const [sellerData, setSellerData] = useState<FormData | null>(null);
 
-    const { data: seller, isLoading } = useQuery({
+    const { data: seller } = useQuery({
     queryKey: ["logged-in-seller"],
     queryFn: async () => {
       const res = await axiosInstance.get("/api/logged-in-seller", {
@@ -158,7 +158,7 @@ const SignUp = () => {
     setSellerData(payload);
     signupMutation.mutate(payload);
   };
-
+  
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
       if (!sellerData) return;

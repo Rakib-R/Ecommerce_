@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import axiosInstance from '../../../utils/axiosInstance';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryClient } from 'apps/utils/queryClient';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import DeleteConfirmationModal from '../../../shared/components/modals/delete.confirmation.modal';
 
@@ -66,7 +67,7 @@ const ProductList = () => {
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [deletedProductIds, setDeletedProductIds] = useState<Set<string>>(new Set());
 
-    const queryClient = useQueryClient();
+
     const { data: products , isLoading } = useQuery({
       queryKey: ["shop-products"],
       queryFn: async () => {
