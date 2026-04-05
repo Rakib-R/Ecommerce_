@@ -9,11 +9,12 @@ interface SidebarItemProps {
   isActive: boolean;
   href: string;
   logOutFunc?: () => void;
+  className?: string;
 }
 
-const SidebarItem = ({ icon, title, isActive, href, logOutFunc }: SidebarItemProps) => {
+const SidebarItem = ({ icon, title, isActive, href, logOutFunc, className}: SidebarItemProps) => {
   return (
-    <Link href={href} className=" block group"
+    <Link href={href} className={`block group ${className || '' }`}
         onClick={async (e) => {       // ← move it here, onto the Link
         if (logOutFunc) {
           e.preventDefault();
@@ -28,7 +29,6 @@ const SidebarItem = ({ icon, title, isActive, href, logOutFunc }: SidebarItemPro
             : "text-gray-200 hover:bg-gray-100 hover:text-gray-900"}
         `}>
         
-
         {/* Icon Container */}
         <div className={`text-xl ${isActive ? "bg-blue-300" : "text-gray-400 group-hover:text-gray-900"}`}>
           {icon}

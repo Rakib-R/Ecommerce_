@@ -51,7 +51,7 @@ app.use(
   })
 );
 
-// COOKIE FORWARDING LOGIC--------------------------------------------------
+// COOKIE FORWARDING LOGIC────────────────────────────────────────────────────
 
 const forwardCookies = (proxyReqOpts: any, srcReq: any) => {
   if (srcReq.headers['cookie']) {
@@ -94,7 +94,7 @@ app.use(
 
     proxyReqOptDecorator: forwardCookies,
 
-   userResDecorator: (proxyRes, proxyResData, req, res) => {
+   userResDecorator: (proxyRes, proxyResData, _req, res) => {
     const cookies = proxyRes.headers['set-cookie'];
     if (cookies) {
       const rewritten = cookies.map((cookie: string) => {
@@ -116,7 +116,7 @@ app.use(
   return proxyResData;
 },
 
-  proxyErrorHandler: (err, res, next) => {
+  proxyErrorHandler: (err, res) => {
     console.error('❌ Auth Service proxy error:', err.message);
     res.status(503).json({ error: 'Auth Service is down' });
     },
@@ -154,7 +154,7 @@ app.use('/product/api',
 const port = process.env.PORT || 7777;
 
 const server = app.listen(port, () => {
-  console.log(`🚪 API Gateway running at http://localhost:${port}`);
+  console.log(`🚪 API Gateway running at http://localhost:${port}/gateway-health`);
   console.log(`   Auth proxy:    /api/*         → http://localhost:6001/auth/*`);
   console.log(`   Product proxy: /product/api/* → http://localhost:6099/product/api/*`);
 

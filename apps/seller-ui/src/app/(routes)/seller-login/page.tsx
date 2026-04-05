@@ -26,6 +26,7 @@ const FieldError = ({ message }: { message?: string }) => {
 };
   
 const Login = () => {
+  
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
@@ -37,19 +38,30 @@ const Login = () => {
   // Pre-fill email if remembered
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedSellerEmail');
-    if (rememberedEmail) {
+      if (rememberedEmail && rememberedEmail !== "undefined") {
       setValue('email', rememberedEmail);
       setRememberMe(true);
+    } else {
+      // If it's bad data, just reset the field to empty
+      setValue('email', ""); 
     }
   }, [setValue]);
 
   const onSubmit = async (data: FormData) => {
+    
     loginMutation.mutate(data);
     setServerError(null);
   };
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
+
+      // 1. THE BYPASS LOGIC UN SOLVABLE BUG
+    // if (data.email === 'admin@email.com' && data.password === 'admin') {
+    //   const response = await axiosInstance.post('/api/admin', data)
+    //   return response.data
+    
+    // }
       const response = await axiosInstance.post('/api/login-seller', 
         data,
         { 
@@ -85,6 +97,11 @@ const Login = () => {
       <h1 className="text-4xl mb-8 font-Poppins font-semibold text-black text-center">
         Ecommerce
       </h1>
+    
+    {/* EMERGENCY - Admin Demo */}
+    <div className="fixed top-32 left-4 w-1/4 h-16 text-lg font-mono z-50 bg-amber-500 text-black px-3 py-1.5 rounded-lg shadow-lg animate-bounce">
+      🔐 Demo Access: <span className="font-bold">admin@email.com</span> / <span className="font-bold">admin</span>
+    </div>
 
       <div className="flex justify-center px-4">
         <section className="md:w-[480px] w-full p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
@@ -130,10 +147,10 @@ const Login = () => {
                 }`}
                 {...register("email", {
                   required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Invalid email address",
-                  },
+                  validate: (value) => 
+                    value === "admin@email.com" || 
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 
+                    "Invalid email address"
                 })}
               />
               <FieldError message={errors.email?.message} />
@@ -150,17 +167,16 @@ const Login = () => {
                   }`}
                   {...register("password", {
                     required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must be at least 6 characters",
-                    },
+                    validate: (value) => 
+                      value === "admin" || 
+                      value.length >= 6 || 
+                      "Password must be at least 6 characters",
                   })}
                 />
                 <button
                   type="button"
                   onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors">
                   {passwordVisible ? <Eye size={18} /> : <EyeOff size={18} />}
                 </button>
               </div>

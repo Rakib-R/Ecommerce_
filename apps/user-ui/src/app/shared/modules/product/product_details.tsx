@@ -72,11 +72,11 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
           <p className="text-gray-600 mt-2">{productDetails?.description}</p>
           <div className="mt-4">
             <span className="text-3xl font-bold text-blue-600">
-              ${productDetails?.sale_price}
+              ${productDetails?.salePrice}
             </span>
             {productDetails?.regular_price && (
               <span className="ml-2 text-gray-400 line-through">
-                ${productDetails?.regular_price}
+                ${productDetails?.regularPrice}
               </span>
             )}
           </div>

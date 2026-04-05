@@ -22,6 +22,6 @@ export const errorMiddleware = (
   console.log("Unhandled error:", err);
   return res.status(500).json({
     status: "error",
-    message: "Something went wrong in routes !, Please try again!",
+    message: "Something went wrong in routes! But we don't know what!",
   });
 };

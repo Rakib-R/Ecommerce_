@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 
 import { ChevronRight, Redo2, RotateCcw, Undo2, Wand, X } from 'lucide-react';
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ImagePlaceholder from '../../../shared/components/image-placeholderr';
 import Input from 'packages/components/input';
 import { ColorSelector } from 'packages/components/color-selector';
@@ -14,44 +14,43 @@ import { SizeSelector } from 'packages/components/size-selector';
 import Image from 'next/image';
 import { AxiosError } from "axios";
 import Link from 'next/link';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../configs/AI.enhancements';
 import { useRouter } from 'next/navigation';
 import { useImageManagement } from '../../../utils/useImageManagement';
+import { useDraftStore } from '../../../store/useDraftStore';
 
-  const {
-    images,
-    openImageModal,
-    processing,
-    activeEffect,
-    pictureUploadLoader,
-    selectedImage,
-    selectedImageIndex,
-
-    // Actions
-    handleImageChange,
-    handleRemoveImage,
-    openModal,
-    closeModal,
-    applyTransformation,
-    undoTransformation,      
-    redoTransformation,      
-    resetTransformations,
-    isTransformationActive,
-    getActiveTransformations,
-    
-    // Setters
-    setImages,
-    setOpenImageModal,
-    setSelectedImage,
-    setSelectedImageIndex,
-  } = useImageManagement({
-    maxImages: 8,
-    formFieldName: "images"
-  });
+  interface UploadedImage {
+      fileId : string;
+      file_url: string;
+    }
+    interface ProductFormData {
+      title: string;
+      short_description: string; // Short description
+      detailed_description: string; // Rich text
+      tags: string;
+      warranty: string;
+      slug: string;
+      brand?: string;
+      category: string;
+      subCategory: string;
+      cash_on_delivery: "yes" | "no";
+      prepayment_confirmed?: boolean;
+      video_url?: string;
+      regularPrice: number;
+      salePrice?: number;
+      stock: number;
+      images: (UploadedImage | null)[];
+      colors?: string[]; // Assuming your ColorSelector returns an array
+      sizes?: string[];  // Assuming your SizeSelector returns an array
+      properties?: any[];
+      discountCodes?: string[];
+      starting_date: string; // or Date
+      ending_date?: string;
+    }
 
     // Fix — explicitly grab the default export and type it
     const RichTextEditor = dynamic(
@@ -62,67 +61,37 @@ import { useImageManagement } from '../../../utils/useImageManagement';
       }
     );
 
-interface UploadedImage {
-  fileId : string;
-  file_url: string;
-}
-interface ProductFormData {
-  title: string;
-  short_descriptio: string; // Short description
-  detailed_description: string; // Rich text
-  tags: string;
-  warranty: string;
-  slug: string;
-  brand?: string;
-  category: string;
-  subCategory: string;
-  cash_on_delivery: "yes" | "no";
-  prepayment_confirmed?: boolean;
-  video_url?: string;
-  regularPrice: number;
-  salePrice?: number;
-  stock: number;
-  images: (UploadedImage | null)[];
-  colors?: string[]; // Assuming your ColorSelector returns an array
-  sizes?: string[];  // Assuming your SizeSelector returns an array
-  specifications?: any[]; 
-  properties?: any[];
-  discountCodes?: string[];
-  starting_date: string; // or Date
-  ending_date?: string;
-}
 
 const page = () => {
 
-   const [openImageModal, setOpenImageModal] = useState(false);
-   const [selectedImage, setSelectedImage] = useState('');
-  const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = 
-        useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
-         title: "",
-        short_descriptio: "",
-        detailed_description: "",
-        tags: "",
-        warranty: "",
-        slug: "",
-        brand: "",
-        category: "",
-        subCategory: "",
-        cash_on_delivery: "no",
-        prepayment_confirmed: false,
-        video_url: "",
-        regularPrice: 0,
-        salePrice: 0,
-        stock: 1,
-        images: [null],
-        discountCodes: [],
-        colors: [],
-        specifications: [],
-        properties: []
-      }
-  });
-        
-  const router = useRouter();
 
+  const methods = useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
+          title: "",
+          short_description: "",
+          starting_date: '',
+          detailed_description: "",
+          tags: "",
+          warranty: "",
+          slug: "",
+          brand: "",
+          category: "",
+          subCategory: "",
+          cash_on_delivery: "no",
+          prepayment_confirmed: false,
+          video_url: "",
+          regularPrice: 0,
+          salePrice: 0,
+          stock: 1,
+          images: [],
+          discountCodes: [],
+          colors: [],
+          properties: []
+        }
+  });
+   const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = methods
+ 
+  const router = useRouter();
+ 
   const { data, isLoading, isError } = useQuery({
       queryKey: ["categories"],
       queryFn: async () => {
@@ -151,25 +120,65 @@ const page = () => {
     const categories = data?.categories || [];
     const subCategoriesData = data?.subCategories || {};
 
-    // FORM HOOK WATCH ATTRIBUTE
+    // FORM HOOK ------------------WATCH --------------ATTRIBUTE
     const selectedCategory = watch("category");
     const selectedSubCategory = watch("subCategory");
     const regularPrice = watch('regularPrice')
-    const cashOnDelivery = watch("cash_on_delivery");
+    const cash_On_Delivery = watch("cash_on_delivery");
+    const formImages = watch('images');
+
 
     const subCategories = useMemo(() => {
         return categories ? subCategoriesData[selectedCategory] || [] : []
       },[selectedCategory, subCategoriesData])
 
     const onInvalid = (errors: any) => {
-       Object.keys(errors).forEach((field) => {
-      setError(field as any, {
-        type: "manual",
-        message: errors[field]?.message,
-    });
-  });
- };
+      Object.keys(errors).forEach((field) => {
+        setError(field as any, {
+          type: "manual",
+          message: errors[field]?.message,
+        });
+      });
+
+      toast.error("Please fix the errors before submitting");
+      // ⁉⁉ ⚠ ⚠ ⚠ Scroll to first error ‼⁉ ⚠ ⚠ ⚠
+      const firstErrorField = Object.keys(errors)[0];
+      document.getElementsByName(firstErrorField)[0]?.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "center" 
+      });
+    };
     
+    const {
+      images,
+      openImageModal,
+      processing,
+      pictureUploadLoader,
+      selectedImage,
+      activeEffect,
+      selectedImageIndex,
+
+      // Actions
+      handleImageChange,
+      handleRemoveImage,
+      openModal,
+      closeModal,
+      applyTransformation,
+      undoTransformation,      
+      redoTransformation,      
+      resetTransformations,
+      isTransformationActive,
+      getActiveTransformations,
+      
+      // Setters
+      setImages,
+      setOpenImageModal,
+      setSelectedImage,
+    } = useImageManagement({
+      maxImages: 8,
+      formFieldName: "images"
+    });
+
   const { mutateAsync: createProduct, isPending } = useMutation({
       mutationFn: async (payload: any) => {
         const res = await axiosInstance.post('/product/api/create-product', payload);
@@ -177,42 +186,115 @@ const page = () => {
       },
     });
 
-    const onSubmit = async (data: any) => {
-    const payload = {
-        ...data,
-        cashOnDelivery: data.cash_on_delivery === "yes", 
-        starting_date: new Date(data.starting_date),
-      }
+   const onSubmit = async (data: any) => {
     
-    delete payload.cash_on_delivery;
+    const cleanImages = images.filter(Boolean); 
+     if (cleanImages.length === 0) {
+      toast.error("Please upload at least one product image!");
+      return;
+    }
 
-    try {
+    console.log("📦 Form Data:", data);
+    console.log("🖼️ Images:", data.images);
+    console.log("⚠️ Form Errors:", errors);
+
+    const payload = {
+      ...data,
+      images: cleanImages,               
+      cashOnDelivery: data.cash_on_delivery === "yes",
+      starting_date: new Date().toISOString(),
+
+    customProperties: Array.isArray(data.properties)        // ✅ array → record
+      ? Object.fromEntries(data.properties.map((p: any) => [p.key, p.value]))
+      : data.properties || {},
+
+    custom_specifications: Array.isArray(data.custom_specifications) // ✅ array → record
+      ? Object.fromEntries(data.custom_specifications.map((s: any) => [s.key, s.value]))
+      : data.specifications || {},
+  };
+
+  try {
     await toast.promise(createProduct(payload), {
       loading: 'Saving product details...',
       success: 'Product created successfully! 🎉',
       error: (err) => err?.response?.data?.message || 'Failed to create product.',
     });
-    
-    queryClient.invalidateQueries({ queryKey: ['products'] });
-    router.push('/dashboard/all-products');
-  } catch (error : any) {
-    // Handle field-specific errors if needed
-    if (error.response?.data?.field) {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      router.push('/dashboard/all-products');
+   } catch (error: any) {
+      if (error.response?.data?.field) {
       setError(error.response.data.field as keyof ProductFormData, {
         type: "server",
         message: error.response.data.message,
       });
     }
   }
-    };
+};
+
+  // ✅ Force sync images to form when they change
+  useEffect(() => {
+    const validImages = images.filter(img => img !== null);
+    if (validImages.length > 0 || formImages?.length > 0) {
+      setValue('images', validImages, { shouldDirty: true });
+    }
+  }, [images]);
+
+  // ✅ Debug: log what's happening
+  useEffect(() => {
+    console.log('🖼️ Hook images:', images);
+    console.log('🖼️ Form images:', formImages);
+  }, [images, formImages]);
 
 
+ const { saveDraft, getDraft, deleteDraft } = useDraftStore();
+  const [draftId, setDraftId] = useState<string | null>(null);
+  
+    // Load draft on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const draftIdFromUrl = urlParams.get('draft');
+    
+    if (draftIdFromUrl) {
+      const draft = getDraft(draftIdFromUrl);
+      if (draft) {
+        methods.reset(draft);
+        setDraftId(draftIdFromUrl);
+        toast.success('Draft loaded successfully');
+      }
+    }
+  }, []);
 
-    const hanldeSaveDraft = () =>{
+  // Generate unique draft key
+  const generateDraftKey = () => {
+    return `product_draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+  
 
-  }
+  const handleSaveDraft = () => {
+    const formData = methods.getValues();
+    const key = draftId || generateDraftKey();
+    
+    // Don't save empty drafts
+    if (!formData.title && !formData.short_description) {
+      toast.error('Add at least a title or description before saving draft');
+      return;
+    }
+    
+    saveDraft(key, formData);
+    setDraftId(key);
+    
+    // Update URL with draft ID
+    const url = new URL(window.location.href);
+    url.searchParams.set('draft', key);
+    window.history.pushState({}, '', url.toString());
+  };
+
+
+  const [showDraftsDialog, setShowDraftsDialog] = useState(false);
+  const allDrafts = useDraftStore((state) => state.getAllDrafts());
 
   return (
+<FormProvider {...methods}>  
   <form 
     className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
     onSubmit={handleSubmit(onSubmit, onInvalid)}>
@@ -227,7 +309,8 @@ const page = () => {
     </div>
 
        {/* BreadCrumbs */}   {/* BreadCrumbs */} {/* BreadCrumbs */}
-      <main className="w-full flex gap-6 py-4 bg-black/90 ">
+       
+    <main className="w-full flex gap-6 py-4 bg-black/90 ">
 
       {/* Left side Image upload section */}
       {/* Left side Image upload section */}
@@ -274,7 +357,7 @@ const page = () => {
       <Input 
         label="Product Title"
         placeholder="Product title"
-        {...register("title", {   required: "Title is required",
+        {...register("title", { required: "Title is required",
         })}/>
 
         {errors.title && (
@@ -290,7 +373,7 @@ const page = () => {
           cols={10}
           label="Short Description * (Max 150 words)"
           placeholder="Enter product description for quick view"
-          {...register("short_descriptio", {
+          {...register("short_description", {
             required: "Description is required",
             validate: (value) => {
               const wordCount = value.trim().split(/\s+/).length;
@@ -301,9 +384,9 @@ const page = () => {
             },
           })}
         />
-          {errors.short_descriptio && (
+          {errors.short_description && (
           <p className="text-xs text-red-500 mt-1">
-            {errors.short_descriptio.message as string}
+            {errors.short_description.message as string}
           </p>
         )}
       </div>
@@ -422,7 +505,7 @@ const page = () => {
       </div>
         {/* ------ PAYMENT OPTIONS -----  */}
         <div>
-          {cashOnDelivery === "no" && (
+          {cash_On_Delivery === "no" && (
           <div className="mt-4 p-3 border border-blue-500/30 bg-blue-500/5 rounded-md flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
             <input
               type="checkbox"
@@ -463,7 +546,7 @@ const page = () => {
               <select
                 {...field}
                 className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2">
-                  <option value="" disabled className="bg-transparent text-white">
+                  <option value="" disabled className=" text-white">
                   {selectedCategory  ? "☑️ Select Category" : "Select a category"}
               </option>
                   {categories?.map((category: string) => (
@@ -500,8 +583,7 @@ const page = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2
-                     ">
+                  className="w-full border outline-none border-gray-700 bg-zinc-900 text-white rounded-md p-2">
                     <option value="" disabled className="bg-transparent text-white">
                       {selectedSubCategory ? "☑️ Select Sub-Category" : "Select a category first"}
                     </option>
@@ -509,8 +591,7 @@ const page = () => {
                       <option
                         key={subCategory}
                         value={subCategory}
-                        className="bg-zinc-800"
-                      >
+                        className="bg-zinc-800">
                         {subCategory}
                       </option>
                     ))}
@@ -523,7 +604,7 @@ const page = () => {
             </p>
           )}
         </div>
-            {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */} {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  
+      {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  
           <div>
           <label className="block font-semibold mb-1">
             Detailed Description * (Min words)
@@ -545,8 +626,8 @@ const page = () => {
                   .split(/\s+/)
                   .filter(Boolean).length; // Cleanest way to filter out empty strings
 
-                return wordCount >= 100 || `Description must be at least 100 words! 
-                  You need ${100 - wordCount} more words.`;
+                return wordCount >= 70 || `Description must be at least 70 words! 
+                  You need ${70 - wordCount} more words.`;
               }
             }}
             render={({ field }) => (
@@ -601,7 +682,6 @@ const page = () => {
             label="Sale Price"
             placeholder="15"
             {...register("salePrice", {
-              required: "Sale Price is required",
               valueAsNumber: true,
               min: { 
                 value: 1, 
@@ -681,11 +761,10 @@ const page = () => {
                   onClick={() => {
                     const currentSelection = watch("discountCodes") || [];
                     const updatedSelection = isSelected
-                      ? currentSelection.filter((id: string) => id !== code)
+                      ? currentSelection.filter((id: string) => id !== code.id)
                       : [...currentSelection, code.id];
                     setValue("discountCodes", updatedSelection, { shouldDirty: true });
-                  }}
-                >
+                  }}>
                   {code?.public_name} ({code?.discount_value}{code?.discount_type === "percentage" ? "%" : "$"})
                 </button>
               );
@@ -776,8 +855,7 @@ const page = () => {
                         isActive
                           ? "bg-blue-600 border-blue-400 text-white shadow-lg"
                           : "bg-[#2a2d31] border-gray-700 text-gray-300 hover:bg-[#35393f]"
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}>
                       <Wand size={16} className={isActive ? "text-white" : "text-gray-500"} />
                       <span className="font-medium">{item.label}</span>
                       {isActive && (
@@ -817,33 +895,146 @@ const page = () => {
           </aside>
         </section> 
       )}
+
+      {/* Header with Drafts button */}
+        <div className="flex justify-between items-center">
+          <h2 className="py-2 font-semibold font-Poppins text-white">Create Product</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDraftsDialog(true)}
+              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-600 text-sm"
+            >
+              📋 Load Draft
+            </button>
+            {isDirty && (
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+              >
+                💾 Save Draft
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Drafts Dialog */}
+        {showDraftsDialog && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Saved Drafts</h3>
+                <button
+                  onClick={() => setShowDraftsDialog(false)}
+                  className="text-gray-400 hover:text-white">
+                  ✕
+                </button>
+              </div>
+              
+              {Object.keys(allDrafts).length === 0 ? (
+                <p className="text-gray-400 text-center py-8">No drafts saved yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(allDrafts).map(([key, draft]: [string, any]) => (
+                    <div key={key} className="border border-gray-700 rounded-lg p-4 hover:bg-gray-700/50">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium">{draft.title || 'Untitled Product'}</h4>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Last saved: {new Date(draft.savedAt).toLocaleString()}
+                          </p>
+                          {draft.category && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Category: {draft.category}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              methods.reset(draft);
+                              setDraftId(key);
+                              setShowDraftsDialog(false);
+                              toast.success('Draft loaded');
+                            }}
+                            className="px-3 py-1 bg-blue-600 rounded-md text-sm hover:bg-blue-700"
+                          >
+                            Load
+                          </button>
+                          <button
+                            onClick={() => {
+                              deleteDraft(key);
+                              if (draftId === key) setDraftId(null);
+                            }}
+                            className="px-3 py-1 bg-red-600 rounded-md text-sm hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {Object.keys(allDrafts).length > 0 && (
+                <button
+                  onClick={() => {
+                    if (confirm('Delete all drafts?')) {
+                      useDraftStore.getState().clearAllDrafts();
+                      setDraftId(null);
+                    }
+                  }}
+                  className="mt-4 w-full px-3 py-2 bg-red-600/50 text-red-300 rounded-md text-sm hover:bg-red-600"
+                >
+                  Delete All Drafts
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+
           <div className="mt-6 flex justify-end gap-3">
            <>
            {isDirty && (
             <button
               type="button"
-              onClick={hanldeSaveDraft}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
+              onClick={handleSaveDraft}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
               Save Draft
             </button>
           )}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600 disabled:opacity-50">
-            {isPending ? "Creating..." : "Create Product"}
+            <button
+                type="submit"
+                disabled={isPending || pictureUploadLoader} // ✅ block submit while image uploading
+                className="px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {pictureUploadLoader ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Uploading image...
+                  </>
+                ) : isPending ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Product"
+                )}
           </button>
            </>
         </div>
     </aside>
 
     </section>
-  
    </main>
+
   </form>
+  </FormProvider>
  
-    );
+  );
 }
 
 export default page

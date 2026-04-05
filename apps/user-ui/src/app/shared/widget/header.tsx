@@ -7,6 +7,7 @@ import Cart from "../../../../assests/svgs/cart.png";
 import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
 import HeaderBottom from "./header-bottom";
 import useUser from "../../hooks/useUser";
+import Image from "next/image";
 import { useAuthState, useStore } from "../../store/authStore";
 import {useRouter} from "next/navigation";
 import { queryClient } from "@apps/utils/queryClient";
@@ -27,7 +28,7 @@ const Header = () => {
   }, []);
 
   const handleLogout = async () => {
-    await axiosInstance.post("/api/logout");
+    await axiosInstance.post(`/api/logout`);
     useAuthState.getState().logout();
     queryClient.setQueryData(['user'], null);
     router.push("/login");
@@ -59,28 +60,27 @@ const Header = () => {
               <div className="flex items-center">
 
                 {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
-                <div className={`${user && 'bg-blue-500/10 outline outline-[5px] outline-blue-500/10 '} w-[140px]`}>
-                {!isLoading && user && (
-                  <Link href="/profile" className="flex items-center gap-2">
-                    <img src={ProfileIcon.src} alt="Profile" className="" />
+                <div className={`${user && ''} w-[140px]`}>
+                  {!isLoading && user && (
+                    <Link href="/profile" className="flex items-center gap-2">
+                    <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0" />
                     <p className="font-medium text-black">
-                      <span className='text-md'>Hello, </span>
-                      <span className="text-lg font-serif">{user.name?.split(" ")[0]}</span>
+                      <span className='text-md'>Hello, {user.role === 'admin' ? 'Admin' : ''}</span>
+                      <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
                   </Link>
-                )}
-                </div>
+                  )}
+              </div>
 
                 {!isLoading && user ? (
                   <Link href="/login" className="flex items-center gap-1">
-                    <img src="/logOut.svg" alt="Profile" className="w-6 h-6 ml-2" 
-                    style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/>
-                    <span className="text-md font-medium text-red-800"
+                    {/* <img src="/logOut.svg" alt="Profile" className="w-6 h-6 ml-2" 
+                    style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/> */}
+                    <span className="text-lg  underline"
                       onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
                   </Link>
                 ) : (
                   <Link href="/login" className="flex items-center gap-1">
-                    <img src="/signIn.svg" alt="Login" className="w-6 h-6" />
                     <span className="font-medium text-black">
                       <span className="text-lg text-cyan-600 font-medium">{isLoading ? '...' : 'Sign In'}</span>
                     </span>

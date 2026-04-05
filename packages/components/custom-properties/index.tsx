@@ -20,26 +20,26 @@ export const CustomProperties = ({ control, errors }: any) => {
         control={control}
         render={({ field }) => {
           
-          // Helper to sync local state with React Hook Form
-          const syncForm = (updatedList: Property[]) => {
-            setProperties(updatedList);
-            field.onChange(updatedList);
-          };
+        // Helper to sync local state with React Hook Form
+        const syncForm = (updatedList: Property[]) => {
+          setProperties(updatedList);
+          field.onChange(updatedList);
+        };
 
-          const handleAddProperty = () => {
-            if (!newLabel.trim()) return;
-            const updated = [...properties, { label: newLabel, values: [] }];
-            syncForm(updated);
-            setNewLabel("");
-          };
+        const handleAddProperty = () => {
+          if (!newLabel.trim()) return;
+          const updated = [...properties, { label: newLabel, values: [] }];
+          syncForm(updated);
+          setNewLabel("");
+        };
 
-          const handleAddValue = (index: number) => {
-            if (!newValue.trim()) return;
-            const updated = [...properties];
-            updated[index].values = [...updated[index].values, newValue.trim()];
-            syncForm(updated);
-            setNewValue("");
-          };
+        const handleAddValue = (index: number) => {
+          if (!newValue.trim()) return;
+          const updated = [...properties];
+          updated[index].values = [...updated[index].values, newValue.trim()];
+          syncForm(updated);
+          setNewValue("");
+        };
 
           const handleRemoveValue = (propIndex: number, valIndex: number) => {
             const updated = [...properties];

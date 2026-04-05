@@ -14,13 +14,15 @@ export const initializeSiteConfig = async() => {
                 "Electronics",
                 "Fashion",
                 "Home & Kitchen",
-                "Sports & Fitness"
+                "Sports & Fitness",
+                "Foods"
             ],
             subCategories: {
                 "Electronics": ["Mobile Phones", "Laptops", "Cameras", "Accessories"],
                 "Fashion": ["Men's Clothing", "Women's Clothing", "Footwear", "Watches"],
                 "Home & Kitchen": ["Furniture", "Cookware", "Decor", "Appliances"],
-                "Sports & Fitness": ["Gym Equipment", "Outdoor Sports", "Yoga", "Footwear"]
+                "Sports & Fitness": ["Gym Equipment", "Outdoor Sports", "Yoga", "Footwear"],
+                "Foods" : ["Drinks", "Fruits", "Snack","Fast Food"]
             }
         }
     });

@@ -34,7 +34,7 @@ export const kafka = new Kafka({
     maxRetryTime: 30000,
   },
   logLevel: process.env.NODE_ENV === 'development' ? logLevel.DEBUG : logLevel.ERROR,
-  logCreator: () => ({ namespace, level, label, log }) => {
+  logCreator: () => ({ namespace, level, log }) => {
     // Only log errors and warnings in production
     if (process.env.NODE_ENV !== 'production' || level <= logLevel.ERROR) {
       console.log(` [${namespace}]`);

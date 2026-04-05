@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const protectedRoutes = ["/checkout", "/profile"];
-const authRoutes      = ["/login", "/signup"];
-const publicRoutes    = ["/", "/home"];
+const authRoutes      = ["/login", "/signup","/seller-login", "seller-signup", "forgo-password-seller" ,"forgot-password-user"];
+const publicRoutes    = ["/home"];
 
 const getSecret = () =>
   new TextEncoder().encode(process.env.JWT_ACCESS_SECRET!);
@@ -22,7 +22,6 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("access_token")?.value;
 
-   console.log('🔵User-UI Middleware running for:', pathname);
   console.log('🔵 Token exists:', !!token);
 
   // ✅ ALWAYS set the pathname header first
@@ -33,15 +32,23 @@ export async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((r) => pathname.startsWith(r));
   const isAuthRoute      = authRoutes.some((r) => pathname.startsWith(r));
   const isPublicRoute    = publicRoutes.some((r) => pathname === r || pathname.startsWith(r + '/'));
+  // const conditionallyAllowed = conditionalRoutes.some((r) => pathname === r || pathname.startsWith(r))
 
-  // Auth routes (login/signup) - redirect to home if already logged in
-  if (isAuthRoute) {
-    if (authenticated) {
-      return NextResponse.redirect(new URL("/home", req.url));
-    }
-    // ✅ Return response WITH headers
+
+    // Public routes (/, /home)
+  if (isPublicRoute) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
+
+  // ALLOWING FOR AUTH ROUTES
+  if ( !authenticated && isAuthRoute){
+    return NextResponse.next();
+  }
+  
+  // Auth routes (login/signup) - redirect to home if already logged in
+  if (isAuthRoute && authenticated) {
+      return NextResponse.redirect(new URL("/home", req.url));
+    }
 
   // Protected routes - require authentication
   if (isProtectedRoute) {
@@ -54,12 +61,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Public routes (/, /home)
-  if (isPublicRoute) {
-    // ✅ Return response WITH headers
-    return NextResponse.next({ request: { headers: requestHeaders } });
-  }
-
+ 
   // Default - include headers
   return NextResponse.next({ request: { headers: requestHeaders } });
 }

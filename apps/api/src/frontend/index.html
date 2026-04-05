@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce_ - Buy & Sell Anything</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #fafafa;
+            color: #111;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Hero */
+        .hero {
+            max-width: 720px;
+            margin-bottom: 5rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(110deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #444;
+            max-width: 560px;
+        }
+
+        /* Cards */
+        .cards {
+            display: flex;
+            gap: 2rem;
+            margin: 4rem 0;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 260px;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #eaeaea;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: #ccc;
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.25rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: #111;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-outline {
+            border: 1px solid #ccc;
+            color: #111;
+        }
+
+        .btn-outline:hover {
+            border-color: #888;
+            background: #f5f5f5;
+        }
+
+        /* Features - minimal */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 4rem 0;
+            padding: 2rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .feature h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* CTA */
+        .cta {
+            background: #f5f5f5;
+            border-radius: 1.5rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 4rem 0;
+        }
+
+        .cta h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta p {
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            .cta {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">ecommerce_</div>
+            <div class="tagline">marketplace for everything</div>
+        </div>
+
+        <div class="hero">
+            <h1>Buy. Sell.<br><span>One platform.</span></h1>
+            <p>Join thousands of people buying and selling every day. No middlemen, just real commerce.</p>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">🛍️</div>
+                <h2>Shopping</h2>
+                <p>Discover products from real sellers. Simple checkout, fast delivery.</p>
+                <a href="http://localhost:3000/home" class="btn btn-primary">Browse →</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <h2>Selling</h2>
+                <p>List your products, manage inventory, start earning today.</p>
+                <a href="http://localhost:4000/dashboard" class="btn btn-outline">Start selling →</a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature"><h3>💰 Fair pricing</h3><p>No hidden fees</p></div>
+            <div class="feature"><h3>⚡ Fast shipping</h3><p>Track in real-time</p></div>
+            <div class="feature"><h3>🔐 Secure</h3><p>Buyer & seller protection</p></div>
+            <div class="feature"><h3>📈 Insights</h3><p>Sales analytics</p></div>
+        </div>
+
+        <div class="cta">
+            <h3>Ready to start?</h3>
+            <p>Whether you're buying or selling — it takes 2 minutes to get started.</p>
+            <div class="btn-group">
+                <a href="http://localhost:3000/home" class="btn btn-primary">Shop now</a>
+                <a href="http://localhost:4000/dashboard" class="btn btn-outline">Sell something</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 ecommerce_ — a marketplace for real people</p>
+        </div>
+    </div>
+</body>
+</html>

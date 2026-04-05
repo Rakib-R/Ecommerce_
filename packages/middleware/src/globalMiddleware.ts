@@ -9,10 +9,16 @@ declare global {
       user?: {
         id: string;
         role: string;
+        name: string
       };
-        seller?: {
+       seller?: {
         id: string;
+        name: string;
         role: string;
+        shop: {
+          id: string;
+          name:string
+        };
       };
     }
   }
@@ -52,24 +58,25 @@ export const globalMiddleware = (
   next: NextFunction
 ) => {
   try {
-    // ── 1. Origin / Port Guard ───────────────────────────────────────────────
-    // const env = (process.env.NODE_ENV as "production" | "development") || "development";
-    
-    // const allowedOrigins = ALLOWED_ORIGINS[env];
-    
-    // if (origin && !allowedOrigins.some((o) => origin.startsWith(o))) {
-      //   return next(new AuthError("Access denied: Invalid origin."));
-      // }
-      
+    // ── 1. Origin / Port Guard ───
+    // ────────────────────────────────────────────
     const origin = req.headers.origin || "";
     const originPort = parseInt(origin.split(":")?.[2] || "80");
 
+    const env = (process.env.NODE_ENV as "production" | "development") || "development";
+    const allowedOrigins = ALLOWED_ORIGINS[env];
+    
+    if (origin && !allowedOrigins.some((o) => origin.startsWith(o))) {
+        return next(new AuthError("❌ Access denied: Invalid origin."));
+      }
+      
+ 
     // -------── 1.9 ---── SUPERIOR TOken XTraction ────────────────────────────────────────
     let token: string | undefined;
 
       const expectedRole = roleByPort[originPort];
       const tokenNamesToCheck = expectedRole 
-      ? ROLE_TOKENS[expectedRole]           // ← seller app only checks seller tokens
+      ? ROLE_TOKENS[expectedRole]           // ← seller app only checks seller tokens, user only user's
       : Object.values(ROLE_TOKENS).flat();
       
     // Only check tokens relevant to this app's role
@@ -101,59 +108,6 @@ export const globalMiddleware = (
       }
     }
  
-    // ── 3. Verify & Decode Token ─────────────────────────────────────────────
-    let decoded = jwt.decode(token) as any;
-    try {
-        // console.log('TOKEN EXPIRED?', decoded?.exp < Math.floor(Date.now() / 1000));
-        // console.log('SECRET LENGTH:', process.env.JWT_ACCESS_SECRET?.length);
-        // console.log('SECRET PREVIEW:', process.env.JWT_ACCESS_SECRET?.slice(0, 6));
-        decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
-      } catch (error) {
-
-        if (error instanceof jwt.TokenExpiredError) {
-          return next();
-      }
-      return next(new AuthError("Access denied: Invalid or expired token."));
-    }
-
-    // ── 4. Token Type Validation ─────────────────────────────────────────────
-    let expectedTokens: string[] | undefined
-
-    if (decoded.role && req.cookies) {
-       expectedTokens = ROLE_TOKENS[decoded.role];
-      const hasValidToken = expectedTokens?.some(tokenName => req.cookies?.[tokenName]);
-      
-      if (expectedTokens && !hasValidToken && Object.keys(req.cookies).length > 0) {
-        return next(new AuthError(`Access denied: Unknown error for role ${decoded.role}.`));
-      }
-    }
-
-    // ── 5. Role Tampering Guard ───────────────────────────────────────────────
-    if (req.body?.role || req.query?.role) {
-      const injectedRole = req.body?.role || req.query?.role;
-      if (injectedRole !== decoded.role) {
-        return next(new AuthError("Access denied: Role manipulation detected."));
-      }
-      // Clean up
-      if (req.body?.role) delete req.body.role;
-      if (req.query?.role) delete req.query.role;
-    }
-
-  // ── 7. Attach clean user to request ──────────────────────────────────────
-  const payload = {
-    id: decoded.id,
-    role: decoded.role,
-  };
-
-  if (decoded.role === 'seller') {
-      req.seller = payload;
-  } else if (decoded.role === 'user') {
-      req.user = payload;
-  } else if (decoded.role === 'admin') {
-      req.user = payload; // or req.admin if you add that too
-  }
-
-   
 
     next();
   } catch (error) {

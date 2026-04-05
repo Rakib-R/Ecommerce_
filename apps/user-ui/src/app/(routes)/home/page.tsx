@@ -30,21 +30,23 @@ const Home = () => {
   });
 
   console.log("Products data:", products);
-  
   if (userLoading) return <div>Loading...</div>; // Optional loading state
   
   return (
-    <main>
+    <main className='ml-8'>
       {isUser && (
-        <section>
-          <h2>Recommended for you</h2>
+        <section className='mt-8'>
+          <h2 className='text-2xl font-medium'>Recommended for you</h2>
+          <hr className='mt-3 opacity-50'/>
           {/* user-specific content */}
         </section>
       )}
 
-      {/* ✅ Skeletons */ }
+      {/*  Skeletons */ }
       <section className="">
-        <h2 className="text-xl font-bold my-8">Products</h2>
+        <h2 className="text-2xl font-medium mt-16">Products</h2>
+          <hr className='mt-4 opacity-50 mb-8'/>
+
         <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
             {isLoading ? (
             // Show skeletons while loading
@@ -65,9 +67,11 @@ const Home = () => {
         </div>
     </section>
     
-    {/* ✅ Actually use latestProducts */}
+    {/*  Actually use latestProducts */}
     <section className='gap-4'>
-      <h2 className="text-xl font-bold my-8">Latest Products</h2>
+      <h2 className="text-2xl font-medium mt-16">Latest Products</h2>
+      <hr className='mt-4 opacity-50 mb-8'/>
+
       <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
         {latestLoading
           ? Array.from({ length: 10 }).map((_, i) => (

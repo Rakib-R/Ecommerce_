@@ -89,6 +89,11 @@ const Login = () => {
         Ecommerce_
       </h1>
 
+       {/* EMERGENCY - Admin Demo */}
+    <div className="fixed top-32 left-4 w-1/4 h-16 text-lg font-mono z-50 bg-amber-500 text-black px-3 py-1.5 rounded-lg shadow-lg animate-bounce">
+      🔐 Demo Access: <span className="font-bold">admin@email.com</span> / <span className="font-bold">admin</span>
+    </div>
+
       <div className="flex justify-center px-4">
         <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">
           <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
@@ -167,17 +172,12 @@ const Login = () => {
                   }`}
                   {...register("password", {
                     required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must be at least 6 characters",
-                    },
                   })}
                 />
                 <button
                   type="button"
                   onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors">
                   {passwordVisible ? <Eye size={18} /> : <EyeOff size={18} />}
                 </button>
               </div>

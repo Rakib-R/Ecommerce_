@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useForm, useWatch } from "react-hook-form";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { countries } from '../../utils/countries';
 import CreateShop from '../../shared/modules/auth/create-shop';
@@ -45,10 +45,10 @@ const SignUp = () => {
   // ── Read EVERYTHING that controls which step renders from the store ──────────
   // This is the critical fix: activeStep must come from the store, NOT useState.
   const {
+    _hasHydrated,     // ← gate: don't render until localStorage is loaded
     activeStep,       // ← from store, persisted across refreshes
     sellerId,
     step1Values,
-    _hasHydrated,     // ← gate: don't render until localStorage is loaded
     setActiveStep,
     setSellerId,
     saveStep1Values,
@@ -67,16 +67,7 @@ const SignUp = () => {
   // sellerData only needed within the current OTP flow session
   const [sellerData, setSellerData] = useState<FormData | null>(null);
 
-    const { data: seller } = useQuery({
-    queryKey: ["logged-in-seller"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/api/logged-in-seller", {
-        withCredentials: true,
-      });
-      return res.data;
-    },
-    retry: false,
-  });
+
 
   // Pre-fill step-1 form with persisted values so nothing is re-typed after refresh
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
@@ -123,17 +114,15 @@ const SignUp = () => {
   // CLEARS UP SUCCESS MESSAGE
   useEffect(() => {
     if (!successMessage) return;
-    const timer = setTimeout(() => setSuccessMessage(null), 3000);
+    const timer = setTimeout(() => setSuccessMessage(null), 2000);
     return () => clearTimeout(timer);
   }, [successMessage]);
 
 
-
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/seller-registration`,
-        data
+      const response = await axiosInstance.post(
+        '/api/seller-registration', data
       );
       return response.data;
     },
@@ -162,16 +151,16 @@ const SignUp = () => {
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
       if (!sellerData) return;
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-seller`,
+      const response = await axiosInstance.post(
+        '/api/verify-seller',
         { ...sellerData, otp: otp.join('') }
       );
       return response.data;
     },
     onSuccess: (data) => {
       setSuccessMessage("Verification successful! Redirecting...");
-      // Persist sellerId AND advance step together so a refresh after this
-      // point always lands on step 2, not step 1
+      //! Persist sellerId AND advance step together so a refresh after this
+      //! point always lands on step 2, not step 1
       setSellerId(data.seller?.id);
       setActiveStep(2);
     },
@@ -205,8 +194,8 @@ const SignUp = () => {
 const resendOtpMutation = useMutation({
   mutationFn: async () => {
     if (!sellerData) return;
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_SERVER_URI}/api/seller-registration`,
+    const response = await axiosInstance.post(
+      '/api/seller-registration',
       sellerData
     );
     return response.data;
@@ -236,8 +225,8 @@ const resendOtp = () => {
   const connectStripe = async () => {
     try {
       console.log("Stripe Key Loaded:", process.env.STRIPE_SECRET_KEY?.substring(0, 8) + "...");
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
+      const response = await axiosInstance.post(
+        '/api/create-stripe-link',
         { sellerId }
       );
       if (response.data.url) {
@@ -390,9 +379,9 @@ const resendOtp = () => {
                     ${errors.country ? "border-red-500 ring-1 ring-red-100" : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
                   {...register("country", { required: "Country is required" })}
                 >
-                  <option value="">Select your country</option>
+                  <option value="" className='bg-blue-500'>Select your country</option>
                   {countries.map((country) => (
-                    <option key={country.code} value={country.code}>{country.name}</option>
+                    <option key={country.code} value={country.code} className='bg-gray-200'>{country.name}</option>
                   ))}
                 </select>
                 <FieldError message={errors.country?.message} />
@@ -405,11 +394,11 @@ const resendOtp = () => {
                   <select
                     value={dialCode}
                     onChange={(e) => setDialCode(e.target.value)}
-                    className="shrink-0 bg-gray-50 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer
+                    className="shrink-0 border-r border-gray-300 text-sm text-gray-700 px-2 py-2.5 outline-none cursor-pointer
                       hover:bg-gray-100 transition-colors"
                   >
                     {countries.map((country) => (
-                      <option key={country.code} value={country.dialCode}>
+                      <option className='bg-gray-200' key={country.code} value={country.dialCode}>
                         {country.dialCode} {country.name}
                       </option>
                     ))}
@@ -437,7 +426,7 @@ const resendOtp = () => {
                     className="flex-1 px-3 py-2.5 text-sm outline-none bg-white"
                     {...register("password", {
                       required: "Password is required",
-                      minLength: { value: 6, message: "Password too short" },
+                      
                     })}
                   />
                   <button

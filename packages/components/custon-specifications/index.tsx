@@ -33,7 +33,8 @@ const CustomSpecifications = ({ control, errors }: any) => {
                     placeholder="e.g., Battery Life, Weight, Material"
                     {...field}
                 />
-                )}/>
+                )}
+                />
 
                 {/* 2ND CONTROLLER */}
             <Controller
@@ -55,12 +56,14 @@ const CustomSpecifications = ({ control, errors }: any) => {
             </button>
         </div>
         ))}
-          <button
+          
+        <button
             type="button"
             className="flex items-center gap-2 text-blue-500 hover:text-blue-6600"
             onClick={() => append({ name: "", value: "" })}>
             <PlusCircle size={20}/> Add Specification
         </button>
+
     </section>
         {errors?.custom_specifications && (
             <p className="text-xs mt-1"> {errors.custom_specifications.message as string}

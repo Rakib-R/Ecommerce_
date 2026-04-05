@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useEffect } from 'react'
@@ -21,7 +20,7 @@ import { useRouter } from 'next/navigation';
 const SideBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
-  const {seller } = useSeller();
+  const { seller } = useSeller();
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const SideBarWrapper = () => {
   }, [pathName, setActiveSidebar]);
 
   const handleLogout = async () => {
-    await axiosInstance.post("/api/logout");
+    await axiosInstance.post('/api/logout');
     useAuthState.getState().logout();
     queryClient.setQueryData(['seller'], null);
     router.push("/seller-login");
@@ -51,7 +50,7 @@ const SideBarWrapper = () => {
     <Link href="/" className="flex gap-2">
       <Image width={40} height={40} src={Logo} alt='Logo'/>
       <Box>
-        <h3 className="text-xl font-medium text-[#ecedee]">{seller?.shop?.name}</h3>
+        <h3 className="text-xl text-green-600 font font-medium">{seller?.shop?.name}</h3>
         <h5 className='font-medium text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]'>
           {seller?.shop?.address}
         </h5>
@@ -67,7 +66,8 @@ const SideBarWrapper = () => {
       icon={<Home size={26} fill={getIconColor("/dashboard")}/>}
       isActive={activeSidebar === "/dashboard"}
       href='/dashboard'
-    />
+      className="transition-all duration-1000 border-[3px] border-red-500"
+    /> 
   <section className="block py-1">
     <SidebarMenu title="Main Menu">
       <SidebarItem
@@ -95,6 +95,7 @@ const SideBarWrapper = () => {
           isActive={activeSidebar === "/dashboard/create-product"}
           title="Create Product"
           href="/dashboard/create-product"
+          className="transition-all duration-1000 border-[3px] border-red-500"
           icon={
             <SquarePlus
               color={getIconColor("/dashboard/create-product")}
@@ -105,6 +106,7 @@ const SideBarWrapper = () => {
           isActive={activeSidebar === "/dashboard/all-products"}
           title="All Products"
           href="/dashboard/all-products"
+          className="transition-all duration-1000 border-[3px] mt-[1px] border-red-500"
           icon={
             <PackageSearch
               size={22}
@@ -172,6 +174,7 @@ const SideBarWrapper = () => {
           isActive={activeSidebar === "/dashboard/discount-codes"}
           title="Discount Codes"
           href="/dashboard/discount-codes"
+          className="transition-all duration-800 border-[3px] border-red-500"
           icon={
             <TicketPercent
               size={22}
@@ -182,6 +185,7 @@ const SideBarWrapper = () => {
           isActive={activeSidebar === "/logout"}
           title="Logout"
           href="/seller-login"
+          className="transition-all duration-1000 border-[3px] border-red-500"
           logOutFunc={handleLogout}
           icon={
             <LogOut

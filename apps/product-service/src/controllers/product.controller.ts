@@ -39,7 +39,7 @@ export const createDiscountCodes = async (
 ) => {
   try {
     const { 
-      public_name,  discountType, discountValue, discountCode, sellerId } = req.body;
+      public_name,  discountType, discountValue, discountCode } = req.body;
 
     const isDiscountCodeExist = await prisma.discount_codes.findUnique({
         where: {
@@ -82,10 +82,15 @@ export const getDiscountCodes = async (
   next: NextFunction
 ) => {
   try {
+
+    const sellerId = req.seller?.id || req.admin?.id;
+
+    if (!sellerId) {
+      return res.status(401).json({ message: "Unauthorized for Seller or Admin!" });
+    }
+
     const discount_codes = await prisma.discount_codes.findMany({
-      where: {
-        sellerId: req.seller.id,
-      },
+      where: { sellerId },
       orderBy: {
         createdAt: 'desc', // Optional: brings newest codes to the top
       },
@@ -106,8 +111,13 @@ export const deleteDiscountCode = async (
   next: NextFunction
 ) => {
   try {
+
     const { id } = req.params;
-    const sellerId = req.seller?.id;
+
+    const sellerId = req.seller?.id || req.admin?.id;
+    if (!sellerId) {
+      return res.status(401).json({ message: "Unauthorized for Seller or Admin!" });
+    }
 
     // 1. Verify existence and ownership
     const discountCode = await prisma.discount_codes.findUnique({
@@ -159,46 +169,55 @@ export const uploadProductImage = async (
 };
 
 export const deleteProductImage = async (
-  req: Request, res: Response, next: NextFunction) => {
-
+  req: Request, res: Response, next: NextFunction
+) => {
   try {
+    
     const { fileId } = req.body;
-    const response = await imagekit.deleteFile(fileId);
-        res.status(200).json(
-          {success : true,
-            response });
-    }
-    catch (error){
-      console.log('Image can not be deleted')
-    }
-}
+    console.log("fileId received:", fileId); // ← check if it's arriving
 
-type CreateProductPayload = {
-  title: string
-  short_description: string
-  detailed_description: string
-  category: string
-  slug: string
-  subCategory: string
-  brand?: string
-  regularPrice: number
-  sale_price?: number
-  stock: number
-  videoUrl?: string
-  cashOnDelivery: string
-  tags: string[] | string
-  colors?: string[]
-  sizes?: string[]
-  starting_date: Date
-  ending_date: Date
-  discountCodes?: string[]
-  images: {
-    fileId: string
-    file_url: string
-  }[]
-  customProperties?: Record<string, any>
-  custom_specifications?: Record<string, any>
-}
+    if (!fileId) {
+      return res.status(400).json({ success: false, message: "fileId is required" });
+    }
+
+    const response = await imagekit.deleteFile(fileId);
+    res.status(200).json({ success: true, response });
+
+  } catch (error) {
+    console.error('Image delete failed:', error);
+    next(error); // ✅ sends error to your error middleware, no hanging
+  }
+};
+
+import { CreateProductSchema } from "../../schema/product.shecma";
+import DOMPurify from "isomorphic-dompurify";
+
+// type CreateProductPayload = {
+//   title: string
+//   short_description: string
+//   detailed_description: string
+//   category: string
+//   slug: string
+//   subCategory: string
+//   brand?: string
+//   regularPrice: number
+//   sale_price?: number
+//   stock: number
+//   videoUrl?: string
+//   cash_on_delivery: string
+//   tags: string[] | string
+//   colors?: string[]
+//   sizes?: string[]
+//   starting_date: Date
+//   ending_date: Date
+//   discountCodes?: string[]
+//   images: {
+//     fileId: string
+//     file_url: string
+//   }[]
+//   customProperties?: Record<string, any>
+//   custom_specifications?: Record<string, any>
+// }
 
 
 export const createProduct = async (
@@ -208,7 +227,16 @@ export const createProduct = async (
 ) => {
   try {
 
-  const body = req.body as CreateProductPayload;
+  const parsed = CreateProductSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors,
+    });
+  }
 
   const {
     title,
@@ -217,29 +245,32 @@ export const createProduct = async (
     category,
     slug,
     subCategory,
-    brand,
     regularPrice,
-    sale_price,
     stock,
-    videoUrl,
-    cashOnDelivery,
     tags,
+    images, // ARRAYS Of IMAGES
+    cash_on_delivery,
+    sale_price,
+    brand,
+    videoUrl,
     colors,
     sizes,
     discountCodes,
-    images, // ARRAYS Of IMAGES
     customProperties,
     custom_specifications,
-  } = body;
+  } = parsed.data;
 
-    //! AUTH-ERROR
-    if (!(req as any).seller.id){
-      return next (new AuthError('Only seller can create product!'))
+  
+  //! AUTH-ERROR AUTH-ERROR AUTH-ERROR
+  const seller = (req as any).seller || (req as any).admin;
+
+  if (!seller || !seller.id) {
+      return next (new AuthError('Only seller and admin can create product!'))
     }
 
     //todo . Basic Validation
-  // 1. Define fields as an object
-    const requiredFields = { title, slug, short_description, category, subCategory, tags, images, regularPrice, sale_price, stock };
+    const requiredFields = { title, slug, detailed_description,short_description, category, 
+                              cash_on_delivery, subCategory, tags, images, regularPrice, stock };
 
     //todo. Filter the object keys
     const missingFields = Object.entries(requiredFields)
@@ -270,40 +301,60 @@ export const createProduct = async (
     }
 
 
-    const newProduct = await prisma.product.create({
-        data: {
-        title,
-        short_description,
-        detailed_description,
-        category,
-        subCategory,
-        brand,
-        slug, 
-        shopId: (req as any).seller?.shop.id!,
-        sizes: sizes || [],
-        stock: parseInt(String(stock)),
-        sale_price: sale_price ? parseFloat(String(sale_price)) : 0,
-        regular_price: parseFloat(String(regularPrice)),
-        colors: colors || [],
-        custom_property: customProperties || {},
-        custom_specification: custom_specifications || {},
-        images: { 
-          create :images
-          .filter((img: any) => img && img.fileId && img.file_url)
-          .map((img: any) => ({
-            file_id: img.fileId,
-            url: img.file_url,
-          }))},
+    const clean = {
+      title:                DOMPurify.sanitize(parsed.data.title),
+      short_description:    DOMPurify.sanitize(parsed.data.short_description),
+      detailed_description: DOMPurify.sanitize(parsed.data.detailed_description ?? ""),
+      category:             DOMPurify.sanitize(parsed.data.category),
+      subCategory:          DOMPurify.sanitize(parsed.data.subCategory),
+      brand:                parsed.data.brand ? DOMPurify.sanitize(parsed.data.brand) : undefined,
+      slug:                 DOMPurify.sanitize(parsed.data.slug),
+      videoUrl:             parsed.data.videoUrl ? DOMPurify.sanitize(parsed.data.videoUrl) : undefined,
+      tags:                 formattedTags.map(tag => DOMPurify.sanitize(tag)),
+      colors:               (parsed.data.colors ?? []).map(c => DOMPurify.sanitize(c)),
+      sizes:                (parsed.data.sizes ?? []).map(s => DOMPurify.sanitize(s)),
+    };
 
-        starting_date: body.starting_date ? new Date(body.starting_date) : new Date(), 
-        video_url: videoUrl,
-        cashOnDelivery : String(cashOnDelivery),
-        tags: formattedTags,
-        discount_codes: discountCodes && discountCodes.length > 0 ? { connect: discountCodes
-          .filter((id: string) => id && id.trim() !== "")
-          .map((id: string) => ({ id })) }   : undefined,
-        } ,
-      include: { images: true } 
+    // Then pass clean to Prisma
+    const newProduct = await prisma.product.create({
+      data: {
+        title:               clean.title,
+        short_description:   clean.short_description,
+        detailed_description:clean.detailed_description,
+        category:            clean.category,
+        subCategory:         clean.subCategory,
+        brand:               clean.brand,
+        slug:                clean.slug,
+        shopId:              seller?.shop.id!,
+        sizes:               clean.sizes,
+        stock:               parsed.data.stock,              // already a number from Zod, no parseInt needed
+        salePrice:           parsed.data.sale_price ?? 0,    // already a number from Zod, no parseFloat needed
+        regularPrice:        parsed.data.regularPrice,       // already a number from Zod
+        colors:              clean.colors,
+        custom_property:     parsed.data.customProperties ?? {},
+        custom_specification:parsed.data.custom_specifications ?? {},
+        images: {
+          create: parsed.data.images
+            .filter((img) => img.fileId && img.file_url)
+            .map((img) => ({
+              file_id: img.fileId,
+              url:     img.file_url,
+            })),
+        },
+        cashOnDelivery:  parsed.data.cash_on_delivery === "yes",
+        starting_date:   parsed.data.starting_date ? new Date(parsed.data.starting_date) : new Date(),
+        video_url:       clean.videoUrl,
+        tags:            clean.tags,
+        discount_codes:
+          parsed.data.discountCodes && parsed.data.discountCodes.length > 0
+            ? {
+                connect: parsed.data.discountCodes
+                  .filter((id) => id && id.trim() !== "")
+                  .map((id) => ({ id })),
+              }
+            : undefined,
+      },
+      include: { images: true },
     });
 
     res.status(201).json({
@@ -323,28 +374,57 @@ export const createProduct = async (
   }
 };
 
-
-export const getShopProducts = async ( req : Request, res: Response, next: NextFunction) => {
+export const getShopProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-  const products = await prisma.product.findMany({
-    where: {
-      shopId: (req as any)?.seller?.shop?.id,
-    },
-    include: {
-      images: true,
-    },
-  });
 
-  console.log("Raw product count:", products.length);
-    res.status(201).json({
-      success: true,
-      products,
+    const role = (req as any)?.role;
+    const sellerId = role === "admin" ? (req as any)?.admin?.id  
+      : (req as any)?.seller?.id;     
+
+    if (!sellerId) {
+      return res.status(400).json({ message: "Seller ID not found!" });
+    }
+
+    const shop = await prisma.shops.findUnique({
+      where: { sellerId },
     });
+
+    if (!shop) {
+      return res.status(404).json({ message: "Shop not found!" });
+    }
+
+    const products = await prisma.product.findMany({
+      where: { shopId: shop.id }, // ✅ always scoped to ONE shop
+      include: { images: true },
+    });
+
+    res.status(200).json({ success: true, products });
   } catch (error) {
     next(error);
   }
-}
+};
 
+// Extend Express Request type
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        name: string;
+        role: string;
+      };
+      seller?: {
+        id: string;
+        name: string;
+        role: string;
+        shop: {
+          id: string;
+          name:string
+        };
+      };
+    }
+  }
+}
 
 export const deleteProduct = async (
   req: Request,
@@ -353,7 +433,7 @@ export const deleteProduct = async (
 ) => {
   try {
     const { productId } = req.params; // Make sure the route has /:productId
-    const sellerId = (req as any).seller?.shop?.id; // Assuming you have seller info in req
+    const sellerId = (req).seller?.shop?.id;
 
     if (!sellerId) {
       return res.status(403).json({ message: "Unauthorized: No seller found." });
@@ -452,8 +532,14 @@ export const restoreProduct = async (
     const skip = (page - 1) * limit;
     const type = req.query.type;
     const now = new Date();
-    
-    
+
+
+  const allProducts = await prisma.product.findMany({
+      select: { id: true, title: true, starting_date: true, ending_date: true, status: true }
+    });
+    console.log('📊 TOTAL PRODUCTS IN DB BEFORE LOGIC:', allProducts.length);
+    console.log('📊 First product sample:', allProducts[1]);
+
     // Correct date filter with proper Prisma typing 
     const baseFilter: Prisma.productWhereInput = {
       isDeleted: false,
@@ -462,7 +548,7 @@ export const restoreProduct = async (
       //!THIS SORTING UNKNOWINGLY WITHOUT THROWING ERROR STOP PRODUCTS FROM SHOWING
       AND: [
         { OR: [
-            { starting_date: { lte: now } }
+             { starting_date: { lte : now } }
           ]
         },
         {
@@ -478,6 +564,7 @@ export const restoreProduct = async (
       type === "latest"
         ? { createdAt: "desc" }
         : { totalSales: "desc" };
+      
 
     const [productsResult, totalResult, top10latestProducts] = await Promise.allSettled([
       // Fetch paginated products
@@ -488,14 +575,15 @@ export const restoreProduct = async (
           images: true,
           Shop: true,
         },
-        where: baseFilter,
+        // where: baseFilter,
         orderBy
       }),
 
       // Count total products matching filter
       prisma.product.count({
-        where: baseFilter,
+        // where: baseFilter,
       }),
+
 
     // Fetch top 10 products by totalSales
     prisma.product.findMany({
@@ -522,6 +610,8 @@ export const restoreProduct = async (
 
   const products = productsResult.status === 'fulfilled' ? productsResult.value : [];
   const total = totalResult.status === 'fulfilled' ? totalResult.value : 0;
+  
+  console.log("Changed products after all the logic ",  )
 
     //! --------------  PRINT DEBUGGING  -------------- --------------    
     const queryNames = ["Products List", "Total Count", "Top 10 Products"];

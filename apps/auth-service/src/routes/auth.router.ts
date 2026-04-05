@@ -1,8 +1,13 @@
 
 import express, { Router } from "express";
-import { createShop, createStripeConnectLink, getSeller, getUser, loginSeller, loginUser, logout, refreshToken, registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, stripeWebhook, userForgotPassword, userRegistration, verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { createShop, createStripeConnectLink, getSeller, 
+    getUser, loginSeller, loginUser, logout, refreshToken, 
+    registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, 
+    stripeWebhook, userForgotPassword, userRegistration, 
+    verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+
 import { isBuyer, isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
-import {isAuthenticated} from "@packages/middleware"
+import { isAuthenticated } from "@packages/middleware"
 import track_router_kafka, { kafka_batch } from "../controller/track-router-kafka";
 
 const router: Router = express.Router();
@@ -10,6 +15,9 @@ const router: Router = express.Router();
 router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUser); 
 router.post("/login-user",loginUser);
+
+// router.post("/admin", admin);
+
 router.post("/refresh-token", refreshToken);
 router.get("/logged-in-user", isAuthenticated, isBuyer, getUser);
 

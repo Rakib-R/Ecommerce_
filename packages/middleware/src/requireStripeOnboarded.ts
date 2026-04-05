@@ -1,6 +1,6 @@
 
 // middleware/requireStripeOnboarded.ts
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import prisma from "@packages/prisma";
 import { AuthError } from "@packages/error-handler";
 import Stripe from "stripe";
@@ -21,7 +21,7 @@ export const requireStripeOnboarded = async (
       return next(new AuthError("Unauthorized!"));
     }
 
-    // ✅ Quick DB check first (avoids hitting Stripe API every time)
+    //  Quick DB check first (avoids hitting Stripe API every time)
     const dbSeller = await prisma.sellers.findUnique({
       where: { id: seller.id },
     });
@@ -34,12 +34,12 @@ export const requireStripeOnboarded = async (
       });
     }
 
-    // ✅ If DB says onboarded, skip Stripe API call entirely
+    //  If DB says onboarded, skip Stripe API call entirely
     if (dbSeller.stripeOnboarded) {
       return next();
     }
 
-    // ✅ Double-check with Stripe (in case webhook hasn't fired yet)
+    //  Double-check with Stripe (in case webhook hasn't fired yet)
     const stripeAccount = await stripe.accounts.retrieve(dbSeller.stripeId);
 
     if (!stripeAccount.details_submitted) {

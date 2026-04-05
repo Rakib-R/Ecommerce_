@@ -79,6 +79,6 @@ app.use(errorMiddleware);
 const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
-  console.log(`🔑 Auth Service running at http://localhost:${port}/auth`);
+  console.log(`🔑 Auth Service running at http://localhost:${port}/auth/health`);
   console.log(`📖 Swagger Docs at   http://localhost:${port}/auth/docs`);
 });

@@ -7,7 +7,7 @@ import { useAuthState } from "../store/authStore";
 import { queryClient } from '../../../../utils/queryClient';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
+   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
    withCredentials: true,  // sends cookies automatically
 });
 
@@ -36,21 +36,24 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
 
     const skipRefreshRoutes = [
-      '/api/login-seller',
-      '/api/seller-registration',
-      '/api/register-user',
+      '/api/seller-registration', '/api/register-user',
+      '/api/login',
+      '/api/signup',
+      '/api/seller-login',
+      '/api/seller-signup', '/api/admin',
+      '/api/forgot-password-user', '/api/forgot-password-seller',
     ];
 
       const isAuthRoute = skipRefreshRoutes.some(r => 
-      originalRequest.url?.includes(r)
+        originalRequest.url?.includes(r)
     );
 
     if (isAuthRoute) {
       return Promise.reject(error); // ← return immediately, no refresh
     }
 
-  // Only handle 401s, skip everything else
-    if (error.response?.status !== 401) {
+  // Only handle 401s && 403s, Skip everything else
+    if (error.response?.status !== 401 ) {
       return Promise.reject(error);
     }
 

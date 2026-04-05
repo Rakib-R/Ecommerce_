@@ -1,9 +1,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "allowUnusedLabels": false,
     "allowUnreachableCode": false,
 
     "resolveJsonModule": true,

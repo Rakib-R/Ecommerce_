@@ -1,7 +1,7 @@
 
-import './global.css';
 import Providers from '../../../../apps/utils/providers'
 import { Poppins } from 'next/font/google';
+import '../seller-UI.css';
 
 export const metadata = {
   title: 'Ecommerce_',

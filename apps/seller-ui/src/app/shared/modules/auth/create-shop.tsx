@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { SHOP_CATEGORIES as shopCategories } from "../../../utils/categories";
 import { useSellerRegistrationStore } from "../../../store/useSellerRegistrationStore";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface ShopFormValues {
   name: string;
@@ -62,8 +62,7 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
 
   const shopCreateMutation = useMutation({
     mutationFn: async (data: ShopFormValues & { sellerId: string }) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`,
+      const response = await axiosInstance.post('/api/create-shop',
         data
       );
       return response.data;
@@ -195,7 +194,7 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
             >
               <option value="">Select a category</option>
               {shopCategories.map((category) => (
-                <option key={category.value} value={category.value}>
+                <option key={category.value} value={category.value} className="bg-gray-200">
                   {category.label}
                 </option>
               ))}

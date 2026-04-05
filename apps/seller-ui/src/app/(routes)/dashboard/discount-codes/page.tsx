@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "apps/utils/queryClient";
 import { ChevronRight, Plus, Trash, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -24,8 +25,6 @@ const Page = () => {
   const [showModal, setShowModal] = useState<Boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<Boolean>(false);
   const [selectedDiscount, setSelectedDiscount] = useState<any>();
-
-  const queryClient = useQueryClient();
 
  const { data: discountCodes = [], isLoading } = useQuery({
   queryKey: ["shop-discounts"],
@@ -182,13 +181,12 @@ const {
 
                       <button
                         onClick={() => setShowModal(false)}
-                        className="text-gray-400 hover:text-white"
-                      >
+                        className="text-gray-400 hover:text-white">
                           <X size={22} />
                         </button>
                       </div>
 
-                      <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
+                  <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
 
                         {/* Title */}
                         <Input
@@ -213,7 +211,7 @@ const {
                           <Controller 
                             control={control}
                             name="discountType"
-                          render={({field}) => ( 
+                          render={({}) => ( 
                               <select
                               {...register("discountType")}
                               className="w-full bg-gray-800 text-white p-2 rounded-lg mt-1">
@@ -259,7 +257,7 @@ const {
                               {
                                 (createDiscountCodeMutation.error as AxiosError<{
                                   message: string;
-                                }>)?.response?.data?.message || "Something went wrong"
+                                }>)?.response?.data?.message || "Something went wrong in discountCodes"
                               }
                             </p>
                           )

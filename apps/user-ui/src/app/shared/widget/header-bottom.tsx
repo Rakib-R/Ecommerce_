@@ -4,6 +4,7 @@ import { AlignLeft, ChevronDown, HeartIcon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { navItems } from '../../configs/constants';
+import Image from 'next/image';
 import Cart from "../../../../assests/svgs/cart.png"
 import useUser from "@apps/user-ui/src/app/hooks/useUser"
 import { useAuthState, useStore } from '../../store/authStore';
@@ -24,6 +25,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
   const cart = useStore((state: any) => state.cart);
   
   const router = useRouter();
+
   const handleLogout = async () => {
     await axiosInstance.post("/api/logout");
     useAuthState.getState().logout();
@@ -44,6 +46,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [topHeaderHeight]);
+
+  console.log('user' , user)
 
   return (
     <>
@@ -95,48 +99,43 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                 <Link
                   key={index}
                   href={i.href}
-                  className="px-5 font-medium text-lg hover:text-blue-200 transition-colors"
-                >
+                  className="px-5 font-medium text-lg hover:text-blue-200 transition-colors">
                   {i.title}
                 </Link>
               ))}
             </nav>
 
             {/* Right Side Icons - Only show when sticky */}
-            <aside className="flex items-center ml-[1.2rem] gap-4 w-[350px]">
+            <aside className="flex items-center ml-[1.2rem] gap-4 w-[340px]">
               {isSticky && (
                 <>
                  {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
-                <div className={`${user && 'bg-blue-500/10 outline outline-[5px] outline-blue-500/10 '} w-[140px]`}>
+                <div className={`${user && ''} w-[140px]`}>
                   {!isLoading && user && (
                     <Link href="/profile" className="flex items-center gap-2">
-                    <img src={ProfileIcon.src} alt="Profile" className="" />
+                    <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0" />
                     <p className="font-medium text-black">
-                      <span className='text-md'>Hello, </span>
+                      <span className='text-md'>Hello, {user.role === 'admin' ? 'Admin' : ''}</span>
                       <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
                   </Link>
                   )}
               </div>
-                  {!isLoading && user ? (
-                    <Link href="/login" className="flex items-center gap-1">
-                      <img src="/logOut.svg" alt="Profile" className="w-6 h-6" 
-                      style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/>
-                      <span   
-                        className="text-lg font-medium text-purple-900 cursor-pointer"
-                        onClick={handleLogout}
-                      >
-                        Log Out
-                      </span>
-                    </Link>
-                  ) : ( 
-                    <Link href="/login" className="flex items-center">
-                      <img src="/signIn.svg" alt="Login" className="w-6 h-6" />
-                      <span className="text-lg font-medium text-cyan-600 ">
-                        {isLoading ? '...' : 'Sign In'}
-                      </span>
-                    </Link>
-                  )}
+                  
+                {!isLoading && user ? (
+                  <Link href="/login" className="flex items-center gap-1 underline">
+                    {/* <img src="/logOut.svg" alt="Profile" className="w-6 h-6 ml-2" 
+                    style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/> */}
+                    <span className="text-md text-lg"
+                      onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
+                  </Link>
+                ) : (
+                  <Link href="/login" className="flex items-center gap-1">
+                    <span className="font-medium text-black">
+                      <span className="text-lg text-cyan-600 font-medium">{isLoading ? '...' : 'Sign In'}</span>
+                    </span>
+                  </Link>
+                )}
                 <aside className="flex items-center gap-3">
                   <Link href="/wishlist" className="relative">
                     <HeartIcon className="w-6 h-6 " />

@@ -1,5 +1,5 @@
 // hooks/useImageManagement.ts
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import axiosInstance from '../utils/axiosInstance';
 import { convertFileToBase64 } from '../utils/convertFile2Base64';
@@ -19,6 +19,7 @@ export const useImageManagement = ({
   maxImages = 8, 
   formFieldName = "images" 
 }: UseImageManagementProps = {}) => {
+
   // State
   const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [openImageModal, setOpenImageModal] = useState(false);
@@ -42,13 +43,21 @@ export const useImageManagement = ({
       const existingHistory = newHistory.get(imageIndex) || [];
       const existingIndex = currentHistoryIndex.get(imageIndex) || -1;
       
-      // If we're not at the end, truncate the history
-      const truncatedHistory = existingHistory.slice(0, existingIndex + 1);
-      truncatedHistory.push(transformations.join(','));
-      
-      newHistory.set(imageIndex, truncatedHistory);
-      return newHistory;
-    });
+       let truncatedHistory;
+    
+    // ✅ ONLY truncate if we're NOT at the end
+    if (existingIndex < existingHistory.length - 1) {
+      truncatedHistory = existingHistory.slice(0, existingIndex + 1);
+    } else {
+      // We're at the end - just use existing history
+      truncatedHistory = [...existingHistory];
+    }
+    
+    truncatedHistory.push(transformations.join(','));
+    newHistory.set(imageIndex, truncatedHistory);
+    
+    return newHistory;
+  });
     
     setCurrentHistoryIndex(prev => {
       const newIndex = new Map(prev);
@@ -108,55 +117,104 @@ export const useImageManagement = ({
     }
   };
 
-  // Handle image removal
-  const handleRemoveImage = async (index: number) => {
-    try {
-      const imageToDelete = images[index];
-      
-      if (imageToDelete && typeof imageToDelete === 'object') {
+// Handle image removal
+const handleRemoveImage = async (indexToRemove: number) => {
+  // Prevent multiple rapid deletions
+  if (pictureUploadLoader) {
+    console.log("Delete already in progress, skipping...");
+    return;
+  }
+  
+  setPictureUploadLoader(true);
+  
+  try {
+    const imageToDelete = images[indexToRemove];
+
+    if (imageToDelete?.fileId) {
+      try {
         await axiosInstance.delete('/product/api/delete-product-image', {
           data: { fileId: imageToDelete.fileId }
         });
-      }
-      
-      setImages((prevImages) => {
-        const updatedImages = [...prevImages];
-        
-        if (index === 0) {
-          updatedImages[0] = null;
+      } catch (deleteError: any) {
+        // ✅ Gracefully handle "file does not exist" errors
+        const errorMessage = deleteError?.response?.data?.message || deleteError?.message;
+        if (errorMessage?.includes('does not exist') || deleteError?.response?.status === 404) {
+          console.warn('Image already deleted from server, continuing with cleanup:', imageToDelete.fileId);
+          // Don't throw - just continue with local cleanup
         } else {
-          updatedImages.splice(index, 1);
+          // Re-throw other errors
+          throw deleteError;
         }
-        
-        if (!updatedImages.includes(null) && updatedImages.length < maxImages) {
-          updatedImages.push(null);
-        }
-        
-        if (setValue) {
-          setValue(formFieldName, updatedImages, { shouldDirty: true });
-        }
-        
-        return updatedImages;
-      });
-      
-      // Clear history for removed image
-      setHistory(prev => {
-        const newHistory = new Map(prev);
-        newHistory.delete(index);
-        return newHistory;
-      });
-      
-      setCurrentHistoryIndex(prev => {
-        const newIndex = new Map(prev);
-        newIndex.delete(index);
-        return newIndex;
-      });
-      
-    } catch (error) {
-      console.error('Failed to remove image:', error);
-      toast.error("Failed to remove image.");
+      }
     }
-  };
+
+    setImages((prevImages) => {
+      const updatedImages = prevImages.filter((_, idx) => idx !== indexToRemove);
+
+      if (updatedImages.length === 0 || !updatedImages.some(img => img === null)) {
+        updatedImages.push(null);
+      }
+
+      while (updatedImages.length > maxImages) {
+        updatedImages.pop();
+      }
+
+      if (setValue) {
+        setValue(formFieldName, updatedImages, { shouldDirty: true });
+      }
+
+      return updatedImages;
+    });
+
+    //  Re-index history after removal
+    setHistory(prev => {
+      const newHistory = new Map<number, string[]>();
+
+      prev.forEach((value, key) => {
+        if (key < indexToRemove) {
+          newHistory.set(key, value);           // below removed index → unchanged
+        } else if (key > indexToRemove) {
+          newHistory.set(key - 1, value);       // above removed index → shift down by 1
+        }
+        // key === indexToRemove → dropped entirely
+      });
+
+      return newHistory;
+    });
+
+    // ✅ Re-index currentHistoryIndex after removal
+    setCurrentHistoryIndex(prev => {
+      const newIndex = new Map<number, number>();
+
+      prev.forEach((value, key) => {
+        if (key < indexToRemove) {
+          newIndex.set(key, value);             // below removed index → unchanged
+        } else if (key > indexToRemove) {
+          newIndex.set(key - 1, value);         // above removed index → shift down by 1
+        }
+        // key === indexToRemove → dropped entirely
+      });
+
+      return newIndex;
+    });
+
+    // ✅ If the removed image was selected, close the modal
+    if (selectedImageIndex === indexToRemove) {
+      closeModal();
+    } else if (selectedImageIndex !== null && selectedImageIndex > indexToRemove) {
+      // ✅ Shift selectedImageIndex down if it was above the removed one
+      setSelectedImageIndex(selectedImageIndex - 1);
+    }
+
+    toast.success("Image removed");
+
+  } catch (error) {
+    console.error('Failed to remove image:', error);
+    toast.error("Failed to remove image.");
+  } finally {
+    setPictureUploadLoader(false);
+  }
+};
 
   // Open modal for a specific image
   const openModal = (index: number) => {

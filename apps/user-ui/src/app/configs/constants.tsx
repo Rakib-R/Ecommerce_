@@ -19,6 +19,7 @@ export const navItems: NavItemType[] = [
   },
   { 
     title: "Become A Seller", 
-    href: "/become-seller" 
+    href: "http://localhost:4000/dashboard",  // ✅ Absolute URL to seller port
+    external: true
   },
 ];

@@ -65,20 +65,19 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                 {/* py-6 gives top/bottom breathing room on small screens */}
                 <div className="flex min-h-full items-start sm:items-center justify-center p-3 sm:p-5 py-6">
 
-                    <div
-                        className="pdp-card relative w-full max-w-[900px] bg-white rounded-2xl shadow-xl overflow-hidden
-                                   flex flex-col md:flex-row"
-                        onClick={(e) => e.stopPropagation()}>
+                <div
+                    className="pdp-card relative w-full max-w-[900px] bg-white rounded-2xl shadow-xl overflow-hidden
+                                flex flex-col md:flex-row"
+                    onClick={(e) => e.stopPropagation()}>
 
-                        {/* ── Close button ── */}
-                        <button
-                            onClick={() => setOpen(false)}
-                            className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center
-                                       rounded-full bg-white border border-gray-200 text-gray-400
-                                       hover:text-gray-700 hover:border-gray-300 transition shadow-sm">
-                            <X size={14} />
-                        </button>
-
+                    {/* ── Close button ── */}
+                    <button
+                        onClick={() => setOpen(false)}
+                        className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center
+                                    rounded-full bg-white border border-gray-200 text-gray-400
+                                    hover:text-gray-700 hover:border-gray-300 transition shadow-sm">
+                        <X size={14} />
+                    </button>
 
                         {/* 
                             LEFT PANEL — images

@@ -1,9 +1,9 @@
-// app/layout.tsx
-import './global.css';
+
+
 import Providers from '../../../utils/providers';
 import { Poppins, Roboto } from "next/font/google";
-import Header from './shared/widget/header';
-import { headers } from 'next/headers';
+import './user-ui.css';
+import ClientLayout from './shared/widget/headerProvider';
 
 export const metadata = {
   title: 'Ecommerce_',
@@ -27,24 +27,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '/';
 
   // Pages where header/hero should NOT show
-  const hideHeaderRoutes = ['/login', '/signup', '/forgot-password', '/product*'];
-  const showHeader = !hideHeaderRoutes.some(route => pathname.startsWith(route));
 
   return (
     <html lang="en">
       <body className={`${poppins.variable} ${roboto.variable}`}>
         <Providers>
-          {/* ✅ Only show Header + Hero on non-auth pages */}
-          {showHeader && (
-            <>
-              <Header />
-            </>
-          )}
+        
+        <ClientLayout> 
           {children}
+        </ClientLayout>
+        
         </Providers>
       </body>
     </html>

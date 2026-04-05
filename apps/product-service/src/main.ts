@@ -38,6 +38,11 @@ app.use(cors({
   app.use(cookieParser());
   const port = process.env.PORT || 6099;
 
+// ─── Health Check (Product Service) ─────────────────────────────────────────────
+app.get('/product/health', (req, res) => {
+  res.json({ message: '🔑 Auth Service is healthy', status: 'Active' });
+});
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/docs-json", (req, res) => {
@@ -64,7 +69,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 const server = app.listen(port, () => {
-  console.log(`.🎗 Product Service running http://localhost:${port}/product 🎀🎀🎁`);
+  console.log(`.🎗 Product Service running http://localhost:${port}/product/health 🎀🎀🎁`);
   console.log(`Swagger Docs at http://localhost:${port}/api/docs`);
 });
 

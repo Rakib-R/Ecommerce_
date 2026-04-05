@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from "express";
 import { sendEmail } from "./sendMail";
 import prisma from "@packages/prisma";
 
-export const validateRegistrationData = (data: any, userType: 'buyer' | "seller") => {
+export const validateRegistrationData = (data: any, userType: 'buyer' | "seller" | "admin") => {
   const {
     name,
     email,
@@ -66,8 +66,7 @@ export const sendOtp = async (name: string, email: string, template: string) => 
   return true;
 };
 
-export const verifyOtp = async (
-email: string, otp: string, next: NextFunction
+export const verifyOtp = async ( email: string, otp: string, next: NextFunction
 ) => {
   
   const storedOtp = await redis.get(`otp:${email}`); // <-- FIXED

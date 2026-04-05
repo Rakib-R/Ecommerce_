@@ -8,6 +8,7 @@ out-tsc
 # ENV
 .env
 .env.local
+.npmrc
 
 # dependencies
 node_modules

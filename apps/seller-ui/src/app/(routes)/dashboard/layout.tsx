@@ -15,7 +15,6 @@
 
         {/* Main Content */}
         <main className="flex-1 bg-black text-white">
- 
             {children}
         </main>
       </div>

@@ -29,11 +29,28 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+      const skipRefreshRoutes = [
+      '/api/seller-registration', '/api/register-user',
+      '/api/login',
+      '/api/signup',
+      '/api/seller-login',
+      '/api/seller-signup', '/api/admin',
+      '/api/forgot-password-user', '/api/forgot-password-seller',
+    ];
+
+      const isAuthRoute = skipRefreshRoutes.some(r => 
+        originalRequest.url?.includes(r)
+    );
+
+    if (isAuthRoute) {
+      return Promise.reject(error); // ← return immediately, no refresh
+    }
+    
      // Only handle 401s, skip everything else
     if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
-
+    
     // Don't retry the refresh endpoint itself — would cause infinite loop
     if (originalRequest.url?.includes('/api/refresh-token')) {
       useAuthState.getState().logout();
@@ -67,8 +84,7 @@ axiosInstance.interceptors.response.use(
           if (err.response?.status === 401 || err.response?.status === 400) {
               useAuthState.getState().handleLogout();
         }
-
-        
+        console.log('❌❌ ERROR THROWN FROM USER AXIOS !')        
         // Clear user data on refresh failure
         queryClient.setQueryData(['user'], null);
         return Promise.reject(err);

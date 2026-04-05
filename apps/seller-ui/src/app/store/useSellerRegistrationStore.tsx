@@ -29,7 +29,7 @@ interface SellerRegistrationState {
    * NEVER persisted — it's purely a runtime flag.
    * Use this in your component to block rendering until the real
    * activeStep is known, preventing the "always shows step 1" flash.
-   */
+   **/
   _hasHydrated: boolean;
 
   setHasHydrated: (state: boolean) => void;
@@ -65,7 +65,7 @@ export const useSellerRegistrationStore = create<SellerRegistrationState>()(
     {
       name: "seller-registration",
 
-      // Called automatically by Zustand once localStorage has been read
+      // Called automatically by Zustand localStorage has been read
       // and merged into the store. We flip _hasHydrated here so components// know
       //  the real persisted values are now available.
       onRehydrateStorage: () => (state) => {

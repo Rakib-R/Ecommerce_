@@ -237,7 +237,7 @@ const SignUp = () => {
                           message?: string;
                         }>
                       )?.response?.data?.message ||
-                        "Something went wrong. Please try again."}
+                        "Something went wrong during signup . Please try again!"}
                     </p>
                   </div>
                 </div>

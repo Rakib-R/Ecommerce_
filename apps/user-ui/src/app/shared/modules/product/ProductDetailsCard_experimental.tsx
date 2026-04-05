@@ -324,8 +324,17 @@ const ProductDetailsCard = ({
                                     </button>
                                     Wishlisted 
                                 </span>
-                            </div>
+                                
+                            {/* <div className="absolute mt-10 flex items-center  bg-white p-4">
+                            <p className="font-serif italic ml-64 text-gray-600 text-sm tracking-wide">
+                                Sale Price : 
+                                <span className="ml-2 font-sans font-semibold not-italic text-[#e63946] text-lg">
+                                {data.salePrice}
+                                </span>
+                            </p>
+                            </div> */}
 
+                            </div>
                             {/* Stock */}
                             {data?.stock > 0 && (
                                 <div className="flex items-center gap-1.5 mt-2 w-fit text-[11px] font-medium
@@ -557,22 +566,22 @@ const ProductDetailsCard = ({
 
                  {/* SECOND ROW - BLOCK */}
                 <section className='block'>
-                    <aside>
-                        <h3 className="font-semibold">Product details of {data?.title}
+                    <aside className='ml-8'>
+                        <h3 className="my-8 text-xl font-medium underline text-cyan-800">Product details of {data?.title}
                     </h3>
-                    <div className="prose prose-sm text-gray-200 max-w-none"
-                    dangerouslySetInnerHTML={{ __html: data?.detailed_description }}
+                    <div className="prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: data?.detailed_description }}
                     />
                     </aside>
                     <aside className="mx-auto bg-white min-h-[50vh] h-full mt-5">
                         <div className="p-4">
-                            <h3 className="font-semibold">Ratings & Reviews of {data?.title}</h3>
+                            <h3 className="my-8 text-xl font-medium underline text-cyan-800">Ratings & Reviews of {data?.title}</h3>
                         </div>
                     </aside>
 
                     <aside>
                         <div className="container mx-auto px-4 py-8">
-                        <h3 className="text-xl font-bold mb-4">You May Also Like</h3>
+                        <h3 className="my-8 text-3xl font-medium text-cyan-800 text-center">You May Also Like</h3>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {recommendedProducts.map((product) => (
