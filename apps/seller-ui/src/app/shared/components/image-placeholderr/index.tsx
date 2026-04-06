@@ -133,7 +133,8 @@ const ImagePlaceholder = ({
           src={displayImage}
           width={400}
           height={400}
-          sizes="(max-width: 768px) 100vw, 33vw"
+          sizes="(max-width: 512px) 100vw, 33vw"
+          loading="lazy"
           alt='uploaded'
           className="w-full h-full object-cover" />
       ) : (

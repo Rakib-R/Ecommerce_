@@ -74,7 +74,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
             <span className="text-3xl font-bold text-blue-600">
               ${productDetails?.salePrice}
             </span>
-            {productDetails?.regular_price && (
+            {productDetails?.regularPrice && (
               <span className="ml-2 text-gray-400 line-through">
                 ${productDetails?.regularPrice}
               </span>

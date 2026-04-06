@@ -5,7 +5,13 @@ import React from 'react'
 import axiosInstance from '../../utils/axios';
 import { useQuery } from '@tanstack/react-query';
 import useUser from '../../hooks/useUser'; // Import the hook, not fetchUser
-import ProductCard from '../../shared/components/product-card';
+import dynamic from 'next/dynamic';
+
+const ProductCard = dynamic(() => import('../../shared/components/product-card'), {
+  loading: () => <div className="h-48 animate-pulse bg-gray-200" />,
+  ssr: false, // If purely interactive
+});
+
 
 const Home = () => {
   const { user, isLoading: userLoading } = useUser();
@@ -19,6 +25,7 @@ const Home = () => {
     },
     staleTime: 1000 * 60 * 2, 
   });
+
 
   const { data: latestProducts, isLoading: latestLoading } = useQuery({
     queryKey: ['latest-products'],

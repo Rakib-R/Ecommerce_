@@ -1,5 +1,5 @@
-import * as React from "react";
-const GithubButton = (props) => (
+
+const GithubButton = (props : any) => (
   <svg
     id="Layer_1"
     xmlns="http://www.w3.org/2000/svg"

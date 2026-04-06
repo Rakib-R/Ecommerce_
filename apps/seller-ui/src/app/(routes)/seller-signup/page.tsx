@@ -517,7 +517,7 @@ const resendOtp = () => {
             onClick={connectStripe}
             className="m-auto flex items-center justify-center gap-3 text-lg text-white py-2 px-6 bg-[#2516a4] hover:bg-[#3730a3] transition-colors rounded-md w-full max-w-[300px]"
           >
-            Connect Stripe <Image src={Stripe} width={30} height={30} alt="Stripe" />
+            Connect Stripe <Image src={Stripe} width={30} height={30} alt="Stripe" loading="lazy"/>
           </button>
         </section>
       )}

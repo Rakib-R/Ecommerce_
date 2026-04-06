@@ -1,7 +1,5 @@
 // utils/axios-instance.ts
 import axios from "axios";
-import { useAuthState } from "../store/authStore";
-import { queryClient } from "@apps/utils/queryClient"; // Import the SAME instance
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
@@ -53,17 +51,23 @@ axiosInstance.interceptors.response.use(
     
     // Don't retry the refresh endpoint itself — would cause infinite loop
     if (originalRequest.url?.includes('/api/refresh-token')) {
-      useAuthState.getState().logout();
-      queryClient.setQueryData(['user'], null);
-      return Promise.reject(error);
+
+      const { useAuthState } = await import("../store/authStore");
+      const { queryClient } = await import("@apps/utils/queryClient");
+        useAuthState.getState().logout();
+        queryClient.setQueryData(['user'], null);
+        return Promise.reject(error);
     }
 
     if (!originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise((resolve) =>
-          subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
-        );
-      }
+         return new Promise((resolve, reject) =>
+        subscribeTokenRefresh((success) => {
+          if (success) resolve(axiosInstance(originalRequest));
+          else reject(new Error('Token refresh failed'));
+        })
+      )
+     }
       
       originalRequest._retry = true;
       isRefreshing = true;
@@ -75,17 +79,21 @@ axiosInstance.interceptors.response.use(
         onRefreshSuccess();
         
         // Invalidate user query to refetch with new token
-        queryClient.invalidateQueries({ queryKey: ['user'] });
-        
-        return axiosInstance(originalRequest);
+      const { queryClient } = await import("@apps/utils/queryClient");
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+
+      return axiosInstance(originalRequest);
       } catch (err:any) {
           onRefreshFailure(); 
           isRefreshing = false;
           if (err.response?.status === 401 || err.response?.status === 400) {
-              useAuthState.getState().handleLogout();
+            
+            const { useAuthState } = await import("../store/authStore");
+            useAuthState.getState().handleLogout();
         }
-        console.log('❌❌ ERROR THROWN FROM USER AXIOS !')        
         // Clear user data on refresh failure
+
+        const { queryClient } = await import("@apps/utils/queryClient");
         queryClient.setQueryData(['user'], null);
         return Promise.reject(err);
       }

@@ -301,6 +301,11 @@ select option {
   background-color: #18181b; /* Matches bg-zinc-900 */
 }
 
+.shadows-into-light-regular {
+  font-family: "Shadows Into Light", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
 
 
 /*TODO CUSTOM LOADING ANIMATION THREE_BODY */

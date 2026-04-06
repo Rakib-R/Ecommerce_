@@ -47,7 +47,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // ─── Health Check (always first) ─────────────────────────────────────────────
 app.get('/auth/health', (req, res) => {
-  res.json({ message: '🔑 Auth Service is healthy', status: 'Active' });
+  res.json({ message: ' Auth Service is healthy', status: 'Active' });
 });
 
 // ─── Swagger UI ──────────────────────────────────────────────────────────────
@@ -80,5 +80,4 @@ const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
   console.log(`🔑 Auth Service running at http://localhost:${port}/auth/health`);
-  console.log(`📖 Swagger Docs at   http://localhost:${port}/auth/docs`);
 });

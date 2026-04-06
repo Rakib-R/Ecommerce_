@@ -2,6 +2,7 @@
 
 import Providers from '../../../utils/providers';
 import { Poppins, Roboto } from "next/font/google";
+
 import './user-ui.css';
 import ClientLayout from './shared/widget/headerProvider';
 
@@ -22,6 +23,9 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+
+
+
 export default async function RootLayout({
   children,
 }: {
@@ -32,6 +36,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+  
       <body className={`${poppins.variable} ${roboto.variable}`}>
         <Providers>
         

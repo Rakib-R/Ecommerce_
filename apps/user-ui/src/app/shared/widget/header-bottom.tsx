@@ -106,38 +106,24 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
             </nav>
 
             {/* Right Side Icons - Only show when sticky */}
-            <aside className="flex items-center ml-[1.2rem] gap-4 w-[340px]">
+            <aside className="flex items-center ml-[1.2rem] gap-4">
               {isSticky && (
                 <>
                  {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
-                <div className={`${user && ''} w-[140px]`}>
+                 <div className={`${user && ''} `}>
                   {!isLoading && user && (
                     <Link href="/profile" className="flex items-center gap-2">
-                    <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0" />
+                    <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0"  sizes="(max-width: 512px) 100vw, 33vw"
+                      loading="lazy"/>
                     <p className="font-medium text-black">
                       <span className='text-md'>Hello, {user.role === 'admin' ? 'Admin' : ''}</span>
                       <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
-                  </Link>
-                  )}
-              </div>
+                      </Link>)}
+                </div>
                   
-                {!isLoading && user ? (
-                  <Link href="/login" className="flex items-center gap-1 underline">
-                    {/* <img src="/logOut.svg" alt="Profile" className="w-6 h-6 ml-2" 
-                    style={{ filter: 'invert(21%) sepia(99%) saturate(7479%) hue-rotate(360deg) brightness(92%) contrast(116%)' }}/> */}
-                    <span className="text-md text-lg"
-                      onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
-                  </Link>
-                ) : (
-                  <Link href="/login" className="flex items-center gap-1">
-                    <span className="font-medium text-black">
-                      <span className="text-lg text-cyan-600 font-medium">{isLoading ? '...' : 'Sign In'}</span>
-                    </span>
-                  </Link>
-                )}
                 <aside className="flex items-center gap-3">
-                  <Link href="/wishlist" className="relative">
+                   <Link href="/wishlist" className="relative">
                     <HeartIcon className="w-6 h-6 " />
                     <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 text-slate-100 rounded-full flex items-center justify-center">
                       <span className="text-xs">{wishlist?.length || 0}</span>
@@ -149,7 +135,20 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 rounded-full flex items-center justify-center">
                       <span className="text-xs">{cart?.length || 0}</span>
                     </sup>
+                  </Link> 
+
+                 {!isLoading && user ? (
+                  <Link href="/login" className="flex items-center gap-1 underline">
+                    <span className="text-md text-xl"
+                      onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
                   </Link>
+                ) : (
+                  <Link href="/login" className="flex items-center gap-1">
+                    <span className="font-medium text-black">
+                      <span className="text-md text-xlm">{isLoading ? '...' : 'Sign In'}</span>
+                    </span>
+                  </Link>
+                )}
                 </aside>
                 </>
               )}

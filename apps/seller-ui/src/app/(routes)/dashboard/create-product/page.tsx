@@ -62,7 +62,7 @@ import { useDraftStore } from '../../../store/useDraftStore';
     );
 
 
-const page = () => {
+const Page = () => {
 
 
   const methods = useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
@@ -1037,4 +1037,4 @@ const page = () => {
   );
 }
 
-export default page
+export default Page

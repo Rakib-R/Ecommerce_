@@ -15,7 +15,7 @@ let isRefreshing = false;
 let refreshSubscribers: Array<(success: boolean) => void> = [];
 
 const subscribeTokenRefresh = (callback: (success: boolean) => void) => {
-  refreshSubscribers.push(callback);
+    refreshSubscribers.push(callback);
 };
 
 const onRefreshSuccess = () => {
@@ -33,7 +33,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const status = error.response?.status;
 
     const skipRefreshRoutes = [
       '/api/seller-registration', '/api/register-user',
@@ -66,10 +65,12 @@ axiosInstance.interceptors.response.use(
 
     if (!originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise((resolve) =>
-          subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
-        );
-      }
+        return new Promise((resolve, reject) =>
+        subscribeTokenRefresh((success) => {
+          if (success) resolve(axiosInstance(originalRequest));
+          else reject(new Error('Token refresh failed'));
+        })
+      )}
 
       originalRequest._retry = true;
       isRefreshing = true;
@@ -84,12 +85,11 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       }  
       catch (err: any) {
-        
-          isRefreshing = false;
-          onRefreshFailure(); 
-          if (err.response?.status === 401 || err.response?.status === 400) {
-              useAuthState.getState().handleLogout();
-          }
+        isRefreshing = false;
+        onRefreshFailure(); 
+        if (err.response?.status === 401 || err.response?.status === 400) {
+            useAuthState.getState().handleLogout();
+        }
 
         // Clear user data on refresh failure
         queryClient.setQueryData(['seller'], null);
@@ -97,12 +97,6 @@ axiosInstance.interceptors.response.use(
         }
     }
     
-    // Handle 503 - service unavailable (backend down)
-    if (status === 503) {
-      console.error("Service unavailable:", originalRequest?.url || "Unknown URL");
-      return Promise.reject(error);
-    }
-
     return Promise.reject(error);
   }
 );

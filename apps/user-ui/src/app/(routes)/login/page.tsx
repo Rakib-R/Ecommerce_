@@ -6,7 +6,6 @@ import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useForm } from "react-hook-form";
 import GoogleButton from "../../shared/components/google-button";
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
-import FacebookButton from '../../shared/components/facebook-button';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useAuthState } from '../../store/authStore'; // Import your store
@@ -107,12 +106,6 @@ const Login = () => {
             </span>
           </button>
 
-          <button type="button" className="flex items-center justify-center gap-3 py-2.5 w-full bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-xl transition-all group mb-2">
-            <FacebookButton className="w-6 h-6" />
-            <span className="text-gray-700 font-medium group-hover:text-red-600">
-              Continue with Facebook
-            </span>
-          </button>
 
           <p className="text-center text-sm text-gray-500 mb-6 mt-4">
             Don't have an account?{" "}

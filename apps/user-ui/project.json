@@ -9,7 +9,9 @@
         "postcssConfig": "apps/user-ui/postcss.config.js"
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "outputPath": "tmp/apps/user-ui"
+        },
         "production": {}
       }
     },
@@ -19,17 +21,14 @@
         "buildTarget": "user-ui:build",
         "dev": true,
         "port": 3000,
-        "host": "localhost",
-        "turbo": true
+        "host": "localhost"
       },
       "configurations": {
         "development": {
-          "buildTarget": "user-ui:build:development",
-          "dev": true
+          "buildTarget": "user-ui:build:development"
         },
         "production": {
-          "buildTarget": "user-ui:build:production",
-          "dev": false
+          "buildTarget": "user-ui:build:production"
         }
       }
     }

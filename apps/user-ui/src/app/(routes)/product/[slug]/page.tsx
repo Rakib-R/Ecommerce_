@@ -1,3 +1,4 @@
+
 import { Metadata } from 'next';
 import React from 'react'
 import ProductDetails from 'src/app/shared/modules/product/product_details';
@@ -10,12 +11,10 @@ async function fetchProductDetails(slug: string) {
 }
 
 export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
+  params}: { params: Promise<{ slug: string }>;  
 }): Promise<Metadata> {
 
-  const { slug } = params; 
+  const { slug } = await params; 
   const product = await fetchProductDetails(slug);
 
   return {
@@ -36,7 +35,7 @@ export async function generateMetadata({
     }
 }
 
-const Page = async ({ params }: { params: { slug: string } }) => {
+const Page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params; 
   const productDetails = await fetchProductDetails(slug);
 

@@ -73,8 +73,8 @@ const ProductDetailsCard = ({
             );
         }
     };
-    const discountPct = data?.regular_price > data?.sale_price
-        ? Math.round(((data.regular_price - data.sale_price) / data.regular_price) * 100)
+    const discountPct = data?.regular_price > data?.salePrice
+        ? Math.round(((data.regularPrice - data.salePrice) / data.regularPrice) * 100)
         : 0
 
     const activeImageUrl = data?.images?.[currentIndex]?.url || '/placeholder-image.jpg'
@@ -161,7 +161,7 @@ const ProductDetailsCard = ({
             `}</style>
 
             <main
-                className="pdp-font w-screen z-50 overflow-y-auto backdrop-blur-sm bg-emerald-100 ">
+                className="pdp-font w-screen z-50 overflow-y-auto backdrop-blur-sm bg-gray-100 ">
                 <div className="flex justify-start p-5 py-6 min-h-full items-start md:items-center md:p-3 ml-24">
 
                     {/* ── TOTAL CARD ── */}
@@ -353,11 +353,11 @@ const ProductDetailsCard = ({
                             {/* Price */}
                             <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
                                 <span className="pdp-serif text-[2rem] leading-none text-emerald-700">
-                                    ${data?.sale_price?.toFixed(2) ?? '0.00'}
+                                    ${data?.salePrice?.toFixed(2) ?? '0.00'}
                                 </span>
-                                {data?.regular_price > data?.sale_price && (
+                                {data?.regularPrice > data?.salePrice && (
                                     <span className="text-[15px] text-gray-400 line-through">
-                                        ${data.regular_price.toFixed(2)}
+                                        ${data.regularPrice.toFixed(2)}
                                     </span>
                                 )}
                                 {discountPct > 0 && (

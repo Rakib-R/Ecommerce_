@@ -1,18 +1,14 @@
- 
- "use client";
+'use client'
+
 import { useEffect, useState } from "react";
-import { UAParser } from "ua-parser-js";
 
 const useDeviceTracking = () => {
   const [deviceInfo, setDeviceInfo] = useState("");
 
   useEffect(() => {
-    const parser = new UAParser();
-    const result = parser.getResult();
-    
-    setDeviceInfo(
-      `${result.device.type || "Desktop"} - ${result.os.name} ${result.os.version || ""} - ${result.browser.name}`
-    );
+    fetch("/api")
+      .then(res => res.json())
+      .then(data => setDeviceInfo(data.deviceInfo));
   }, []);
 
   return deviceInfo;

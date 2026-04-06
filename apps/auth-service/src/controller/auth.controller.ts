@@ -283,20 +283,31 @@ export const refreshToken = async (
      return next(error); 
     }
 };
-  export const getUser = async (req: any, res: Response, next: NextFunction) => {
-
+ export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
-
-  const user = req.user || req.admin;
-
-  if (!user) {
-      return res.status(403).json({ success: false, message: "Forbidden: Not a User or Admin" });
+    // Allow access to home route without user check
+    if (req.path === '/' || req.path === '/home') {
+      return res.status(200).json({ 
+        success: true, 
+        message: "Public access granted",
+        user: null 
+      });
     }
-    res.status(201).json({ success: true , user});
+    
+    const user = req.user || req.admin;
+
+    if (!user) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Forbidden: Not a User or Admin" 
+      });
+    }
+    
+    res.status(200).json({ success: true, user });
   } catch (error) {
     next(error);
   }
-}
+};
 
   export const userForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     await  handleForgotPassword(req, res, next, "buyer");

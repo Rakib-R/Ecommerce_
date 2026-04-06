@@ -1,6 +1,9 @@
 
 import Providers from '../../../../apps/utils/providers'
 import { Poppins } from 'next/font/google';
+import { Shadows_Into_Light } from 'next/font/google';
+
+
 import '../seller-UI.css';
 
 export const metadata = {
@@ -11,7 +14,13 @@ export const metadata = {
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["100", "300", "400", "500", "600", "700", "800"],
+  weight: ["100", "300", "400", "600", "700",],
+});
+
+const shadowsIntoLight = Shadows_Into_Light({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-shadows-into-light',
 });
 
 export default function RootLayout({
@@ -21,7 +30,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`min-h-screen font-sans antialiased ${poppins.className}`}>
+      <head>
+        <link rel="preconnect" href="https://ik.imagekit.io" />
+        <link rel="dns-prefetch" href="https://ik.imagekit.io" />
+      </head>
+
+      <body className={`min-h-screen font-sans antialiased ${poppins.className} ${shadowsIntoLight}`}>
         <Providers>
 
           {children}

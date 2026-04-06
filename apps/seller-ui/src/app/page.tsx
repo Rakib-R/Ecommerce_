@@ -2,7 +2,7 @@
 import React from 'react'
 import Link from 'next/link';
 
-const page = () => {
+const Page = () => {
   return (
     <main className='m-16'>
       <div className='text-2xl font-semibold w-1/2 tracking-wider'>
@@ -22,4 +22,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

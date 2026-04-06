@@ -1,6 +1,5 @@
 //@ts-check
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 
 /**
@@ -8,16 +7,16 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
 
-   webpack: (config, { isServer }) => {
-    // Disable webpack cache
-    // config.cache = false;
-    return config;
-  },
-  
   reactStrictMode: false,
   nx: {
-
     svgr: false,
+  },
+
+   experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@tanstack/react-query',
+    ],
   },
   images: {
     remotePatterns: [
@@ -27,11 +26,35 @@ const nextConfig = {
       },
     ],
   },
+
+  webpack: (config, { isServer }) => {
+      if (!isServer) {
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      cacheGroups: {
+        ...config.optimization.splitChunks.cacheGroups,
+        reactVendor: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: 'react-vendor',
+          chunks: 'all',
+          priority: 30, // bump priority higher
+          enforce: true, // force this group regardless of size
+        },
+      },
+    };
+  }
+    return config;
+  },
+
 };
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const plugins = [
-  // Add more Next.js plugins to this list if needed.
   withNx,
+  withBundleAnalyzer, // ✅ move it here, inside the chain
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
