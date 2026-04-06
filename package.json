@@ -102,7 +102,7 @@
     "kafkajs": "^2.2.4",
     "lucide-react": "^0.575.0",
     "morgan": "^1.10.1",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
