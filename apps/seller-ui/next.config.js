@@ -12,6 +12,7 @@ const nextConfig = {
     svgr: false,
   },
 
+  output: 'standalone',
    experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -19,6 +20,7 @@ const nextConfig = {
     ],
   },
   images: {
+    unoptimized: process.env.NODE_ENV === 'production' ? false : true,
     remotePatterns: [
       {
         protocol: "https",

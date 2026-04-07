@@ -12,7 +12,10 @@
     "product-docs": "node apps/product-service/src/swagger.js",
     "prisma:generate": "prisma generate",
     "build:analyze_user": "cross-env ANALYZE=true npx nx build user-ui",
-    "build:analyze_seller": "cross-env ANALYZE=true npx nx build seller-ui"
+    "build:analyze_seller": "cross-env ANALYZE=true npx nx build seller-ui",
+
+    "build": "npx nx run-many --target=build --all",
+    "start:prod": "npx nx run-many --target=serve --all --prod"
   },
   "private": true,
   "devDependencies": {

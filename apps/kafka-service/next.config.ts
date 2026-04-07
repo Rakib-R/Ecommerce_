@@ -1,3 +1,4 @@
+
 //@ts-check
 
 const { composePlugins, withNx } = require('@nx/next');
@@ -12,8 +13,7 @@ const nextConfig = {
     svgr: false,
   },
 
-  output : 'standalone', // FOR PROD IN RAILWAY
-  
+  output: 'standalone',
    experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -21,8 +21,6 @@ const nextConfig = {
     ],
   },
   images: {
-    unoptimized: process.env.NODE_ENV === 'production' ? false : true,
-
     remotePatterns: [
       {
         protocol: "https",
@@ -31,16 +29,7 @@ const nextConfig = {
     ],
   },
 
-    async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ];
-  },
-
-  webpack: (config, { isServer }) => {
+  webpack: (config : any, { isServer } : any) => {
       if (!isServer) {
     config.optimization.splitChunks = {
       ...config.optimization.splitChunks,
