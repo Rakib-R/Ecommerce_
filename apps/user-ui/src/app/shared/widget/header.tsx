@@ -123,7 +123,7 @@ const Header = () => {
                 ) : (
                   <Link href="/login" className="flex items-center gap-1">
                     <span className="font-medium text-black">
-                      <span className="text-md text-xlm">{isLoading ? '...' : 'Sign In'}</span>
+                      <span className="text-xl">{isLoading ? '...' : 'Sign In'}</span>
                     </span>
                   </Link>
                 )}

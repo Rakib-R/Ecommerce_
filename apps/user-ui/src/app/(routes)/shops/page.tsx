@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import axiosInstance from 'src/app/utils/axios'
 import Link from 'next/link'
 import { categories } from 'src/app/configs/categories'
-import ShopCard from 'src/app/shared/components/shop-card'
+import ShopCard from 'src/app/shared/components/cards/shop-card'
 import {countries} from '../../configs/countries'
 
 const Page = () => {
@@ -137,7 +137,7 @@ useEffect(() => {
                         </label>
                         
                         {/* Optional: Show count */}
-                        {/* <span className="text-xs text-gray-500">(120)</span> */}
+                        <span className="text-xs text-gray-500">(120)</span>
                       </li>
                     ))}
                   </ul>
@@ -179,8 +179,6 @@ useEffect(() => {
                         {i + 1}
                       </button>
                     ))}
-
-                  
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}

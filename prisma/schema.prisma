@@ -15,14 +15,14 @@ model images {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   file_id   String
   url       String
-  shopId    String? @db.ObjectId
+  shopId    String?  @db.ObjectId
   userId    String?  @db.ObjectId
-  productId String? @db.ObjectId @unique
+  productId String?  @db.ObjectId
+  sellerId  String?  @db.ObjectId
 
-  shopAvatar    shops?  @relation("avatar", fields: [shopId], references: [id])
-  shopCover     shops?  @relation("shopCover", fields: [shopId], references: [id])
-
+  shopCover    shops?  @relation("shopCover", fields: [shopId], references: [id])
   user      users?  @relation(fields: [userId], references: [id])
+  sellers   sellers?  @relation(fields: [sellerId], references: [id])
   products  product? @relation(fields: [productId], references: [id])
 }
 
@@ -70,6 +70,7 @@ model sellers {
   phone_number String
   country      String
   password     String
+  avatar       images[]
   stripeId     String?
   shop         shops?
 
@@ -86,7 +87,7 @@ model shops {
   name          String
   bio           String?
   category      String
-  avatar        images[]  @relation("avatar")
+  
   ShopCover     images[]  @relation("shopCover")
   coverBanner   String?
   address       String

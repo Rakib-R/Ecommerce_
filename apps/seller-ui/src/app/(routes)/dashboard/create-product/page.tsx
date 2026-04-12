@@ -192,9 +192,9 @@ const Page = () => {
       return;
     }
 
-    console.log("📦 Form Data:", data);
-    console.log("🖼️ Images:", data.images);
-    console.log("⚠️ Form Errors:", errors);
+    // console.log("📦 Form Data:", data);
+    // console.log("🖼️ Images:", data.images);
+    // console.log("⚠️ Form Errors:", errors);
 
     const payload = {
       ...data,
@@ -216,6 +216,7 @@ const Page = () => {
       success: 'Product created successfully! 🎉',
       error: (err) => err?.response?.data?.message || 'Failed to create product.',
     });
+    
       queryClient.invalidateQueries({ queryKey: ['products'] });
       router.push('/dashboard/all-products');
    } catch (error: any) {
@@ -236,12 +237,6 @@ const Page = () => {
     }
   }, [images]);
 
-  // ✅ Debug: log what's happening
-  useEffect(() => {
-    console.log('🖼️ Hook images:', images);
-    console.log('🖼️ Form images:', formImages);
-  }, [images, formImages]);
-
 
  const { saveDraft, getDraft, deleteDraft } = useDraftStore();
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -261,7 +256,9 @@ const Page = () => {
     }
   }, []);
 
-  // Generate unique draft key
+
+  
+  // Generate unique ------------------ DRAFT KEY -----------------------
   const generateDraftKey = () => {
     return `product_draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
@@ -286,7 +283,6 @@ const Page = () => {
     window.history.pushState({}, '', url.toString());
   };
 
-
   const [showDraftsDialog, setShowDraftsDialog] = useState(false);
   const allDrafts = useDraftStore((state) => state.getAllDrafts());
 
@@ -309,7 +305,6 @@ const Page = () => {
        
     <main className="w-full flex gap-6 py-4 bg-black/90 ">
 
-      {/* Left side Image upload section */}
       {/* Left side Image upload section */}
       <section className="md:w-[35%]">
           {images?.length > 0 && (
@@ -964,8 +959,7 @@ const Page = () => {
                               deleteDraft(key);
                               if (draftId === key) setDraftId(null);
                             }}
-                            className="px-3 py-1 bg-red-600 rounded-md text-sm hover:bg-red-700"
-                          >
+                            className="px-3 py-1 bg-red-600 rounded-md text-sm hover:bg-red-700">
                             Delete
                           </button>
                         </div>

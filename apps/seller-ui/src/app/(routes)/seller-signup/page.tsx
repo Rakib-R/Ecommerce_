@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { useRef, useState, useEffect } from 'react';
 import { useForm, useWatch } from "react-hook-form";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from "axios";
 import toast from 'react-hot-toast';
 import { countries } from '../../utils/countries';
@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { useSellerRegistrationStore } from '../../store/useSellerRegistrationStore';
 import { AnimatePresence, motion } from "framer-motion";
 import axiosInstance from '../../utils/axiosInstance';
+import { convertFileToBase64 } from '../../utils/convertFile2Base64';
 
 
 type FormData = {
@@ -22,6 +23,7 @@ type FormData = {
   email: string;
   phone_number: string;
   country: string;
+  avatar: string;
 };
 
 
@@ -65,9 +67,10 @@ const SignUp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [dialCode, setDialCode] = useState("+880");
   // sellerData only needed within the current OTP flow session
+
   const [sellerData, setSellerData] = useState<FormData | null>(null);
-
-
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarData, setAvatarData] = useState<{ file_id: string; file_url: string } | null>(null);
 
   // Pre-fill step-1 form with persisted values so nothing is re-typed after refresh
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
@@ -77,6 +80,7 @@ const SignUp = () => {
       country: step1Values.country ?? "",
       phone_number: step1Values.phone_number ?? "",
       password: step1Values.password ?? "",
+      avatar : step1Values.avatar ?? "" 
     },
   });
 
@@ -107,6 +111,7 @@ const SignUp = () => {
         country: step1Values.country,
         phone_number: step1Values.phone_number?.replace(dialCode, ""), // Clean the dial code
         password: step1Values.password,
+        avatar: step1Values.avatar,
       });
     }
   }, [_hasHydrated]);
@@ -122,7 +127,7 @@ const SignUp = () => {
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axiosInstance.post(
-        '/api/seller-registration', data
+        '/api/seller-registration', {...data, avatarData}
       );
       return response.data;
     },
@@ -135,7 +140,6 @@ const SignUp = () => {
     },
   });
 
-  
   const onSubmit = (data: FormData) => {
 
     // ✅ Guard against double fire
@@ -159,8 +163,9 @@ const SignUp = () => {
     },
     onSuccess: (data) => {
       setSuccessMessage("Verification successful! Redirecting...");
-      //! Persist sellerId AND advance step together so a refresh after this
-      //! point always lands on step 2, not step 1
+
+      //! Persist sellerId AND advance step together so a refresh after this 
+      // //! Pointing to lands on step 2, 
       setSellerId(data.seller?.id);
       setActiveStep(2);
     },
@@ -252,7 +257,30 @@ const resendOtp = () => {
     );
   }
 
-//   // FOR PROGRESS ANIMATION 
+    // HANDLE   IMAGE      UPLOAD
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      try{
+        const base64 = await convertFileToBase64(file)
+        setAvatarPreview( base64 as string)
+
+        const response = await axiosInstance.post("/product/api/upload-seller-image", { 
+          file: base64 
+        });
+         setAvatarData({
+          file_id: response.data.file_id,
+          file_url: response.data.file_url
+        });
+      }
+      catch(error){  
+          console.error('Upload failed:', error);
+          toast.error('Failed to upload image');
+      }
+    };
+    //   // FOR PROGRESS ANIMATION 
 //   function getProgressPercent(activeStep: number, totalSteps: number): number {
 //   if (activeStep <= 1) return 0;
 //   return ((activeStep - 1) / (totalSteps - 1)) * 100;
@@ -276,8 +304,7 @@ const resendOtp = () => {
                     ${active
                       ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200"
                       : "bg-white border-gray-200 text-gray-400"
-                    }`}
-                >
+                    }`}>
                   {step}
                 </span>
                 <span className={`text-xs font-medium ${active ? "text-blue-600" : "text-gray-400"}`}>
@@ -345,6 +372,44 @@ const resendOtp = () => {
 
           {!showOtp ? (
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-8">
+               
+                {/* // SELLER AVATAR */}
+               <div className='relative flex justify-center items-center mx-auto w-24 h-24'>
+                <input 
+                  type='file' 
+                  accept='image/*'
+                  onChange={handleImageUpload}
+                  className='absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10'
+                />
+                <FieldError message={errors.avatar?.message} />
+                
+                {/* Avatar Preview */}
+                <div className='w-3/4 h-3/4 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 overflow-hidden border-4 border-white shadow-lg'>
+                  {avatarPreview ? (
+                    <img 
+                      src={avatarPreview} 
+                      alt="Avatar" 
+                      className='w-full h-full object-cover'
+                    />
+                  ) : (
+                    <div className='w-full h-full flex items-center justify-center bg-gray-200'>
+                      <svg className='w-12 h-12 text-gray-400' fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Camera Icon Overlay */}
+                <div className='absolute bottom-1 right-1 bg-white rounded-full p-1.5 shadow-md'>
+                  <svg className='w-4 h-4 text-gray-600' fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </div> 
+
+                    {/* N A M E  */}
               <div className="relative pb-2">
                 <label className="block text-sm font-semibold mb-1 text-gray-700">Name</label>
                 <input
@@ -387,6 +452,7 @@ const resendOtp = () => {
                 <FieldError message={errors.country?.message} />
               </div>
 
+                {/* P H O N E     N U M B E R  */}
               <div className="relative pb-2">
                 <label className="block text-sm font-semibold mb-1 text-gray-700">Phone Number</label>
                 <div className={`flex border rounded-lg overflow-hidden transition-all

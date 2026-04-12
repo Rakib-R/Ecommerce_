@@ -1,10 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { SHOP_CATEGORIES as shopCategories } from "../../../utils/categories";
 import { useSellerRegistrationStore } from "../../../store/useSellerRegistrationStore";
 import axiosInstance from "../../../utils/axiosInstance";
+import { convertFileToBase64 } from "../../../utils/convertFile2Base64";
+import toast from "react-hot-toast";
 
 interface ShopFormValues {
   name: string;
@@ -32,6 +34,10 @@ const FieldError = ({ message }: { message?: string }) => {
 const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
   const { sellerId, step2Values, saveStep2Values, setActiveStep: storeSetStep } =
     useSellerRegistrationStore();
+
+const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+const [avatarData, setAvatarData] = useState<{ file_id: string; file_url: string } | null>(null);
+
 
   const {
     register,
@@ -63,7 +69,7 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
   const shopCreateMutation = useMutation({
     mutationFn: async (data: ShopFormValues & { sellerId: string }) => {
       const response = await axiosInstance.post('/api/create-shop',
-        data
+        {...data, avatarData}
       );
       return response.data;
     },
@@ -92,6 +98,28 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
       ? "border-red-500 ring-1 ring-red-100"
       : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`;
 
+       const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+         const file = e.target.files?.[0];
+         if (!file) return;
+         try{
+           const base64 = await convertFileToBase64(file)
+           setAvatarPreview( base64 as string)
+   
+         const response =  await axiosInstance.post("/product/api/upload-shop-image", { 
+             file: base64 
+           });
+           
+            setAvatarData({
+              file_id: response.data.file_id,
+              file_url: response.data.file_url
+            });
+         }
+         catch(error){  
+             console.error('Upload failed:', error);
+             toast.error('Failed to upload image');
+         }
+       };
+
   return (
     <div className="w-full flex justify-center">
       <section className="w-[90%] md:w-[520px] bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
@@ -119,7 +147,43 @@ const CreateShop: React.FC<CreateShopProps> = ({ setActiveStep }) => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-8">
 
-          {/* ── Name ── */}
+         {/* // Shop AVataR */}         {/*  Shop AVataR */}   
+               <div className='relative flex justify-center items-center mx-auto w-24 h-24'>
+                <input 
+                  type='file' 
+                  accept='image/*'
+                  onChange={handleImageUpload}
+                  className='absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10'
+                />
+                
+                {/* Avatar Preview */}
+                <div className='w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 overflow-hidden border-4 border-white shadow-lg'>
+                  {avatarPreview ? (
+                    <img 
+                      src={avatarPreview} 
+                      alt="Avatar" 
+                      className='w-full h-full object-cover'
+                    />
+                  ) : (
+                  <div className='w-full h-full flex items-center justify-center bg-gray-200'>
+                  <svg className='w-12 h-12 text-gray-400' fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                  )}
+                </div>
+                
+                {/* Camera Icon Overlay */}
+                <div className='absolute bottom-1 right-1 bg-white rounded-full p-1.5 shadow-md'>
+                  <svg className='w-4 h-4 text-gray-600' fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </div> 
+
+          {/* ── Shop  Name ── */}   {/* ── Shop  Name ── */}
           <div className="relative">
             <label className="block text-sm font-semibold mb-1 text-gray-700">
               Shop Name

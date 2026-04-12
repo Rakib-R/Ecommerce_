@@ -395,7 +395,7 @@ export const registerSeller = async (
 // verify seller with OTP
 export const verifySeller = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, otp, password, name, phone_number, country } = req.body;
+    const { email, otp, password, name, phone_number, country, avatarData } = req.body;
 
     if (!email || !otp || !password || !name || !phone_number || !country) {
       return next (new ValidationError('All fields are required'))
@@ -416,8 +416,14 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
         password: hashedPassword,
         country,
         phone_number,
-      },
-    });
+        avatar: avatarData ? {
+              create: {
+                file_id: avatarData.file_id,
+                url: avatarData.file_url
+              }
+            } : undefined,
+          },
+      });
        res.status(201).json({
         seller,
         message: "Seller registered successfully!"
@@ -430,7 +436,7 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
 // Create shop
 export const createShop = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, bio, address, opening_hours, website, category, sellerId } = req.body;
+    const { name, bio, address, opening_hours, website, category, sellerId , avatarData} = req.body;
 
     if (
       !name || !bio || !address || !sellerId || !opening_hours || !category
@@ -438,26 +444,35 @@ export const createShop = async (req: Request, res: Response, next: NextFunction
       return next (new ValidationError('All fields are required for creating shop!'));
     }
     const shopData: any = {
-        name, bio, address, opening_hours, category, sellerId,
+        name, bio, address, opening_hours, category, sellerId
       };
 
       if (website && website.trim().length > 0) {
         shopData.website = website;
       }
+       if (avatarData) {
+        shopData.ShopCover = {
+        create: {
+          file_id: avatarData.file_id,   // ← Match frontend
+          url: avatarData.file_url       // ← Match schema field name
+        }
+      };
+      }
+
       const shop = await prisma.shops.create({
           data: shopData,
         });
-      
+    
       // SELLERS DATA UPDATE. COULD ALSO DO INSIDE shop.create
       await prisma.sellers.update({ 
         where : { id: sellerId},
         data: { shop: { connect: { id: shop.id } } }
       })
 
-        res.status(201).json({
-          success: true,
-          shop,
-        });
+      res.status(201).json({
+        success: true,
+        shop,
+      });
     } catch (error) {
       next(error);
   }

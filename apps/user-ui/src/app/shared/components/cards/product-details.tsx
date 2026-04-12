@@ -178,8 +178,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                                                 isSizeSelected === size
                                                     ? 'bg-blue-600 text-white border-blue-600'
                                                     : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400'
-                                            }`}
-                                        >
+                                            }`}>
                                             {size}
                                         </button>
                                     ))}

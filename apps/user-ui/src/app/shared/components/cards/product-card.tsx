@@ -3,16 +3,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import Ratings from './Ratings'
+import Ratings from '../Ratings'
 import { Eye, Heart, ShoppingBag } from 'lucide-react'
 
 import ProductDetailsCard from './product-details'
 import ProductDetails_experimental from './ProductDetails_experimental'
 
-import { useStore } from '../../store/authStore'
-import useUser from '../../hooks/useUser'
-import { useLocationTracking } from '../../hooks/useLocationTracking'
-import useDeviceTracking from '../../hooks/useDeviceTracking'
+import { useStore } from '../../../store/authStore'
+import useUser from '../../../hooks/useUser'
+import { useLocationTracking } from '../../../hooks/useLocationTracking'
+import useDeviceTracking from '../../../hooks/useDeviceTracking'
 
 
 const ProductCard = ({product, isEvent} : {product: any, isEvent?: boolean}) => { 
@@ -85,7 +85,7 @@ useEffect(() => {
   }
 
 return(
-  <div className='relative w-full min-h-[350px] bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow'>
+  <div className='relative w-full min-h-[320px] bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow'>
     {/* OFFER Badge - Only for events */}
     {isEvent && (
       <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-semibold px-2 py-1 rounded-sm shadow-md z-10">
@@ -104,7 +104,7 @@ return(
 
     {/* Product Image */}
     <Link href={`/product/${product?.slug || product?.id}`}>
-      <div className="relative w-full h-[200px] overflow-hidden rounded-t-lg">
+      <div className="relative w-full h-[150px] overflow-hidden rounded-t-lg">
         <Image
           src={product?.images?.[0]?.url || "/placeholder.webp"} // Add a placeholder in your public folder
           alt={product?.title || "Product image"}

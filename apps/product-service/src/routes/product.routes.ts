@@ -10,6 +10,7 @@ import {
   getAllProducts,
   getCategories,
   getDiscountCodes,
+
   // getFilteredEvents,
   getFilteredOffer,
   getFilteredProducts,
@@ -20,6 +21,8 @@ import {
   restoreProduct,
   searchProducts,
   uploadProductImage,
+  uploadSellerImage,
+  uploadShopImage
 } from "../controllers/product.controller";
 import { isAuthenticated } from "@packages/middleware";
 
@@ -34,6 +37,10 @@ router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
 router.post("/delete-discount-code/:id", isAuthenticated, deleteDiscountCode);
 
 router.post("/upload-product-image", isAuthenticated, uploadProductImage);
+
+router.post("/upload-seller-image", uploadSellerImage);
+
+router.post("/upload-shop-image", uploadShopImage);
 
 router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
 

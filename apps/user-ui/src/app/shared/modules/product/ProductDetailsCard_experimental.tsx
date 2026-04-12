@@ -15,7 +15,7 @@ import { useStore } from 'src/app/store/authStore'
 import { useLocationTracking } from 'src/app/hooks/useLocationTracking'
 import useDeviceTracking from 'src/app/hooks/useDeviceTracking'
 import type { Store, Product } from 'src/app/store/authStore'
-import ProductCard from '../../components/product-card'
+import ProductCard from '../../components/cards/product-card'
 import axiosInstance from 'src/app/utils/axios'
 
 const ProductDetailsCard = ({

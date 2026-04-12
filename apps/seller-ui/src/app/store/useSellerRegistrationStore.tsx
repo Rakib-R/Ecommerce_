@@ -7,6 +7,7 @@ export interface Step1Values {
   country: string;
   phone_number: string;
   password: string;
+  avatar: string;
 }
 
 export interface Step2Values {
@@ -16,6 +17,7 @@ export interface Step2Values {
   opening_hours: string;
   website: string;
   category: string;
+  shopCover: string;
 }
 
 interface SellerRegistrationState {

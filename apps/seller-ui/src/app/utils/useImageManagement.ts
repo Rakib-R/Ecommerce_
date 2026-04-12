@@ -92,7 +92,6 @@ export const useImageManagement = ({
         if (setValue) {
           setValue(formFieldName, updated, { shouldDirty: true });
         }
-        
         return updated;
       });
       
@@ -269,8 +268,8 @@ const handleRemoveImage = async (indexToRemove: number) => {
   // Apply AI transformation to image
   const applyTransformation = async (transformation: string) => {
     if (selectedImageIndex === null || !selectedImage || processing) return;
-    setProcessing(true);
-    setActiveEffect(transformation);
+      setProcessing(true);
+      setActiveEffect(transformation);
 
     try {
       let source = selectedImage;

@@ -5,7 +5,7 @@ import { sendKafkaEvent } from '../../actions/track-user';
 
 
 interface AuthState {
-  // User state
+  
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;

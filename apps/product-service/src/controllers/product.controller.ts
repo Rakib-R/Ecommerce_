@@ -157,7 +157,47 @@ export const uploadProductImage = async (
     const response = await imagekit.upload({
       file : fileName,
       fileName: `product-${Date.now()}.jpg`,
-      folder: "/products" 
+      folder: "/products"
+    });
+    
+    res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
+  } catch (error) {
+    next(error);
+    }
+};
+
+// Upload Seller Avatar
+export const uploadSellerImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { file } = req.body; 
+    const response = await imagekit.upload({
+      file : file,
+      fileName: `seller-${Date.now()}.jpg`,
+      folder: "/persons"
+    });
+    
+    res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
+  } catch (error) {
+    next(error);
+    }
+};
+
+// Upload product image
+export const uploadShopImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { file } = req.body; 
+    const response = await imagekit.upload({
+      file : file,
+      fileName: `shop-${Date.now()}.jpg`,
+      folder: "/shops"
     });
     
     res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
@@ -221,6 +261,7 @@ export const createProduct = async (
     tags,
     images, // ARRAYS Of IMAGES
     cash_on_delivery,
+    starting_date,
     salePrice,
     brand,
     videoUrl,
@@ -240,7 +281,7 @@ export const createProduct = async (
     }
 
     //todo . Basic Validation
-    const requiredFields = { title, slug, detailed_description,short_description, category,subCategory,
+    const requiredFields = { title, slug, detailed_description,short_description, category,subCategory,starting_date,
                               cash_on_delivery, tags, images, regularPrice, stock };
 
     //todo. Filter the object keys
@@ -271,7 +312,6 @@ export const createProduct = async (
       return next( new ValidationError("Slug already exist! Please use a different slug!") );
     }
 
-
     const clean = {
       title:                DOMPurify.sanitize(parsed.data.title),
       short_description:    DOMPurify.sanitize(parsed.data.short_description),
@@ -297,6 +337,7 @@ export const createProduct = async (
         brand:               clean.brand,
         slug:                clean.slug,
         shopId:              seller?.shop.id!,
+        starting_date :      seller.starting_date,
         sizes:               clean.sizes,
         stock:               parsed.data.stock,              // already a number from Zod, no parseInt needed
         salePrice:           parsed.data.salePrice ?? 0,    // already a number from Zod, no parseFloat needed
@@ -315,8 +356,8 @@ export const createProduct = async (
         cashOnDelivery:  parsed.data.cash_on_delivery === "yes",
         video_url:       clean.videoUrl,
         tags:            clean.tags,
-        discount_codes:
-          parsed.data.discountCodes && parsed.data.discountCodes.length > 0
+        discount_codes: 
+            parsed.data.discountCodes && parsed.data.discountCodes.length > 0
             ? {
                 connect: parsed.data.discountCodes
                   .filter((id) => id && id.trim() !== "")
@@ -833,9 +874,7 @@ export const getFilteredOffer = async (
         lte: parsedPriceRange[1],
       },
       //! ONLY CHANGE FROM getFilteredProducts
-      NOT : {
-        starting_date: null,
-      } 
+       starting_date: { not: undefined }
   };
 
    if (categories) {

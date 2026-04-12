@@ -9,7 +9,8 @@ interface ShopProps {
     name: string;
     category: string;
     coverBanner: string;
-    avatar: string;
+    avatar: ImageType[];
+    shopCover : ImageType[];
     description?: string;
     address?: string;
     followers?: string[];
@@ -17,17 +18,26 @@ interface ShopProps {
   };
 }
 
+interface ImageType {
+  id: string;
+  url: string;
+  file_id: string;
+}
+
 const ShopCard = ({ shop }: ShopProps) => {
 
   const avatarSrc =
-  shop.avatar === "string" && shop.avatar.trim() !== ""
-      ? shop.avatar: "https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704";
+        shop.avatar?.[0]?.url ||
+       "https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704";
+  
+  const coverSrc =
+    shop.shopCover?.[0]?.url || "https://ik.imagekit.io/hasanRakib/Shops/Shop.jpg?updatedAt=1775962057898";
 
   return (
     <main className="w-full rounded-xl cursor-pointer bg-white border border-gray-200 shadow-md hover:shadow-lg transition overflow-hidden">
 
       {/* Banner */}
-      <div className="relative w-full h-[110px]">
+      <div className="relative w-full h-[90px]">
         <Image
           src={avatarSrc}
           alt="Cover"
@@ -40,7 +50,7 @@ const ShopCard = ({ shop }: ShopProps) => {
       <div className="relative flex justify-center">
         <div className="absolute -top-8 w-16 h-16 rounded-full border-4 border-white overflow-hidden shadow-md bg-white">
           <Image
-            src={avatarSrc}
+            src={coverSrc}
             alt={shop.name}
             width={64}
             height={64}
