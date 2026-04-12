@@ -19,7 +19,8 @@ const Header = () => {
   const wishlist = useStore((state: any) => state.wishlist);
   const cart = useStore((state: any) => state.cart);
   const router = useRouter();
-  const pathname = usePathname();
+  const path = usePathname();
+  const [pathname, setPath] = useState('');
   const topHeaderRef = useRef<HTMLDivElement>(null);
   const [topHeaderHeight, setTopHeaderHeight] = useState(0);
 
@@ -30,28 +31,40 @@ const Header = () => {
   }, []);
 
 //! PATH NAME MODIFIER !
-pathname === '/' 
-  ? 'Home' 
-  : pathname
-      .replace(/^\//, '')  // Remove leading slash
-      .split('/')
-      .pop()  // Get last segment
-      ?.split('-')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-      .join(' ') || 'Home';
-      
+ useEffect(() => {
+
+  const displayPath = path === '/' 
+    ? 'Home' 
+    : (() => {
+        const lastSegment = path
+          .replace(/^\//, '')
+          .split('/')
+          .pop();
+        
+        if (!lastSegment) return 'Home';
+        
+        return lastSegment
+          .split('-')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ');
+      })();
+
+    setPath(displayPath);
+  }, [path]); 
+
+  
   const handleLogout = async () => {
-    await axiosInstance.post(`/api/logout`);
-    useAuthState.getState().logout();
-    queryClient.setQueryData(['user'], null);
-    router.push("/login");
+      await axiosInstance.post(`/api/logout`);
+      useAuthState.getState().logout();
+      queryClient.setQueryData(['user'], null);
+      router.push("/login");
   };
 
   return (
     <div className="z-[90]">
       <div ref={topHeaderRef}>
         <main className="max-w-[1300px] mx-auto relative z-[10]">
-          <div className="px-5 py-5 h-32 flex items-center justify-between gap-4">
+          <div className=" py-5 h-32 flex items-center justify-between gap-4">
             <nav className="shrink-0">
               <Link href="/">
                 <span className="text-3xl font-semibold">{pathname}</span>
@@ -62,9 +75,8 @@ pathname === '/'
               <input
                 type="text"
                 placeholder="Search for products..."
-                className="w-full px-4 border-[2.5px] border-[#3489FF] outline-none h-[55px] rounded-md"
-              />
-              <div className="w-[60px] bg-[#3489FF] flex items-center justify-center h-[55px] absolute top-0 right-0 rounded-r-md">
+                className="w-full px-4 border-[2.5px] border-[#3489FF] outline-none h-[55px] rounded-md"/>
+              <div className="w-[56px] bg-[#3489FF] flex items-center justify-center h-[55px] absolute top-0 right-0 rounded-r-md">
                 <Search color="white" />
               </div>
             </section>

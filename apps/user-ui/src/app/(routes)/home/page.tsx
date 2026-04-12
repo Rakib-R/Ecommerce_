@@ -9,34 +9,55 @@ import dynamic from 'next/dynamic';
 
 const ProductCard = dynamic(() => import('../../shared/components/product-card'), {
   loading: () => <div className="h-48 animate-pulse bg-gray-200" />,
-  ssr: false, // If purely interactive
+  ssr: false, 
+});
+
+const ShopCard = dynamic(() => import('../../shared/components/shop-card'), {
+  loading: () => <div className="h-48 animate-pulse bg-gray-200" />,
+  ssr: false, 
 });
 
 
 const Home = () => {
-  const { user, isLoading: userLoading } = useUser();
-  const isUser = !!user; // Convert to boolean
+  const { user, isLoading: userLoading, isError: userError } = useUser();
+  const isUser = !!user && !userError;
 
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const res = await axiosInstance.get('/product/api/get-all-products?page=1&limit=10');
-      return res.data.products;
+      return res.data.getproductsPipeline;
     },
     staleTime: 1000 * 60 * 2, 
   });
 
-
-  const { data: latestProducts, isLoading: latestLoading } = useQuery({
+  const { data: latestProducts, isLoading: LatestLoading } = useQuery({
     queryKey: ['latest-products'],
     queryFn: async () => {
       const res = await axiosInstance.get('/product/api/get-all-products?page=1&limit=10&type=latest');
-      return res.data.products;
+      return res.data.top10Pipeline;
     },
     staleTime: 1000 * 60 * 2,
   });
 
-  console.log("Products data:", products);
+  const { data: Offers, isLoading: offerLoading } = useQuery({
+    queryKey: ['filtered-offers'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/product/api/get-filtered-offers');
+      return res.data.products;
+    },
+    staleTime: 1000 * 60 * 2,
+  });  
+  
+  const { data: topShops, isLoading: shopLoading } = useQuery({
+    queryKey: ['top-shops'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/product/api/top-shops');
+      return res.data.shops;
+    },
+    staleTime: 1000 * 60 * 2,
+  });
+
   if (userLoading) return <div>Loading...</div>; // Optional loading state
   
   return (
@@ -56,17 +77,16 @@ const Home = () => {
 
         <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
             {isLoading ? (
-            // Show skeletons while loading
+
             Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-[250px] bg-gray-300 animate-pulse rounded-xl" />
             ))
           ) : products && products.length > 0 ? (
             // Show products if they exist
             products.map((product: any) => (
-              <ProductCard key={product.id} product={product} isEvent={false} />
+              <ProductCard key={product.id || product._id} product={product} isEvent={false} />
             ))
           ) : (
-            // Show message if no products
             <div className="col-span-full text-center py-10">
               <p className="text-gray-500">No products available</p>
             </div>
@@ -74,22 +94,58 @@ const Home = () => {
         </div>
     </section>
     
-    {/*  Actually use latestProducts */}
+    {/* ---- Latest Products  */}
+
     <section className='gap-4'>
       <h2 className="text-2xl font-medium mt-16">Latest Products</h2>
       <hr className='mt-4 opacity-50 mb-8'/>
 
       <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
-        {latestLoading
+        {LatestLoading
           ? Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-[250px] bg-gray-300 animate-pulse rounded-xl" />
             ))
           : latestProducts?.map((product: any) => (
-              <ProductCard key={product.id} product={product} isEvent={false} />
+              <ProductCard key={product.id || product._id} product={product} isEvent={false} />
             ))
         }
       </div>
     </section>
+  
+    { /*  Offers */}
+    <section className='gap-4'>
+      <h2 className="text-2xl font-medium mt-16">Top Offers</h2>
+      <hr className='mt-4 opacity-50 mb-8'/>
+
+      <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
+        {offerLoading
+          ? Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-[250px] bg-gray-300 animate-pulse rounded-xl" />
+            ))
+          : Offers?.map((offer: any) => (
+              <ProductCard key={offer.id || offer._id} product={offer}  />
+            ))
+        }
+      </div>
+    </section>
+
+    { /*  TOP - Shops */}
+    <section className='gap-4'>
+      <h2 className="text-2xl font-medium mt-16">Top Shops</h2>
+      <hr className='mt-4 opacity-50 mb-8'/>
+
+      <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
+        {shopLoading
+          ? Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-[250px] bg-gray-300 animate-pulse rounded-xl" />
+            ))
+          : topShops?.map((shop: any) => (
+              <ShopCard key={shop.id || shop._id} shop={shop} />
+            ))
+        }
+      </div>
+    </section>
+
       {isError && (
         <p className="text-center text-red-500">Failed to load products.</p>
       )}

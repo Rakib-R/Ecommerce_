@@ -72,7 +72,7 @@ const WishlistPage = () => {
                 </thead>
                 <tbody>
             {wishlist?.map((item: any) => (
-            <tr key={item.id} className="border-b">
+            <tr key={item._id} className="border-b">
                 <td className="flex items-center max-w-[200px] gap-3 py-4 ">
                 <Image 
                     src={item.images?.[0]?.url} 
@@ -80,7 +80,7 @@ const WishlistPage = () => {
                     width={100}
                     height={100}
                     className="object-cover rounded"/>
-                <span>{item.title}</span>
+                    <span>{item.title}</span>
                 </td>
 
                 {/* SALE PRICE */}

@@ -60,12 +60,12 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                         {/* Main Image */}
                         <div className="relative w-full h-[340px] rounded-xl overflow-hidden bg-white">
                             <Image
-                                src={data?.images?.[activeImage]?.url || '/placeholder-image.jpg'}
+                                src={data?.images?.[activeImage]?.url || '/placeholder.webp'}
                                 alt={data?.title || 'Product image'}
                                 fill
                                 className="object-contain p-4"
                                 sizes="(max-width: 768px) 100vw, 45vw"
-                                onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                onError={(e) => { e.currentTarget.src = '/placeholder.webp'}}
                                 unoptimized={process.env.NODE_ENV === 'development'}
                             />
                         </div>
@@ -83,12 +83,12 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                                                 : 'border-gray-200 hover:border-gray-400'
                                         }`}>
                                         <Image
-                                            src={img?.url || '/placeholder-image.jpg'}
+                                            src={img?.url || '/placeholder.webp'}
                                             alt={`thumb-${index}`}
                                             fill
                                             className="object-cover"
                                             sizes="64px"
-                                            onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                            onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
                                         />
                                     </button>
                                 ))}
@@ -151,16 +151,16 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                         {/* Price */}
                         <section className="flex items-baseline gap-3 mt-4">
                             <span className="text-3xl font-bold text-blue-600">
-                                ${data?.sale_price?.toFixed(2) || '0.00'}
+                                ${data?.salePrice?.toFixed(2) || '0.00'}
                             </span>
-                            {data?.regular_price > data?.sale_price && (
+                            {data?.regularPrice > data?.salePrice && (
                                 <span className="text-lg text-gray-400 line-through">
-                                    ${data.regular_price.toFixed(2)}
+                                    ${data.regularPrice.toFixed(2)}
                                 </span>
                             )}
-                            {data?.regular_price > data?.sale_price && (
+                            {data?.regularPrice > data?.salePrice && (
                                 <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                                    {Math.round(((data.regular_price - data.sale_price) / data.regular_price) * 100)}% off
+                                    {Math.round(((data.regularPrice - data.salePrice) / data.regularPrice) * 100)}% off
                                 </span>
                             )}
                         </section>

@@ -1,0 +1,231 @@
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,30\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":30},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,80\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":80},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,80\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":80},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,80\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":80},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,1199\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":1199},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,80\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":80},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"M\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"M\",\"colors\":\"Magenta\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Magenta\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"M\",\"colors\":\"Magenta\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Magenta\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"M,S\",\"colors\":\"Magenta\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Magenta\"]},\"sizes\":{\"hasSome\":[\"M,S\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"M,S\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"sizes\":{\"hasSome\":[\"M,S\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"sizes\":\"S\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"sizes\":{\"hasSome\":[\"S\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,40\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":40},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,40\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":40},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,80\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":80},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"colors\":\"Blue\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null,\"colors\":{\"hasSome\":[\"Blue\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"categories\":\"Fashion\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null,\"category\":{\"in\":[\"Fashion\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"categories\":\"Fashion,Foods\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null,\"category\":{\"in\":[\"Fashion,Foods\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,90\",\"categories\":\"Fashion,Foods\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":90},\"starting_date\":null,\"category\":{\"in\":[\"Fashion,Foods\"]},\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,470\",\"categories\":\"Fashion,Foods\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":470},\"starting_date\":null,\"category\":{\"in\":[\"Fashion,Foods\"]},\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,310\",\"categories\":\"Fashion,Foods\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":310},\"starting_date\":null,\"category\":{\"in\":[\"Fashion,Foods\"]},\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,310\",\"categories\":\"Fashion\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":310},\"starting_date\":null,\"category\":{\"in\":[\"Fashion\"]},\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,310\",\"sizes\":\"XS\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":310},\"starting_date\":null,\"sizes\":{\"hasSome\":[\"XS\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,310\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":310},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"sizes\":\"M\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"sizes\":\"M\",\"colors\":\"Green\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"colors\":{\"hasSome\":[\"Green\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"sizes\":\"M\",\"colors\":\"Green,Yellow\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"colors\":{\"hasSome\":[\"Green,Yellow\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"sizes\":\"M\",\"colors\":\"Yellow\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"colors\":{\"hasSome\":[\"Yellow\"]},\"sizes\":{\"hasSome\":[\"M\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"colors\":\"Yellow\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"colors\":{\"hasSome\":[\"Yellow\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"0,50\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":0,\"lte\":50},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"10,70\",\"categories\":\"Electronics\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":10,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"10,70\",\"categories\":\"Electronics\",\"colors\":\"Cyan\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":10,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Cyan\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"10,70\",\"categories\":\"Electronics\",\"colors\":\"Cyan,Magenta\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":10,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Cyan,Magenta\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"10,70\",\"categories\":\"Electronics\",\"colors\":\"Cyan,Magenta,Yellow\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":10,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Cyan,Magenta,Yellow\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"10,70\",\"categories\":\"Electronics\",\"colors\":\"Cyan,Magenta,Yellow,Green\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":10,\"lte\":70},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Cyan,Magenta,Yellow,Green\"]}}"}
+{"level":"info","message":"Found 0 products"}
+{"level":"info","message":"Query params: {\"priceRange\":\"30,160\",\"categories\":\"Electronics\",\"colors\":\"Cyan,Magenta,Yellow,Green\",\"page\":\"1\",\"limit\":\"12\"}"}
+{"level":"info","message":"Filters: {\"regularPrice\":{\"gte\":30,\"lte\":160},\"starting_date\":null,\"category\":{\"in\":[\"Electronics\"]},\"colors\":{\"hasSome\":[\"Cyan,Magenta,Yellow,Green\"]}}"}
+{"level":"info","message":"Found 0 products"}

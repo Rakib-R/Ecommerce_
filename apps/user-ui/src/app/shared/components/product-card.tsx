@@ -15,7 +15,6 @@ import { useLocationTracking } from '../../hooks/useLocationTracking'
 import useDeviceTracking from '../../hooks/useDeviceTracking'
 
 
-
 const ProductCard = ({product, isEvent} : {product: any, isEvent?: boolean}) => { 
 
 const [timeLeft, setTimeLeft] = useState("")
@@ -36,13 +35,12 @@ const isWishlisted = wishlist?.some((item : any) => item.id === product.id)
   const location = useLocationTracking()
   const deviceInfo = useDeviceTracking()
 
-  
   // HEADER TURNING OFF MECHANISM
 useEffect(() => {
     setModalOpen(open)           // ← syncs local `open` state → global store
     document.body.classList.toggle('overflow-hidden', open)
     return () => {
-      setModalOpen(false)        // ← cleanup on unmount
+      setModalOpen(false)      
       document.body.classList.remove('overflow-hidden')
     }
   }, [open])
@@ -108,14 +106,14 @@ return(
     <Link href={`/product/${product?.slug || product?.id}`}>
       <div className="relative w-full h-[200px] overflow-hidden rounded-t-lg">
         <Image
-          src={product?.images?.[0]?.url || "/placeholder-image.jpg"} // Add a placeholder in your public folder
+          src={product?.images?.[0]?.url || "/placeholder.webp"} // Add a placeholder in your public folder
           alt={product?.title || "Product image"}
           fill
           className="object-cover hover:scale-105 transition-transform duration-300"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           onError={(e) => {
             // If image fails to load, set to placeholder
-            e.currentTarget.src = "/placeholder-image.jpg";
+            e.currentTarget.src = "/placeholder.webp";
           }}
         />
           {/* Action Icons - Moved to bottom for better UX */}
@@ -186,15 +184,24 @@ return(
     {/* Price and Actions Section */}
     <section className="mt-3 flex justify-between items-start px-2 pb-3">
       <div className="flex flex-col">
+
         <div className="flex items-center gap-2">
+        {product.salePrice ? 
+        <>
           <span className="text-lg font-bold text-gray-900">
-            ${product?.sale_price?.toFixed(2) || '0.00'}
+            ${product?.salePrice?.toFixed(2) || '0.00'}
           </span>
-          {product?.regular_price && product?.regular_price > product?.sale_price && (
+          {product?.regularPrice && product?.regularPrice > product?.salePrice && (
             <span className="text-sm text-gray-400 line-through">
-              ${product.regular_price.toFixed(2)}
+              ${product.regularPrice.toFixed(2)}
             </span>
           )}
+          </> :  
+          <span className="text-lg font-bold text-gray-900">
+            ${product?.regularPrice?.toFixed(2) || '0.00'}
+          </span>
+          }
+        
         </div>
         <span className="text-xs text-green-600 font-medium">
           {product?.totalSales || 0} sold
@@ -208,7 +215,6 @@ return(
         </div>
       )}
     </section>
-
 
 
     {/* Product Details Modal */}

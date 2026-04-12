@@ -27,8 +27,18 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // ✅ ADD THIS - Special handling for logged-in-user endpoint
+    if (originalRequest.url?.includes('/api/logged-in-user')) {
+      // Return successful response instead of rejecting
+      return Promise.resolve({ 
+        data: { user: null },
+        status: 200,
+        statusText: 'OK'
+      });
+    }
+
       const skipRefreshRoutes = [
-      '/api/seller-registration', '/api/register-user',
+      '/api/home', '/api/seller-registration', '/api/register-user',
       '/api/login',
       '/api/signup',
       '/api/seller-login',
@@ -72,30 +82,30 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      try {
-        await axiosInstance.post("/api/refresh-token")
+    try {
+      await axiosInstance.post("/api/refresh-token")
 
-        isRefreshing = false;
-        onRefreshSuccess();
+      isRefreshing = false;
+      onRefreshSuccess();
         
-        // Invalidate user query to refetch with new token
+    // Invalidate user query to refetch with new token
+    const { queryClient } = await import("@apps/utils/queryClient");
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+
+    return axiosInstance(originalRequest);
+    } catch (err:any) {
+        onRefreshFailure(); 
+        isRefreshing = false;
+        if (err.response?.status === 401 || err.response?.status === 400) {
+          
+          const { useAuthState } = await import("../store/authStore");
+          useAuthState.getState().handleLogout();
+      }
+      // Clear user data on refresh failure
+
       const { queryClient } = await import("@apps/utils/queryClient");
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-
-      return axiosInstance(originalRequest);
-      } catch (err:any) {
-          onRefreshFailure(); 
-          isRefreshing = false;
-          if (err.response?.status === 401 || err.response?.status === 400) {
-            
-            const { useAuthState } = await import("../store/authStore");
-            useAuthState.getState().handleLogout();
-        }
-        // Clear user data on refresh failure
-
-        const { queryClient } = await import("@apps/utils/queryClient");
-        queryClient.setQueryData(['user'], null);
-        return Promise.reject(err);
+      queryClient.setQueryData(['user'], null);
+      return Promise.reject(err);
       }
     }
     return Promise.reject(error);

@@ -42,7 +42,6 @@ const Page = () => {
   const sizes = [ "XS", "S", "M", 'L', "XL", "XXL"];
 
   useEffect(() => {
-    // Read price range from URL
     const URLSearch = new URLSearchParams(window.location.search);
     const priceRangeParam = URLSearch.get('priceRange');
 
@@ -57,6 +56,8 @@ const Page = () => {
     if (pageParam) {
       setPage(parseInt(pageParam))
     }
+    
+    console.log('Products - route/products', products)
   }, [])
 
 const buildQuery = (
@@ -74,6 +75,7 @@ const buildQuery = (
     if (sizes.length > 0) params.set("sizes", sizes.join(","));
     params.set("page", page.toString());
     params.set("limit", "12");
+    router.replace(`/offers?${decodeURIComponent(params.toString())}`)
     return params.toString();
   };
 
@@ -83,7 +85,7 @@ useEffect(() => {
 
   setIsProductLoading(true);
   axiosInstance
-    .get(`/product/api/get-filtered-products?${query}`)
+    .get(`/product/api/get-filtered-offers?${query}`)
     .then((res) => {
       setProducts(res.data.products);
       setTotalPages(res.data.pagination.totalPages);
@@ -120,14 +122,14 @@ useEffect(() => {
       <div className="w-full ml-[7.5rem] mt-4">
         <div>
           <h1 className="font-medium text-4xl leading-[1.2] mb-[14px]">
-            All Products
+            All Offers
           </h1>
           <div>
             <Link href="/" className="hover:underline">
               Home
             </Link>
             <span className="inline-block p-[1.5px] mx-1 rounded-full">{'>'}</span>
-            <span>All Products</span>
+            <span>All Offers</span>
           </div>
           
           <div className="w-full flex flex-col lg:flex-row gap-8 mt-6">
@@ -262,14 +264,17 @@ useEffect(() => {
 
             </section>
 
-            {/* Products Grid - Add this section */}
+             {/* Products Grid - Add this section */}
             <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {isProductLoading ? (
                   <p>Loading products...</p>
                 ) : products.length > 0 ? (
                   products.map((product: any, index: number) => (
+                    <div key={product.id} className="bg-white p-4 rounded shadow">
                       <ProductCard key={product.id || product._id || index} product={product}/>
+                    </div>
+
                   ))
                 ) : (
                   <p>No products found</p>

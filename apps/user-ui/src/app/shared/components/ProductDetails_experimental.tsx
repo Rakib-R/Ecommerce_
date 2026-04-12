@@ -33,11 +33,16 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
     const estimatedDelivery = new Date()
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 5)
 
-    const discountPct = data?.regular_price > data?.sale_price
-        ? Math.round(((data.regular_price - data.sale_price) / data.regular_price) * 100)
-        : 0
-
     if (!data) return null
+    
+    const discountPct = (() => {
+        const regular = data?.regularPrice;
+        const sale = data?.salePrice;
+        if (!regular || !sale || regular <= sale) return 0;
+        return Math.round(((regular - sale) / regular) * 100);
+    })();
+
+    console.log('discoutnPct', discountPct)
 
     return (
         <>
@@ -88,19 +93,25 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                             {/* Main image */}
                             <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-white border border-emerald-100/80">
                                 <Image
-                                    src={data?.images?.[activeImage]?.url || '/placeholder-image.jpg'}
+                                    src={data?.images?.[activeImage]?.url || '/placeholder.webp'}
                                     alt={data?.title || 'Product'}
                                     fill
                                     className="object-contain p-6"
                                     sizes="(max-width: 768px) 100vw, 42vw"
-                                    onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                    onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
                                     unoptimized={process.env.NODE_ENV === 'development'}
                             />
-                            {discountPct > 0 && (
+                            {data?.salePrice && discountPct > 0 ? (
                                 <div className="absolute top-3 left-3 bg-emerald-600 text-white
                                                 text-[11px] font-bold px-2.5 py-1 rounded-full tracking-wide">
                                     -{discountPct}%
                                 </div>
+                            ) : <></>}
+
+                            {data.sizes && (
+                                data.sizes.map((size : any)=> {
+                                    <span className='bg-black'>{size}</span>
+                                })
                             )}
                         </div>
 
@@ -116,10 +127,10 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                                                 ? 'border-emerald-500 scale-105 shadow-sm'
                                                 : 'border-gray-200 hover:border-emerald-300'}`}>
                                         <Image
-                                            src={img?.url || '/placeholder-image.jpg'}
+                                            src={img?.url || '/placeholder.webp'}
                                             alt={`thumb-${i}`}
                                             fill className="object-cover" sizes="56px"
-                                            onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                            onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
                                         />
                                     </button>
                                 ))}
@@ -207,21 +218,31 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
 
                         {/* Price row */}
                         <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
-                            <span className="pdp-serif text-[2rem] leading-none text-emerald-700 font-semibold">
-                                ${data?.sale_price?.toFixed(2) ?? '0.00'}
-                            </span>
-                            {data?.regular_price > data?.sale_price && (
-                                <span className="text-[15px] text-gray-400 line-through">
-                                    ${data.regular_price.toFixed(2)}
+                            { data.salePrice ? 
+                            <> 
+                                <span className="pdp-serif text-[2rem] leading-none text-emerald-700 font-semibold">
+                                    ${data?.salePrice?.toFixed(2)}
                                 </span>
-                            )}
-                            {discountPct > 0 && (
-                                <span className="text-[11px] font-semibold text-emerald-700
+                                {data?.regularPrice > data?.salePrice && (
+                                  <>
+                                      <span className="text-[15px] text-gray-400 line-through">
+                                        ${data.regularPrice.toFixed(2)}
+                                    </span>
+
+                                      <span className="text-[11px] font-semibold text-emerald-700
                                                     bg-emerald-50 border border-emerald-200
                                                     px-2 py-0.5 rounded-full">
                                     Save {discountPct}%
                                 </span>
-                            )}
+                                  </>
+                                )}
+                            </> :
+                            <span className="pdp-serif text-[2rem] leading-none text-emerald-700 font-semibold">
+                                ${data?.regularPrice?.toFixed(2) ?? '0.00'}
+                            </span>
+
+                            }
+                       
                         </div>
 
                         <hr className="my-4 border-gray-100" />

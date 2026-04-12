@@ -12,17 +12,27 @@ const nextConfig = {
     svgr: false,
   },
 
-  output : 'standalone', // FOR PROD IN RAILWAY
+  output: 'standalone', // FOR PROD IN RAILWAY
   
-   experimental: {
+  // ✅ ADD THIS SECTION to suppress hydration warnings
+  onError: (err) => {
+    // Suppress Codeium extension hydration warnings
+    if (err.message && err.message.includes('cz-shortcut-listen')) {
+      return;
+    }
+    // Re-throw other errors
+    throw err;
+  },
+  
+  experimental: {
     optimizePackageImports: [
       'lucide-react',
       '@tanstack/react-query',
     ],
   },
+  
   images: {
     unoptimized: process.env.NODE_ENV === 'production' ? false : true,
-
     remotePatterns: [
       {
         protocol: "https",
@@ -31,7 +41,7 @@ const nextConfig = {
     ],
   },
 
-    async rewrites() {
+  async rewrites() {
     return [
       {
         source: '/api/:path*',
@@ -41,24 +51,23 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
-      if (!isServer) {
-    config.optimization.splitChunks = {
-      ...config.optimization.splitChunks,
-      cacheGroups: {
-        ...config.optimization.splitChunks.cacheGroups,
-        reactVendor: {
-          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-          name: 'react-vendor',
-          chunks: 'all',
-          priority: 30, // bump priority higher
-          enforce: true, // force this group regardless of size
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks.cacheGroups,
+          reactVendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react-vendor',
+            chunks: 'all',
+            priority: 30,
+            enforce: true,
+          },
         },
-      },
-    };
-  }
+      };
+    }
     return config;
   },
-
 };
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -67,7 +76,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const plugins = [
   withNx,
-  withBundleAnalyzer, // ✅ move it here, inside the chain
+  withBundleAnalyzer,
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);

@@ -47,8 +47,6 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [topHeaderHeight]);
 
-  console.log('user' , user)
-
   return (
     <>
       {/* Spacer that appears when sticky to prevent content jump */}
@@ -61,8 +59,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
             ? 'fixed top-0 left-0 z-[200] bg-white/90 text-black backdrop-blur-sm shadow-lg animate-in fade-in slide-in-from-top-4' 
             : 'relative bg-black/85 text-white shadow-[0_2px_4px_-2px_rgba(255,255,255,0.3)] z-[50]'
           }
-        `}
-      >
+        `}>
         <div className="w-[1350px] mx-auto">
           <menu className={`flex items-center gap-8 transition-all duration-300 ${
             isSticky ? "py-3" : "py-4"
@@ -71,8 +68,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
             <section 
               aria-label="department_navigation"
               className="w-1/6 h-[50px] flex items-center cursor-pointer relative"
-              onClick={() => setShow(!show)}
-            >
+              onClick={() => setShow(!show)}>
+
               <div className="flex items-center gap-2 mx-4">
                 <AlignLeft color={`${isSticky ? 'black' : 'white'}` } />
                 <span className="font-medium">All Departments</span>
@@ -144,8 +141,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                   </Link>
                 ) : (
                   <Link href="/login" className="flex items-center gap-1">
-                    <span className="font-medium text-black">
-                      <span className="text-md text-xlm">{isLoading ? '...' : 'Sign In'}</span>
+                    <span className="text-md text-xl">
+                      <span className="text-md text-xl">{isLoading ? '...' : 'Sign In'}</span>
                     </span>
                   </Link>
                 )}

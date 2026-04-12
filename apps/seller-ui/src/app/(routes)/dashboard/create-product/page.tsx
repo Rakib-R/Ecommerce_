@@ -48,7 +48,6 @@ import { useDraftStore } from '../../../store/useDraftStore';
       sizes?: string[];  // Assuming your SizeSelector returns an array
       properties?: any[];
       discountCodes?: string[];
-      starting_date: string; // or Date
       ending_date?: string;
     }
 
@@ -68,7 +67,6 @@ const Page = () => {
   const methods = useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
           title: "",
           short_description: "",
-          starting_date: '',
           detailed_description: "",
           tags: "",
           warranty: "",
@@ -202,7 +200,6 @@ const Page = () => {
       ...data,
       images: cleanImages,               
       cashOnDelivery: data.cash_on_delivery === "yes",
-      starting_date: new Date().toISOString(),
 
     customProperties: Array.isArray(data.properties)        // ✅ array → record
       ? Object.fromEntries(data.properties.map((p: any) => [p.key, p.value]))
@@ -561,7 +558,7 @@ const Page = () => {
             )}/>
         )}
               {errors.category && (
-                  <p className="text-xs mt-1">
+                  <p className="text-xs mt-1 text-red-400">
               {errors.category.message as string}
               </p>
             )}
@@ -599,7 +596,7 @@ const Page = () => {
               )}/>
           )}
             {errors.category && (
-                <p className="text-xs mt-1">
+                <p className="text-xs mt-1 text-red-400">
             {errors.category.message as string}
             </p>
           )}
@@ -638,7 +635,7 @@ const Page = () => {
             )}
           />
           {errors.detailed_description && (
-            <p className='text-red-500 text-xs mt-1'>
+            <p className='text-red-400 text-xs mt-1'>
               {errors.detailed_description?.message as React.ReactNode}
             </p>
           )}

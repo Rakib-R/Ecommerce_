@@ -36,12 +36,12 @@ const useUser = () => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    enabled: mounted, //todo ← ADDING this ENSURES query fails (401), 
+    // enabled: mounted, //todo ← ADDING this ENSURES query fails (401), 
     // React Query doesn't keep retrying and sets data to undefined
     retryOnMount: false,
 });
 
-  return { user, isLoading, isError, refetch };
+  return { user: user ?? null, isLoading: mounted && isLoading, isError: isError && user === undefined, refetch };
 };
 
 export default useUser

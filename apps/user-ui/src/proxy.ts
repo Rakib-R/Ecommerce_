@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 
 const protectedRoutes = ["/checkout", "/profile"];
 const authRoutes      = ["/login", "/signup","/seller-login", "seller-signup", "forgo-password-seller" ,"forgot-password-user"];
-const publicRoutes    = ["/home"];
+const publicRoutes    = ["/home", "/"];
 
 const getSecret = () =>
   new TextEncoder().encode(process.env.JWT_ACCESS_SECRET!);

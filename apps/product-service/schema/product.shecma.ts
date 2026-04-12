@@ -81,7 +81,7 @@ export const CreateProductSchema = z.object({
     .positive("Regular price must be greater than 0")
     .max(5_000_000, "Regular price seems unrealistically high"),
 
-  sale_price: z
+  salePrice: z
     .number({ error: "Sale price must be a number" })
     .min(0, "Sale price cannot be negative")
     .max(5_000_00, "Sale price seems unrealistically high")
@@ -142,9 +142,10 @@ export const CreateProductSchema = z.object({
       z.date(),
       z.literal(""),
     ])
+    .optional()
     .nullish() // ✅ Handles both null and undefined
     .transform(val => (val === "" || val === null) ? undefined : val)
-,
+  ,
 
   // Discount Codes (array of UUIDs)
   discountCodes: z

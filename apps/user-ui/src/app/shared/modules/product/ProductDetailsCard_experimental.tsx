@@ -27,9 +27,9 @@ const ProductDetailsCard = ({
     const [isSelected, setIsSelected]         = useState(data?.colors?.[0] || '')
     const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '')
     const [quantity, setQuantity]             = useState(1)
-    const [priceRange, setPriceRange]         = useState([data?.sale_price, 1199])
+    const [priceRange, setPriceRange]         = useState([data?.salePrice, 1199])
     const [recommendedProducts, setRecommendedProducts] = useState([]);
-    const [currentIndex, setCurrentIndex]     = useState<number>(0);  
+    const [currentIndex, setCurrentIndex]     =         useState<number>(0);  
     const [currentImage, setCurrentImage]           = useState<[]>([]);
 
     const addToCart     = useStore((state: Store) => state.addToCart)
@@ -52,7 +52,7 @@ const ProductDetailsCard = ({
     if (currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
         setCurrentImage(data?.images[currentIndex - 1]);
-    }
+        }
     };
 
     // Navigate to Next Image
@@ -73,11 +73,14 @@ const ProductDetailsCard = ({
             );
         }
     };
-    const discountPct = data?.regular_price > data?.salePrice
-        ? Math.round(((data.regularPrice - data.salePrice) / data.regularPrice) * 100)
-        : 0
+        const discountPct = (() => {
+        const regular = data?.regularPrice;
+        const sale = data?.salePrice;
+        if (!regular || !sale || regular <= sale) return 0;
+        return Math.round(((regular - sale) / regular) * 100);
+    })();
 
-    const activeImageUrl = data?.images?.[currentIndex]?.url || '/placeholder-image.jpg'
+    const activeImageUrl = data?.images?.[currentIndex]?.url || '/active.web'
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -203,12 +206,12 @@ const ProductDetailsCard = ({
                                                     ? 'border-emerald-500 scale-105 shadow-sm'
                                                     : 'border-gray-200 hover:border-emerald-300'}`}>
                                                 <Image
-                                                    src={img?.url || '/placeholder-image.jpg'}
+                                                    src={img?.url || '/placeholder.webp'}
                                                     alt={`thumb-${index}`}
                                                     fill
                                                     className="object-cover"
                                                     sizes="50px"
-                                                    onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                                    onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
                                                 />
                                             </button>
                                         ))}
@@ -234,7 +237,7 @@ const ProductDetailsCard = ({
                                         fill
                                         className="object-contain p-4"
                                         sizes="(max-width: 768px) 100vw, 38vw"
-                                        onError={(e) => { e.currentTarget.src = '/placeholder-image.jpg' }}
+                                        onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
                                         unoptimized={process.env.NODE_ENV === 'development'}/>
 
                                      {/* Right Arrow */}
@@ -245,12 +248,13 @@ const ProductDetailsCard = ({
                                             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-red-500 drop-shadow-lg hover:scale-110 transition cursor-pointer" />
                                         )}
 
-                                    {discountPct > 0 && (
+                                    {data?.salePrice && discountPct > 0 ? (
                                         <div className="absolute top-2.5 left-2.5 z-10 bg-emerald-600 text-white
                                                         text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide">
                                             -{discountPct}%
                                         </div>
-                                    )}
+                                        ) :  <></>
+                                    }
 
                                     <div className={`absolute bottom-2 right-2 flex items-center gap-1 bg-white/85 backdrop-blur-sm text-[10px] 
                                                     px-2 py-1 rounded-lg border border-gray-100 transition-opacity duration-200
@@ -325,15 +329,6 @@ const ProductDetailsCard = ({
                                     Wishlisted 
                                 </span>
                                 
-                            {/* <div className="absolute mt-10 flex items-center  bg-white p-4">
-                            <p className="font-serif italic ml-64 text-gray-600 text-sm tracking-wide">
-                                Sale Price : 
-                                <span className="ml-2 font-sans font-semibold not-italic text-[#e63946] text-lg">
-                                {data.salePrice}
-                                </span>
-                            </p>
-                            </div> */}
-
                             </div>
                             {/* Stock */}
                             {data?.stock > 0 && (
@@ -352,7 +347,10 @@ const ProductDetailsCard = ({
 
                             {/* Price */}
                             <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
-                                <span className="pdp-serif text-[2rem] leading-none text-emerald-700">
+
+                            {data.salePrice ? 
+                            <>
+                                 <span className="pdp-serif text-[2rem] leading-none text-emerald-700">
                                     ${data?.salePrice?.toFixed(2) ?? '0.00'}
                                 </span>
                                 {data?.regularPrice > data?.salePrice && (
@@ -360,13 +358,24 @@ const ProductDetailsCard = ({
                                         ${data.regularPrice.toFixed(2)}
                                     </span>
                                 )}
-                                {discountPct > 0 && (
+                                {data?.salePrice && discountPct > 0 && (
                                     <span className="text-[11px] font-semibold text-emerald-700
                                                         bg-emerald-50 border border-emerald-200
                                                         px-2 py-0.5 rounded-full">
                                         Save {discountPct}%
                                     </span>
                                 )}
+                            </>
+                            : 
+                            <span className="pdp-serif text-[2rem] leading-none text-emerald-700">
+                                    ${data?.regularPrice?.toFixed(2) ?? '0.00'}
+                                </span>
+                            }
+                            {data.sizes && (
+                                data.sizes.map((size : any)=> {
+                                    <span className=''>{size}</span>
+                                })
+                            )}
                             </div>
 
                             <hr className="my-4 border-gray-100" />
@@ -426,27 +435,27 @@ const ProductDetailsCard = ({
                                                         hover:bg-emerald-50 hover:text-emerald-700 transition font-light text-xl">+</button>
                                     </div>
 
-                                    <button
-                                        onClick={toggleWishlist}
-                                        className={`w-10 h-10 flex-shrink-0 rounded-xl border flex items-center
-                                                    justify-center transition-all
-                                            ${isWishlisted
-                                                ? 'bg-red-50 border-red-200'
-                                                : 'bg-white border-gray-200 hover:bg-red-50 hover:border-red-200'}`}>
-                                        <Heart size={16}
-                                            fill={isWishlisted ? '#ef4444' : 'transparent'}
-                                            color={isWishlisted ? '#ef4444' : '#9ca3af'} />
-                                    </button>
+                                <button
+                                    onClick={toggleWishlist}
+                                    className={`w-10 h-10 flex-shrink-0 rounded-xl border flex items-center
+                                                justify-center transition-all
+                                        ${isWishlisted
+                                            ? 'bg-red-50 border-red-200'
+                                            : 'bg-white border-gray-200 hover:bg-red-50 hover:border-red-200'}`}>
+                                    <Heart size={16}
+                                        fill={isWishlisted ? '#ef4444' : 'transparent'}
+                                        color={isWishlisted ? '#ef4444' : '#9ca3af'} />
+                                </button>
 
-                                    <button
-                                        disabled={isInCart}
-                                        onClick={() => {
-                                            if (!location) return
-                                            addToCart(
-                                                { ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
-                                                user, location.country, deviceInfo
-                                            )
-                                        }}
+                                <button
+                                    disabled={isInCart}
+                                    onClick={() => {
+                                        if (!location) return
+                                        addToCart(
+                                            { ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
+                                            user, location.country, deviceInfo
+                                        )
+                                    }}
                                         className={`flex-1 min-w-[120px] h-10 flex items-center justify-center gap-2
                                                     rounded-xl text-[13px] font-semibold transition-all
                                             ${isInCart
@@ -585,7 +594,7 @@ const ProductDetailsCard = ({
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {recommendedProducts.map((product) => (
-                            <ProductCard key={data.id} product={product} />
+                            <ProductCard key={data.id || data._id} product={product} />
                             ))}
                         </div>
                         </div>

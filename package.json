@@ -13,7 +13,6 @@
     "prisma:generate": "prisma generate",
     "build:analyze_user": "cross-env ANALYZE=true npx nx build user-ui",
     "build:analyze_seller": "cross-env ANALYZE=true npx nx build seller-ui",
-
     "build": "npx nx run-many --target=build --all",
     "start:prod": "npx nx run-many --target=serve --all --prod"
   },
@@ -116,12 +115,14 @@
     "react-hot-toast": "^2.6.0",
     "react-inner-image-zoom": "^4.0.1",
     "react-quill-new": "^3.8.3",
+    "react-range": "1.10.0",
     "sharp": "0.34.5",
     "stripe": "^20.3.1",
     "styled-components": "^6.3.11",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
     "ua-parser-js": "^2.0.9",
+    "winston": "3.19.0",
     "zod": "4.3.6",
     "zustand": "^5.0.11"
   }

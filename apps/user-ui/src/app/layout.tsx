@@ -25,14 +25,11 @@ const poppins = Poppins({
 
 
 
-
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-  // Pages where header/hero should NOT show
 
   return (
     <html lang="en">

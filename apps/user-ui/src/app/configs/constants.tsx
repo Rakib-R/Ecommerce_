@@ -3,7 +3,7 @@
 export const navItems: NavItemType[] = [
   { 
     title: "Home", 
-    href: "/" 
+    href: "/home" 
   },
   { 
     title: "Products", 

@@ -42,8 +42,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
             className="relative w-full h-[500px] overflow-hidden cursor-crosshair"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
-            onMouseMove={handleMouseMove}
-          >
+            onMouseMove={handleMouseMove}>
             <Image
               src={imageUrl}
               alt={productDetails?.title || 'Product image'}

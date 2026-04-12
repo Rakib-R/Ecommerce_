@@ -15,14 +15,16 @@ export const initializeSiteConfig = async() => {
                 "Fashion",
                 "Home & Kitchen",
                 "Sports & Fitness",
-                "Foods"
+                "Foods",
+                "Clothes"
             ],
             subCategories: {
                 "Electronics": ["Mobile Phones", "Laptops", "Cameras", "Accessories"],
-                "Fashion": ["Men's Clothing", "Women's Clothing", "Footwear", "Watches"],
+                "Fashion": ["Men's Clothing", "Women's Clothing", "Footwear", "Luxurious"],
                 "Home & Kitchen": ["Furniture", "Cookware", "Decor", "Appliances"],
                 "Sports & Fitness": ["Gym Equipment", "Outdoor Sports", "Yoga", "Footwear"],
-                "Foods" : ["Drinks", "Fruits", "Snack","Fast Food"]
+                "Foods" : ["Drinks", "Fruits", "Snack","Vegetables"],
+                "Clothes": ['Shirts', 'Jeans', 'Sweaters', 'Jackets',]
             }
         }
     });

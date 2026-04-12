@@ -21,18 +21,6 @@ export const isAuthenticated = async (
       });
     }
 
-    // Decode the token to get role first (without verification)
-    const decodedToken = jwt.decode(token) as {
-      id: string;
-      role: "user" | "seller" | "admin";
-    };
-
-    if (!decodedToken || !decodedToken.role) {
-      return res.status(401).json({
-        message: "Invalid token format!",
-      });
-    }
-
     // Verify token based on role (using appropriate secret)
     let decoded;
 

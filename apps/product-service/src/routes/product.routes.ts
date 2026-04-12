@@ -10,7 +10,8 @@ import {
   getAllProducts,
   getCategories,
   getDiscountCodes,
-  getFilteredEvents,
+  // getFilteredEvents,
+  getFilteredOffer,
   getFilteredProducts,
   getFilteredShops,
   getProductDetails,
@@ -50,7 +51,7 @@ router.get('/get-product/:slug', getProductDetails)
 
 router.get("/get-filtered-products", getFilteredProducts);
 
-router.get("/get-filtered-offers", getFilteredEvents);
+router.get("/get-filtered-offers", getFilteredOffer);
 
 router.get("/get-filtered-shops", getFilteredShops);
 
