@@ -33,7 +33,7 @@ const CustomSpecifications = ({ control, errors }: any) => {
                     placeholder="e.g., Battery Life, Weight, Material"
                     {...field}
                 />
-                )}
+                    )}
                 />
 
                 {/* 2ND CONTROLLER */}
@@ -42,7 +42,7 @@ const CustomSpecifications = ({ control, errors }: any) => {
                 control={control}
                 rules={{ required: "Value is required" }}
                 render={({ field }) => ( 
-                    <Input
+                <Input
                     label="Value"
                     placeholder="e.g., 1.5kg, Plastic"
                     {...field} 

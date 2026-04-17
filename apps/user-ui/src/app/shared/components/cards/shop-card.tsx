@@ -1,22 +1,10 @@
+
 import React from 'react'
 import Image from 'next/image';
 import { ArrowRight, MapPin, Star } from 'lucide-react';
 import Link from "next/link";
+import { ShopType } from '../../../../types' 
 
-interface ShopProps {
-  shop: {
-    id: string;
-    name: string;
-    category: string;
-    coverBanner: string;
-    avatar: ImageType[];
-    shopCover : ImageType[];
-    description?: string;
-    address?: string;
-    followers?: string[];
-    rating?: number;
-  };
-}
 
 interface ImageType {
   id: string;
@@ -24,16 +12,20 @@ interface ImageType {
   file_id: string;
 }
 
-const ShopCard = ({ shop }: ShopProps) => {
+const ShopCard = ({ shop }: ShopType) => {
 
   const avatarSrc =
-        shop.avatar?.[0]?.url ||
+        shop.seller?.avatar?.[0]?.url ||
        "https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704";
   
   const coverSrc =
-    shop.shopCover?.[0]?.url || "https://ik.imagekit.io/hasanRakib/Shops/Shop.jpg?updatedAt=1775962057898";
+    shop.coverShop?.[0]?.url || "https://ik.imagekit.io/hasanRakib/shops/shop_placeholder_Main.svg";
 
-  return (
+    console.log('SHop COVer =>', shop.coverShop, shop.coverShop[0])
+    console.log('Avatar COVer =>',shop.seller?.avatar , shop.seller )
+  
+  
+    return (
     <main className="w-full rounded-xl cursor-pointer bg-white border border-gray-200 shadow-md hover:shadow-lg transition overflow-hidden">
 
       {/* Banner */}
@@ -103,7 +95,6 @@ const ShopCard = ({ shop }: ShopProps) => {
             <ArrowRight className="h-4 w-4 mt-[1px]" />
           </Link>
         </div>
-
 
       </div>
     </main>

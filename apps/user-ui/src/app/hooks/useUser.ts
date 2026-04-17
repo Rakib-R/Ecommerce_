@@ -1,34 +1,43 @@
-
 'use client'
 
-import {useQuery} from '@tanstack/react-query';
-import axiosInstance from "../utils/axios"
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from "../utils/axios";
 import { useEffect, useState } from 'react';
+import { UserType, UserProfileType } from "src/types";
 
-// fetch user data from API
- const fetchUser = async () => {
-    try {
-    const response = await axiosInstance.get("/api/logged-in-user");
-    return response.data.user ?? null;  // ✅ never return undefined
+interface ApiResponse {
+  user: UserType; 
+}
 
+const fetchUser = async (): Promise<UserType | null> => {
+  try {
+    const response = await axiosInstance.get<ApiResponse>("/api/logged-in-user");
+    return response.data.user ?? null;
   } catch (error: any) {
     if (error?.response?.status === 401) {
-      return null;  //! Unauthenticated = null, not undefined and NOT ERROR
+      return null;
     }
-    throw error; 
+    throw error;
   }
 };
 
-const useUser = () => {
+interface UseUserReturn {
+  user: UserType & { Points?: number } | null;
+  isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
+  error: Error | null;
+}
 
+const useUser = (): UseUserReturn => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  const { data: user, isLoading, isError, refetch } = useQuery({
-   queryKey: ["user"],
+  const { data, isLoading, isError, refetch, error } = useQuery({
+    queryKey: ["user"],
     queryFn: fetchUser,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
@@ -36,12 +45,16 @@ const useUser = () => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    // enabled: mounted, //todo ← ADDING this ENSURES query fails (401), 
-    // React Query doesn't keep retrying and sets data to undefined
-    retryOnMount: false,
-});
+    enabled: mounted,
+  });
 
-  return { user: user ?? null, isLoading: mounted && isLoading, isError: isError && user === undefined, refetch };
+  return { 
+    user: data ?? null, 
+    isLoading: mounted && isLoading, 
+    isError: isError && mounted,
+    refetch,
+    error: error ?? null
+  };
 };
 
-export default useUser
+export default useUser;

@@ -2,8 +2,8 @@
 
 import Providers from '../../../utils/providers';
 import { Poppins, Roboto } from "next/font/google";
-
 import './user-ui.css';
+
 import ClientLayout from './shared/widget/headerProvider';
 
 export const metadata = {

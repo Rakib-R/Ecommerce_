@@ -77,7 +77,7 @@ const Home = () => {
         <h2 className="text-2xl font-medium mt-16">Products</h2>
           <hr className='mt-4 opacity-50 mb-8'/>
 
-        <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-7 gap-6">
+        <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
             {isLoading ? (
 
             Array.from({ length: 10 }).map((_, i) => (
@@ -102,7 +102,7 @@ const Home = () => {
       <h2 className="text-2xl font-medium mt-16">Latest Products</h2>
       <hr className='mt-4 opacity-50 mb-8'/>
 
-      <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-7 gap-6">
+      <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
         {LatestLoading
           ? Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-[220px] bg-gray-300 animate-pulse rounded-xl" />
@@ -119,7 +119,7 @@ const Home = () => {
       <h2 className="text-2xl font-medium mt-16">Top Offers</h2>
       <hr className='mt-4 opacity-50 mb-8'/>
 
-      <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-7 gap-6">
+      <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
         {offerLoading
           ? Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-[220px] bg-gray-300 animate-pulse rounded-xl" />
@@ -136,7 +136,7 @@ const Home = () => {
       <h2 className="text-2xl font-medium mt-16">Top Shops</h2>
       <hr className='mt-4 opacity-50 mb-8'/>
 
-      <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-7 gap-6">
+      <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
         {shopLoading
           ? Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="h-[220px] bg-gray-300 animate-pulse rounded-xl" />

@@ -46,7 +46,8 @@ import { useDraftStore } from '../../../store/useDraftStore';
       images: (UploadedImage | null)[];
       colors?: string[]; // Assuming your ColorSelector returns an array
       sizes?: string[];  // Assuming your SizeSelector returns an array
-      properties?: any[];
+      customProperties?: any[];
+      customSpecifications?: any[];
       discountCodes?: string[];
       ending_date?: string;
     }
@@ -62,7 +63,6 @@ import { useDraftStore } from '../../../store/useDraftStore';
 
 
 const Page = () => {
-
 
   const methods = useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
           title: "",
@@ -83,14 +83,15 @@ const Page = () => {
           images: [],
           discountCodes: [],
           colors: [],
-          properties: []
+          customProperties: [],
+          customSpecifications:[],
         }
   });
    const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = methods
  
   const router = useRouter();
  
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<Record<string, string[]>>({
       queryKey: ["categories"],
       queryFn: async () => {
         try {
@@ -103,32 +104,34 @@ const Page = () => {
             throw error;
           }
       },              
-      staleTime: 1000 * 60 * 5,
-      retry: 2,
+        staleTime: 1000 * 60 * 5,
+        retry: 2,
     });
 
-  const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
-        queryKey: ["shop-discounts"],
-        queryFn: async () => {
-      const res = await axiosInstance.get(`/product/api/get-discount-codes`);
-        return res?.data?.discount_codes || [];
-    },
-  });
+    const { data: discountCodes = [], isLoading: discountLoading } = useQuery<string[]>({
+          queryKey: ["shop-discounts"],
+          queryFn: async () => {
+        const res = await axiosInstance.get(`/product/api/get-discount-codes`);
+          return res?.data?.discount_codes || [];
+      },
+    });
 
     const categories = data?.categories || [];
     const subCategoriesData = data?.subCategories || {};
-
+  
     // FORM HOOK ------------------WATCH --------------ATTRIBUTE
     const selectedCategory = watch("category");
     const selectedSubCategory = watch("subCategory");
     const regularPrice = watch('regularPrice')
     const cash_On_Delivery = watch("cash_on_delivery");
     const formImages = watch('images');
-
-
+  
+    
     const subCategories = useMemo(() => {
-        return categories ? subCategoriesData[selectedCategory] || [] : []
-      },[selectedCategory, subCategoriesData])
+        return categories 
+          ? (subCategoriesData as any)[selectedSubCategory] || [] 
+          : [];
+      }, [selectedCategory, subCategoriesData]);
 
     const onInvalid = (errors: any) => {
       Object.keys(errors).forEach((field) => {
@@ -178,13 +181,13 @@ const Page = () => {
     });
 
   const { mutateAsync: createProduct, isPending } = useMutation({
-      mutationFn: async (payload: any) => {
+      mutationFn: async (payload: ProductFormData) => {
         const res = await axiosInstance.post('/product/api/create-product', payload);
         return res.data;
       },
     });
 
-   const onSubmit = async (data: any) => {
+   const onSubmit = async (data: ProductFormData) => {
     
     const cleanImages = images.filter(Boolean); 
      if (cleanImages.length === 0) {
@@ -201,13 +204,13 @@ const Page = () => {
       images: cleanImages,               
       cashOnDelivery: data.cash_on_delivery === "yes",
 
-    customProperties: Array.isArray(data.properties)        // ✅ array → record
-      ? Object.fromEntries(data.properties.map((p: any) => [p.key, p.value]))
-      : data.properties || {},
+    customProperties: Array.isArray(data.customProperties)        // ✅ array → record
+      ? Object.fromEntries(data.customProperties.map((p: any) => [p.key, p.value]))
+      : data.customProperties || {},
 
-    custom_specifications: Array.isArray(data.custom_specifications) // ✅ array → record
-      ? Object.fromEntries(data.custom_specifications.map((s: any) => [s.key, s.value]))
-      : data.specifications || {},
+    customSpecifications: Array.isArray(data.customSpecifications) // ✅ array → record
+      ? Object.fromEntries(data.customSpecifications.map((s: any) => [s.key, s.value]))
+      : data.customSpecifications || {},
   };
 
   try {
@@ -977,8 +980,7 @@ const Page = () => {
                       setDraftId(null);
                     }
                   }}
-                  className="mt-4 w-full px-3 py-2 bg-red-600/50 text-red-300 rounded-md text-sm hover:bg-red-600"
-                >
+                  className="mt-4 w-full px-3 py-2 bg-red-600/50 text-red-300 rounded-md text-sm hover:bg-red-600">
                   Delete All Drafts
                 </button>
               )}

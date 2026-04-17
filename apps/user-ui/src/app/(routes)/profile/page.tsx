@@ -1,13 +1,25 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Bell, CheckCircle, Gift, Inbox, Loader2, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, ShoppingCart, Truck, User } from "lucide-react";
+'use client'
+
+import { useQueryClient } from "@tanstack/react-query";
+import { BadgeCheck, Bell, CheckCircle, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, ShoppingCart, Truck, User } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import React, { use, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import useUser from "src/app/hooks/useUser";
 import StatCard from "src/app/shared/components/cards/stat-card";
 import { useAuthState } from "src/app/store/authStore";
 import axiosInstance from "src/app/utils/axios";
 import Image from "next/image";
 import QuickActionCard from "src/app/shared/components/cards/quick-action.card";
+import { type LucideIcon } from 'lucide-react';
+import ShippingAddressSection from "@user-ui/shared/components/ShippingAddressSection";
+
+interface NavItemTypes{
+  label : string;
+  Icon  : LucideIcon;
+  active?: boolean;
+  danger?: boolean;
+  onClick: () => void;
+}
 
 const Page = () => {
 
@@ -23,8 +35,7 @@ const Page = () => {
     if (activeTab !== queryTab) {
         const newParams = new URLSearchParams(searchParams.toString());
         newParams.set("active", activeTab);
-
-        router.replace(`?${newParams.toString()}`);
+        router.replace(`?${newParams.toString()}`, { scroll: false });
     }
     }, [activeTab]);
 
@@ -35,6 +46,7 @@ const Page = () => {
       router.push("/login");
   };
 
+  console.log('USER -> ', user)
   return (
     <main className="bg-gray-50 p-6">
       <div className="md:max-w-8xl mx-auto">
@@ -50,7 +62,7 @@ const Page = () => {
                 `${user?.name || "User"}`
               )}
             </span> {" "}
-          </h1> '👌'
+          </h1> 
         </div>
 
      {/* Profile Overview Grid */}
@@ -61,10 +73,10 @@ const Page = () => {
         </div>
 
         {/* Sidebar and Content Layout */}
-        <div className="flex flex-col md:flex-row gap-6">
+      <main className="grid grid-flow-col grid-cols-10">
         
-        {/* Left Navigation */}
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-100">
+        {/* L   E  F  T N a v i g a ti  on */}
+        <div className="col-span-2 bg-white p-4 rounded-md shadow-sm border border-gray-100">
             <nav className="space-y-2">
             
             <NavItem
@@ -92,21 +104,21 @@ const Page = () => {
                 onClick={() => setActiveTab("Notifications")}
                 />
 
-                <NavItem
+              <NavItem
                 label="Shipping Address"
                 Icon={MapPin}
                 active={activeTab === "Shipping Address"}
                 onClick={() => setActiveTab("Shipping Address")}
                 />
 
-                <NavItem
+              <NavItem
                 label="Change Password"
                 Icon={Lock}
                 active={activeTab === "Change Password"}
                 onClick={() => setActiveTab("Change Password")}
                 />
 
-                <NavItem
+              <NavItem
                 label="Logout"
                 Icon={LogOut}
                 danger
@@ -114,38 +126,38 @@ const Page = () => {
                 />
         </nav>
         </div>
+ 
+            {/* M I D D L E M A I N C O N T E N T */}
+        <section className="min-h-[50px] col-span-6 p-6 rounded-md shadow-sm border border-gray-100">
 
-            {/* M A I N C O N T E N T */}
-        <div className="flex flex-col md:flex-row gap-6">
-        
-        {/* Sidebar */}
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-100 md:w-1/4">
+            {/* Sidebar */}
+        <div className=" bg-white p-4 rounded-md shadow-sm border border-gray-100 md:w-1/4">
             <nav className="space-y-2">
             {/* your NavItems here */}
             </nav>
-        </div>
 
-        {/* Main Content */}
-        <section className="flex-1 bg-white p-6 rounded-md shadow-sm border border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
             {activeTab}
             </h2>
 
             {/* Profile Tab */}
-            {activeTab === "Profile" && !isLoading && user && (
+            {activeTab === "Profile" && !isLoading && user ? (
             <div className="text-sm">
-                <div className="flex items-center gap-4">
-                <Image
-                    src={user.avatar}
-                    alt="profile_photo"
-                    width={60}
-                    height={60}
-                    className="h-16 w-16 rounded-full border border-gray-200"
-                />
-                <button className="flex items-center gap-1 text-blue-500 text-xs font-medium">
-                    <Pencil className="w-4 h-4"/> Change Photo
-                </button>
-               <div>
+                <div className="flex flex-col gap-4">
+                <aside className="flex flex-row">
+                    <Image
+                      src={user.avatar?.url || 'https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704'}
+                      alt="profile_photo"
+                      width={60}
+                      height={60}
+                      className="h-16 w-16 rounded-full border border-gray-200"
+                  />
+                  <button className="flex items-center gap-1 text-blue-500 text-xs font-medium">
+                      <Pencil className="w-4 h-4"/> Change Photo
+                  </button>
+                </aside>
+               <div className="flex flex-col gap-2">
                     <span>{user.name}</span>
                     <p>
                         <span className="font-semibold">Email:</span> {user.email}
@@ -161,12 +173,13 @@ const Page = () => {
                 </div>
               </div>
             </div>
-            )}
+            ) : activeTab === 'Shipping Address' ? (
+              <ShippingAddressSection />
+            ) :  null}
          </section>
 
-         {/* RIGHT QUICK PANEL
-          */}
-          <section className="w-full md:w-1/4 space-y-4">
+         {/* RIGHT QUICK PANEL */}
+          <section className="bg-green-500 col-span-2 w-full space-y-4">
            
            <QuickActionCard Icon={Gift} title={"Referral Program"} description="Invite friends and get rewards" />
             
@@ -199,8 +212,9 @@ const Page = () => {
             description="Need help? Contact support."
             />
           </section>
-        </div>
-      </div>
+     
+      </main>
+
      </div>
     </main>
   );
@@ -209,7 +223,7 @@ const Page = () => {
 export default Page;
 
 
-const NavItem = ({ label, Icon, active, danger, onClick }: any) => {
+const NavItem = ({ label, Icon, active, danger, onClick }: NavItemTypes) => {
   return (
     <button
       onClick={onClick}

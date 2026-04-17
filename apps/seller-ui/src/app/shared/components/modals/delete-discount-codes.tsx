@@ -3,7 +3,14 @@
 import React from 'react'
 import { X } from 'lucide-react'
 
-const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: any, onClose:() => void; onConfirm?: any}) => {
+interface DiscountFormValues {
+  public_name: string;
+  discountType: "percentage" | "flat";
+  discountValue: number;
+  discountCode: string;
+}
+
+const DeleteDiscountCodeModal = ({discount, onClose, onConfirm}: {discount: DiscountFormValues, onClose:() => void; onConfirm?: () => void}) => {
   return (
       <main className="flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 backdrop-blur-sm">
         <div className='flex flex-col justify-center bg-zinc-900 border border-zinc-800 p-6 rounded-lg w-full max-w-[450px] shadow-lg'>

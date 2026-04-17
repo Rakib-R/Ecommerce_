@@ -63,25 +63,31 @@ const Header = () => {
   return (
     <div className="z-[90]">
       <div ref={topHeaderRef}>
-        <main className="max-w-[1300px] mx-auto relative z-[10]">
-          <div className=" py-5 h-32 flex items-center justify-between gap-4">
-            <nav className="shrink-0">
+        <main className="max-w-[1350px] mx-auto relative z-[10]">
+
+          {/* FIRST CHILD */}
+          <div className=" grid grid-flow-col grid-cols-12 gap-8 py-5 h-32 items-center ">
+            <nav className="col-span-2 shrink-0">
               <Link href="/">
                 <span className="text-3xl font-semibold">{pathname}</span>
               </Link>
             </nav>
 
-            <section className="relative flex-1 max-w-[600px]">
+            {/* SECOND CHILD */}
+            <section className="relative col-start-3 col-span-6">
               <input
                 type="text"
                 placeholder="Search for products..."
-                className="w-full px-4 border-[2.5px] border-[#3489FF] outline-none h-[55px] rounded-md"/>
-              <div className="w-[56px] bg-[#3489FF] flex items-center justify-center h-[55px] absolute top-0 right-0 rounded-r-md">
+                className="w-full h-[55px] px-4 border-[1.5px] border-[#3489FF] outline-none rounded-md"/>
+              <div className="w-[50px] bg-[#3489FF] flex items-center justify-center h-[55px] absolute top-0 right-0 rounded-r-md">
                 <Search color="white" />
               </div>
             </section>
             
-            <section className="flex items-center shrink-0 gap-4 w-[310px]">
+            
+            {/* TH I R D C H I L D */}
+            
+            <section className="col-span-4 flex justify-center items-center shrink-0 gap-4 ">
               <div className="flex items-center">
 
                 {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
@@ -97,7 +103,6 @@ const Header = () => {
                   </Link>
                   )}
               </div>
-
               </div>
 
                <aside className="flex items-center gap-3">

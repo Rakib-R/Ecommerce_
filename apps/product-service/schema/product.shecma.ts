@@ -156,7 +156,7 @@ export const CreateProductSchema = z.object({
 
   // Custom fields
   customProperties: CustomPropertySchema,
-  custom_specifications: CustomSpecificationsSchema,
+  customSpecifications: CustomSpecificationsSchema,
 });
 
 // ── Inferred Type ────────────────────────────────────────────────────────────

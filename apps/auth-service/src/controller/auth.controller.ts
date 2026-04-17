@@ -147,15 +147,14 @@ export const loginUser = async (
     }
 };
 // export const admin = async (
+
 //   req: Request,
 //   res: Response,
 //   next: NextFunction
 // ) => {
 //   try {
 //     const { email, password } = req.body;
-    
 //     // --- ADMIN BYPASS START ---
-
 //     let verified_admin;
 
 //     verified_admin = 
@@ -195,7 +194,10 @@ export const loginUser = async (
 // }
 
 // Refresh Token - User
+
+
 export const refreshToken = async (
+  
   req: any,
   res: Response,
   next: NextFunction
@@ -283,6 +285,7 @@ export const refreshToken = async (
      return next(error); 
     }
 };
+
  export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     // Allow access to home route without user check
@@ -347,13 +350,137 @@ export const refreshToken = async (
         });
         
       res.status(200).json({ message: "Password reset successfully!" });
-
     } catch (error) {
       return next(error);
     }
   };
 
-//todo -----------------   S E  L  L  E  R  S  =======  L O G I C  ! !  !   REGISTER NEW SELLER  -- --- --REGISTER NEW SELLER
+  import { addressType } from "@prisma/client";
+  export const addUserAddress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new Error("User not authenticated"));
+    }
+    
+    const enumMap: Record<string, addressType> = {
+      "Home": addressType.HOME,   // Use Prisma enum, not string
+      "Work": addressType.WORK,
+      "Other": addressType.OTHER
+  };
+  
+    const { label, name, street, city, zip, country, isDefault } = req.body;
+
+    // Validation
+    if (!label || !name || !street || !city || !zip || !country) {
+      return next(new Error("All fields are required"));
+    }
+
+    // If this address is set as default, update all other addresses to non-default
+    if (isDefault) {
+      await prisma.address.updateMany({
+        where: {
+          userId: userId,
+          isDefault: true,
+        },
+        data: {
+          isDefault: false,
+        },
+      });
+    }
+
+    // Create new address
+    const newAddress = await prisma.address.create({
+      data: {
+        userId: userId,
+        label: enumMap[label as keyof typeof enumMap],
+        name,
+        street,
+        city,
+        zip,
+        country,
+        isDefault: isDefault || false,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      address: newAddress,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const deleteUserAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { addressId } = req.params;
+
+    if (!addressId) {
+      return next(new Error("Address ID is required"));
+    }
+
+    // Check if address exists and belongs to user
+    const existingAddress = await prisma.address.findFirst({
+      where: {
+        id: addressId,
+        userId: userId,
+      },
+    });
+
+    if (!existingAddress) {
+      return next(new Error("Address not found or unauthorized"));
+    }
+
+    // Delete the address
+    await prisma.address.delete({
+      where: {
+        id: addressId,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getUserAddresses = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    const addresses = await prisma.address.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json({
+      success: true,
+      addresses,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//todo -----------------   S E  L  L  E  R  S  =======  L O G I C  ! !  !   REGISTER NEW SELLER   -----------------
+//todo                            REGISTER NEW SELLER
 
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("STRIPE_SECRET_KEY is not defined in environment variables");

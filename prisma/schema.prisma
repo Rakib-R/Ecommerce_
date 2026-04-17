@@ -1,7 +1,7 @@
 
 
 generator client {
-  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
+  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
                                   //!!  ADD -JS    ADD -JS    ADD -JS    ADD -JS    ADD -JS  
   // output   = "../packages/libs/prisma/src/generated"
 }
@@ -12,18 +12,23 @@ datasource db {
 }
 
 model images {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  file_id   String
-  url       String
-  shopId    String?  @db.ObjectId
-  userId    String?  @db.ObjectId
-  productId String?  @db.ObjectId
-  sellerId  String?  @db.ObjectId
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  file_id      String
+  url          String
+  productId    String?    @db.ObjectId
+  userAvatarsId      String?    @db.ObjectId
+  sellerAvatarsId    String?    @db.ObjectId
+  coverShopId  String?    @db.ObjectId
 
-  shopCover    shops?  @relation("shopCover", fields: [shopId], references: [id])
-  user      users?  @relation(fields: [userId], references: [id])
-  sellers   sellers?  @relation(fields: [sellerId], references: [id])
-  products  product? @relation(fields: [productId], references: [id])
+  coverShop   shops?        @relation(fields: [coverShopId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sellerAvatar sellers?    @relation(fields: [sellerAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction) 
+  userAvatar    users?       @relation(fields: [userAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products   product?       @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([userAvatarsId])
+  @@index([sellerAvatarsId])
+  @@index([coverShopId])
 }
 
 model users {
@@ -31,14 +36,66 @@ model users {
   name        String
   email       String   @unique
   password    String
+
+  address     address[]
   following   shop_followed[]
   avatar      images[]
   shopReviews shopReviews[]
   analytics   userAnalytics? 
   order       Order[]
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model sellers {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String    @unique
+  phone_number String
+  country      String
+  password     String
+  stripeId     String?
+  
+  avatar      images[]
+  
+  shop         shops?
+  product      product[]
+
+  productDiscounts productDiscount[]
+  discount_codes discount_codes[]
+
+  stripeOnboarded Boolean  @default(false) 
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model shops {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  category      String
+  address       String
+  
+  coverBanner   String?
+  coverShop     images[]
+  bio           String?
+  opening_hours String?
+  website       String?
+  socialLinks   Json?
+  ratings       Float?
+  reviews       shopReviews[] 
+  
+  sellerId     String  @unique @db.ObjectId  
+  seller       sellers @relation(fields: [sellerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+      
+  products     product[]
+  order        Order[]
+  followers    shop_followed[] 
+  analytics    productAnalytics[]
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+ }
 
  model shop_followed {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -49,6 +106,34 @@ model users {
   following_shops  shops    @relation(fields: [shopId], references: [id])
   @@unique([userId, shopId]) 
  }
+
+enum SendingAddressType {
+  SHIPPING
+  BILLING
+}
+
+enum addressType{
+  HOME
+  WORK
+  OTHER
+}
+
+model address {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  type      SendingAddressType @default(SHIPPING)
+  label     addressType
+  name      String?
+  street    String
+  city      String
+  zip       String?
+  country   String
+  userId    String  @db.ObjectId
+  user      users   @relation(fields: [userId], references: [id])
+  isDefault Boolean 
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 model shopReviews {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -63,50 +148,6 @@ model shopReviews {
   shop      shops    @relation(fields: [shopId], references: [id])
 }
 
-model sellers {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String    @unique
-  phone_number String
-  country      String
-  password     String
-  avatar       images[]
-  stripeId     String?
-  shop         shops?
-
-  productDiscounts productDiscount[]
-  discount_codes discount_codes[]
-
-  stripeOnboarded Boolean  @default(false) 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-model shops {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  bio           String?
-  category      String
-  
-  ShopCover     images[]  @relation("shopCover")
-  coverBanner   String?
-  address       String
-  opening_hours String?
-  website       String?
-  socialLinks   Json?
-  ratings       Float?
-  reviews       shopReviews[] 
-  sellerId      String     @unique @db.ObjectId
-  
-  sellers      sellers   @relation(fields: [sellerId], references: [id], onDelete: Cascade)     
-  products     product[]
-  order        Order[]
-  followers    shop_followed[] 
-  analytics    productAnalytics[]
-
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
- }
 
  model site_config {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
@@ -142,7 +183,6 @@ model discount_codes {
   productDiscounts productDiscount[] // ← navigate to products through this
 }
 
-
 enum productStatus{
   Active
   Pending
@@ -165,10 +205,10 @@ model product {
   video_url           String?
   brand               String?
   regularPrice        Float
-  ratings             Float    @default(5)
+  ratings             Float     @default(5)
   warranty            String?
   salePrice           Float?    @default(0)
-  stock               Int      @default(0)
+  stock               Int       @default(0)
   custom_specification Json?
   custom_property      Json?
   isDeleted            Boolean? @default(false)
@@ -178,8 +218,11 @@ model product {
   analytics            productAnalytics?
   totalSales           Int      @default(0) 
 
-  shopId               String  @db.ObjectId
-  Shop                 shops   @relation(fields: [shopId], references: [id])
+  shopId               String   @db.ObjectId
+  Shop                 shops    @relation(fields: [shopId], references: [id])
+
+  sellerId             String   @db.ObjectId
+  seller               sellers  @relation(fields: [sellerId], references: [id])
 
   paymentStatus       PaymentStatus @default(UNPAID)
   paymentMethod       PaymentMethod?
@@ -194,6 +237,16 @@ model product {
   ending_date         DateTime?
   deleteAt            DateTime?
   updatedAt           DateTime @updatedAt
+
+  // ✅ Index for filtering
+  @@index([shopId])
+  @@index([sellerId])
+  @@index([category])
+
+  // ✅ Compound indexes for common queries
+  @@index([shopId, status])      // Shop + status filter
+  @@index([category, status])     // Category + status
+  @@index([createdAt, status]) 
 }
 
 enum OrderStatus {

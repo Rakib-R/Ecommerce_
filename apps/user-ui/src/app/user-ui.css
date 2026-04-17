@@ -10,6 +10,9 @@ html {
     Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   line-height: 1.5;
   tab-size: 4;
+  
+  overflow-y: auto; 
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
 }
 body {
@@ -17,6 +20,11 @@ body {
   line-height: inherit;
   margin: 0;
 }
+
+.no-scroll {
+  overflow: clip !important; 
+}
+
 h1,
 h2,
 p,
@@ -31,33 +39,8 @@ pre {
   border-style: solid;
   border-color: currentColor;
 }
-h1,
-h2 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-a {
-  color: inherit;
-  text-decoration: inherit;
-}
-pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    Liberation Mono, Courier New, monospace;
-}
-svg {
-  display: block;
-  shape-rendering: auto;
-  text-rendering: optimizeLegibility;
-}
-pre {
-  background-color: rgba(55, 65, 81, 1);
-  border-radius: 0.25rem;
-  color: rgba(229, 231, 235, 1);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    Liberation Mono, Courier New, monospace;
-  overflow: scroll;
-  padding: 0.5rem 0.75rem;
-}
+
+.noscroll{ overflow: hidden;}
 
 .shadow {
   box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1),

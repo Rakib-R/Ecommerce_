@@ -8,6 +8,7 @@
     "paths": {
       "@packages/*": ["../../../packages/*"],
       "@apps/*": ["../../apps/*"],
+      "@user-ui/*":["../user-ui/src/app/*"],  
     },
     "emitDeclarationOnly": false,
     "esModuleInterop": true,

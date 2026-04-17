@@ -1,7 +1,7 @@
 
 import { Metadata } from 'next';
 import React from 'react'
-import ProductDetails from 'src/app/shared/modules/product/product_details';
+import ProductDetails from '@user-ui/shared/modules/product/productDetails';
 import ProductDetails_experimental from 'src/app/shared/modules/product/ProductDetailsCard_experimental';
 import axiosInstance from 'src/app/utils/axios';
 

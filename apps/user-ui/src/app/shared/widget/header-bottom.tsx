@@ -61,16 +61,17 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
           }
         `}>
         <div className="w-[1350px] mx-auto">
-          <menu className={`flex items-center gap-8 transition-all duration-300 ${
+          <menu className={`grid grid-flow-col grid-cols-12 gap-8 transition-all duration-300 ${
             isSticky ? "py-3" : "py-4"
           }`}>
-            {/* All Departments Dropdown */}
+
+            {/* FIRST CHILD */} {/* All Departments Dropdown */}
             <section 
               aria-label="department_navigation"
-              className="w-1/6 h-[50px] flex items-center cursor-pointer relative"
+              className="col-span-2 h-[50px] flex items-center cursor-pointer relative"
               onClick={() => setShow(!show)}>
 
-              <div className="flex items-center gap-2 mx-4">
+              <div className="flex items-center gap-2 mx-2">
                 <AlignLeft color={`${isSticky ? 'black' : 'white'}` } />
                 <span className="font-medium">All Departments</span>
               </div>
@@ -86,12 +87,17 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     <li className="absolute w-[88%] left-8 top-20 py-2 hover:text-blue-500 cursor-pointer border-b">Category 2</li>
                     <li className="absolute w-[88%] left-8 top-32 py-2 hover:text-blue-500 cursor-pointer border-b">Category 3</li>
                   </ul>
+                  <select name="" id="">
+                    <option value=""></option>
+                    <option value=""></option>
+                    <option value=""></option>
+                  </select>
                 </div>
               )}
             </section>
            
-            {/* Navigation Links */}
-            <nav aria-label="nav" className="flex items-center justify-start w-1/2">
+           {/* Middle NAv CHILD */} {/* Navigation Links */} 
+            <nav aria-label="nav" className="col-start-3 col-span-6 flex items-center justify-start ">
               {navItems.map((i: any, index: number) => (
                 <Link
                   key={index}
@@ -102,8 +108,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
               ))}
             </nav>
 
-            {/* Right Side Icons - Only show when sticky */}
-            <aside className="flex items-center ml-[1.2rem] gap-4">
+            {/* Right Side T H I R D CHILD - Only show when sticky */}
+            <section className="col-span-4 flex justify-center items-center gap-4">
               {isSticky && (
                 <>
                  {/* IT WILL STAY HERE REGARDLESS USER EXISTS OR NOT */}
@@ -141,15 +147,15 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                   </Link>
                 ) : (
                   <Link href="/login" className="flex items-center gap-1">
-                    <span className="text-md text-xl">
-                      <span className="text-md text-xl">{isLoading ? '...' : 'Sign In'}</span>
+                    <span className="font-medium text-black">
+                      <span className="text-xl">{isLoading ? '...' : 'Sign In'}</span>
                     </span>
                   </Link>
                 )}
                 </aside>
                 </>
               )}
-            </aside>
+            </section>
           </menu>
         </div>
       </header>

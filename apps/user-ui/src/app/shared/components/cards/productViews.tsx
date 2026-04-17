@@ -3,15 +3,15 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Ratings from './Ratings'
+import Ratings from 'src/app/utils/Ratings'
 import { MapPin, MessageCircle, X, ShoppingCart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Heart, Warehouse  } from 'lucide-react'
-import useUser from '../../hooks/useUser'
-import { useStore } from '../../store/authStore'
-import { useLocationTracking } from '../../hooks/useLocationTracking'
-import useDeviceTracking from '../../hooks/useDeviceTracking'
-import type { Store, Product } from '../../store/authStore'
+import useUser from '@user-ui/hooks/useUser'
+import { useStore } from '@user-ui/store/authStore'
+import { useLocationTracking } from '@user-ui/hooks/useLocationTracking'
+import useDeviceTracking from '@user-ui/hooks/useDeviceTracking'
+import type { Store, Product } from '@user-ui/store/authStore'
+import { Heart  } from 'lucide-react'
 
 
 const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: boolean) => void }) => {

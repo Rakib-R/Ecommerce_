@@ -3,11 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import Ratings from '../Ratings'
+import Ratings from '../../../utils/Ratings'
 import { Eye, Heart, ShoppingBag } from 'lucide-react'
 
-import ProductDetailsCard from './product-details'
-import ProductDetails_experimental from './ProductDetails_experimental'
+import ProductDetailsCard from './productViews'
+import ProductDetails_experimental from './ProductViews_experimental'
 
 import { useStore } from '../../../store/authStore'
 import useUser from '../../../hooks/useUser'
@@ -129,7 +129,7 @@ return(
             addToWishlist({...product, quantity: 1}, user, location,deviceInfo)}}
             stroke={isWishlisted ? 'red' : "#4B5563"}
             className='cursor-pointer hover:scale-110 transition-transform' 
-            size={20}
+            size={16}
             fill={isWishlisted ? 'red' : 'transparent'}
         />
       </button>
@@ -142,7 +142,7 @@ return(
           e.stopPropagation();      
           setOpen(!open)}
           }>
-        <Eye className="cursor-pointer hover:scale-110 transition-transform" size={20}/>
+        <Eye className="cursor-pointer hover:scale-110 transition-transform" size={16}/>
       </button>
       
         <button 
@@ -154,7 +154,7 @@ return(
             isInCart ? removeToCart(product.id, user, location, deviceInfo) :
               addToCart({...product, quantity : 1}, user, location, deviceInfo)
           }}>
-          <ShoppingBag className="cursor-pointer hover:scale-110 transition-transform" size={20}/>
+          <ShoppingBag className="cursor-pointer hover:scale-110 transition-transform" size={16}/>
         </button>
     </aside>
       </div>

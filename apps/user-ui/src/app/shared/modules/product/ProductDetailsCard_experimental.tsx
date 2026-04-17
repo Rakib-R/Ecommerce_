@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Ratings from '../../components/Ratings'
+import Ratings from '../../../utils/Ratings'
 import {
     MapPin, MessageCircle, X, ShoppingCart,
     Heart, Truck, Shield, RotateCcw,CircleArrowRight, CircleArrowLeft 

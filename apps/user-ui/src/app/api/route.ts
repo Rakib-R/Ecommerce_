@@ -7,29 +7,49 @@ export async function GET(request: NextRequest) {
     const parser = new UAParser(userAgent);
     const result = parser.getResult();
     
-    // Format device info nicely
+    let country = 
+      request.headers.get("x-vercel-ip-country") || 
+      request.headers.get("cf-ipcountry") || 
+      "Unknown";
+
+    let city = 
+      request.headers.get("x-vercel-ip-city") || 
+      "Unknown";
+
+       if (!country || country === "Unknown") {
+    try {
+      const response = await fetch("https://ipinfo.io", {
+        headers: { "Authorization": "Bearer 2e25ffaadd8bfe" }
+      });
+      const data = await response.json();
+        country = data.country;
+        city = data.city;
+    } catch (err) {
+      console.error("Local fallback failed:", err);
+    }
+  }
+
+    // 2. Format Device Info
     const deviceType = result.device.type || "Desktop";
     const osName = result.os.name || "Unknown OS";
-    const osVersion = result.os.version ? ` ${result.os.version}` : "";
     const browserName = result.browser.name || "Unknown Browser";
-    const browserVersion = result.browser.version ? ` ${result.browser.version}` : "";
-    
-    const deviceInfo = `${deviceType} - ${osName}${osVersion} - ${browserName}${browserVersion}`;
+    const deviceInfo = `${deviceType} - ${osName} - ${browserName}`;
     
     return NextResponse.json({
       success: true,
       deviceInfo,
+      location: {
+        country,
+        city,
+      },
       details: {
         device: result.device,
         os: result.os,
         browser: result.browser,
-        engine: result.engine
       }
     });
   } catch (error) {
-    console.error("Error parsing user agent:", error);
-    return NextResponse.json(
-      { 
+    return NextResponse.json(    { 
         success: false, 
         error: "Failed to parse user agent",
         deviceInfo: "Desktop - Unknown OS - Unknown Browser"

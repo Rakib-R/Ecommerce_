@@ -26,7 +26,7 @@ const Page = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<Boolean>(false);
   const [selectedDiscount, setSelectedDiscount] = useState<any>();
 
- const { data: discountCodes = [], isLoading } = useQuery({
+ const { data: discountCodes = [], isLoading } = useQuery<DiscountFormValues[]>({
   queryKey: ["shop-discounts"],
   queryFn: async () => {
     const res = await axiosInstance.get("/product/api/get-discount-codes");
@@ -34,12 +34,12 @@ const Page = () => {
   },
 });
 
-  const handleDeleteClick = async(discount: any) => {
+  const handleDeleteClick = async(discount: DiscountFormValues) => {
     setSelectedDiscount(discount);
     setShowDeleteModal(true);
   }
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: DiscountFormValues) => {
   if (discountCodes.length >= 8) {
     toast.error("You can only create up to 8 discount codes.");
     return;
@@ -48,7 +48,7 @@ const Page = () => {
 };  
 
 const {
-  register, handleSubmit, control, reset, watch, formState: { errors }, } = useForm({
+  register, handleSubmit, control, reset, watch, formState: { errors }, } = useForm<DiscountFormValues>({
     defaultValues: {
       public_name: "",
       discountType: "percentage",
@@ -244,8 +244,8 @@ const {
                           />
                           </div>
                         <button type="submit" className="flex items-center justify-center gap-2 w-full mt-4 p-3 bg-blue-600
-                        hover:bg-blue-700 rounded-lg font-semibold"
-                        disabled={createDiscountCodeMutation.isPending}>
+                          hover:bg-blue-700 rounded-lg font-semibold"
+                          disabled={createDiscountCodeMutation.isPending}>
 
                           <Plus size={18}/>
                           {createDiscountCodeMutation?.isPending ? "Creating ... " : "Create"}

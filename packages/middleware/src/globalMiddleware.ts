@@ -1,24 +1,26 @@
 
 import { Request, Response, NextFunction } from "express";
 import { AuthError } from "@packages/error-handler";
-import jwt from "jsonwebtoken";
+
 
 declare global {
   namespace Express {
     interface Request {
-      user?: {
+      role?: 'admin' | 'seller' | 'user';
+      admin?: {
         id: string;
-        role: string;
-        name: string
+        email: string;
       };
-       seller?: {
+      seller?: {
         id: string;
-        name: string;
+        name: string; 
         role: string;
-        shop: {
-          id: string;
-          name:string
-        };
+        shop?: { id: string; name: string; };
+      };
+      user?: {
+         id: string;
+        role: string;
+        name?: string
       };
     }
   }

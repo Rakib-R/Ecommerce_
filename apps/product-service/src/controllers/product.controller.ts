@@ -4,6 +4,29 @@ import prisma from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "packages/libs/imageKit";
 
+declare global {
+  namespace Express {
+    interface Request {
+      role?: 'admin' | 'seller' | 'user';
+      admin?: {
+        id: string;
+        email: string;
+      };
+      seller?: {
+        id: string;
+        name: string; 
+        role: string;
+        shop?: { id: string; name: string; };
+      };
+      user?: {
+         id: string;
+        role: string;
+        name?: string
+      };
+    }
+  }
+}
+
 // GET product categories
 export const getCategories = async (
   req: Request,
@@ -28,10 +51,9 @@ export const getCategories = async (
   }
 };
 
-
 // Create discount codes
 export const createDiscountCodes = async (
-  req: any, 
+  req: Request, 
   res: Response, 
   next: NextFunction
 ) => {
@@ -51,6 +73,12 @@ export const createDiscountCodes = async (
           message: "Discount code already exists!",
         });
       }
+      if (!req.seller) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
 
     const discount_code = await prisma.discount_codes.create({
         data: {
@@ -58,11 +86,15 @@ export const createDiscountCodes = async (
           discountType,
           discountValue: parseFloat(discountValue),
           discountCode,
-          sellerId: req.seller.id,
-        },
+          seller: {
+            connect: {
+              id: req.seller.id,
+            },
+          },
+        } satisfies Prisma.discount_codesCreateInput,
       });
 
-     res.status(201).json({
+    res.status(201).json({
       success: true,
       message: "Discount code created successfully",
       data: discount_code,
@@ -221,8 +253,8 @@ export const deleteProductImage = async (
     const response = await imagekit.deleteFile(fileId);
     res.status(200).json({ success: true, response });
 
-  } catch (error) {
-    console.error('⭕Image deletion failed:', error);
+  } catch (error : any) {
+    console.error('⭕Image deletion failed ⭕', error.message);
     next(error); // sends error to your error middleware, no hanging
   }
 };
@@ -269,12 +301,13 @@ export const createProduct = async (
     sizes,
     discountCodes,
     customProperties,
-    custom_specifications,
+    customSpecifications,
   } = parsed.data;
 
   
   //! AUTH-ERROR AUTH-ERROR AUTH-ERROR
-  const seller = (req as any).seller || (req as any).admin;
+  const role = req.role
+  const seller = (req).seller || (req as any).admin;
 
   if (!seller || !seller.id) {
       return next (new AuthError('Only seller and admin can create product!'))
@@ -336,15 +369,20 @@ export const createProduct = async (
         subCategory:         clean.subCategory,
         brand:               clean.brand,
         slug:                clean.slug,
-        shopId:              seller?.shop.id!,
         starting_date :      seller.starting_date,
         sizes:               clean.sizes,
         stock:               parsed.data.stock,              // already a number from Zod, no parseInt needed
         salePrice:           parsed.data.salePrice ?? 0,    // already a number from Zod, no parseFloat needed
-        regularPrice:        parsed.data.regularPrice,       // already a number from Zod
+        regularPrice:        parsed.data.regularPrice,       
         colors:              clean.colors,
+         seller: {
+                connect: { id: req?.seller?.id }  // ✅ Connect existing seller
+        },
+          Shop: {
+                connect: { id: req?.seller?.shop?.id }  // ✅ Connect existing seller
+        },
         custom_property:     parsed.data.customProperties ?? {},
-        custom_specification:parsed.data.custom_specifications ?? {},
+        custom_specification:parsed.data.customSpecifications ?? {},
         images: {
           create: parsed.data.images
             .filter((img) => img.fileId && img.file_url)
@@ -388,7 +426,7 @@ export const createProduct = async (
 export const getShopProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
 
-    const role = (req as any)?.role;
+    const role = req.role;
     const sellerId = role === "admin" ? (req as any)?.admin?.id  
       : (req as any)?.seller?.id;     
 
@@ -415,27 +453,7 @@ export const getShopProducts = async (req: Request, res: Response, next: NextFun
   }
 };
 
-// Extend Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        name: string;
-        role: string;
-      };
-      seller?: {
-        id: string;
-        name: string;
-        role: string;
-        shop: {
-          id: string;
-          name:string
-        };
-      };
-    }
-  }
-}
+
 
 export const deleteProduct = async (
   req: Request,
@@ -444,7 +462,7 @@ export const deleteProduct = async (
 ) => {
   try {
     const { productId } = req.params; // Make sure the route has /:productId
-    const sellerId = (req).seller?.shop?.id;
+    const sellerId = req.seller?.shop?.id;
 
     if (!sellerId) {
       return res.status(403).json({ message: "Unauthorized: No seller found." });
@@ -577,22 +595,27 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     { $sort: sortStage },
       { $skip: skip },
       { $limit: limit },
+    [
       {
-        $lookup: {
+        $lookup: {  // Stage 1
           from: "images",
           localField: "_id",
           foreignField: "productId",
           as: "images"
         }
       },
-      {
-        $lookup: {
+      {// {  NOT REALLY NEEDED DURING ALL PRRODUCT FETCHING
+        //      BUt DOINT IT ANYWAY
+      // },
+        $lookup: {  // Stage 2 - different object
           from: "shops",
           localField: "shopId",
           foreignField: "_id",
           as: "Shop"
         }
-      },
+      }
+    ],
+      
       {
         $unwind: {
           path: "$Shop",
@@ -606,6 +629,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
       }
     }
     ];
+
 
   const top10Pipeline = [
     { $match: rawFilter },
@@ -641,7 +665,6 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
   ];
 
   const total_Product = productsPipeline.length;
-  
   
   const [getAllProduct, totalResult, top10Product] = await Promise.allSettled([
     prisma.product.aggregateRaw({ pipeline: productsPipeline }),
@@ -701,7 +724,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 
 //todo ------- WINSTON LOGGER
 import winston from 'winston';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 const db = new PrismaClient();
 const checkPrices = async () => {
   const allProducts = await db.product.findMany({
@@ -986,10 +1009,10 @@ export const getFilteredShops = async (
         skip,
         take: parsedLimit,
         include: {
-          sellers: true,
+          seller: true,
           products: true,
           followers: true,
-          avatar: true,
+          coverShop: true,
         },
       }),
       prisma.shops.count({ where: filters }),
@@ -1094,12 +1117,9 @@ export const getFilteredShops = async (
       select: {
         id: true,
         name: true,
-        avatar: true,
-        address: true,
         coverBanner: true,
         ratings: true,
         followers: true,
-        category: true,
       },
     });
 
@@ -1121,6 +1141,48 @@ export const getFilteredShops = async (
     
   } catch (error) {
     console.error("Error fetching top shops:", error);
+    return next(error);
+  }
+};
+
+
+export const getEffectivePrice = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId } = req.params;
+    
+    // One simple query
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        id: true,
+        regularPrice: true,
+        salePrice: true,
+      }
+    });
+    
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    
+    // Calculate effective price
+    const effectivePrice = product.salePrice && 
+                          product.salePrice > 0 && 
+                          product.salePrice < product.regularPrice
+                          ? product.salePrice 
+                          : product.regularPrice;
+    
+    res.json({
+      productId: product.id,
+      effectivePrice: effectivePrice,
+      originalPrice: product.regularPrice,
+      onSale: effectivePrice !== product.regularPrice
+    });
+    
+  } catch (error) {
     return next(error);
   }
 };

@@ -1,7 +1,7 @@
 
 import express, { Router } from "express";
-import { createShop, createStripeConnectLink, getSeller, 
-    getUser, loginSeller, loginUser, logout, refreshToken, 
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, getSeller, 
+    getUser, getUserAddresses, loginSeller, loginUser, logout, refreshToken, 
     registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, 
     stripeWebhook, userForgotPassword, userRegistration, 
     verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
@@ -38,6 +38,10 @@ router.post("/verify-forgot-password-seller", verifySellerForgotPassword);
 
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
+
+router.get("/shipping-addresses", isAuthenticated, getUserAddresses);
+router.post("/add-addresses", isAuthenticated, addUserAddress);
+router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
 
 router.post('/track-user-kafka', track_router_kafka);
 router.post('/kafka_batch' , kafka_batch)

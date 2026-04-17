@@ -42,7 +42,6 @@ export const isAuthenticated = async (
     if (decoded.role === "user") {
       account = await prisma.users.findUnique({
         where: { id: decoded.id },
-        
         include: {
           avatar: true,    // Include avatar images
           order: true,
