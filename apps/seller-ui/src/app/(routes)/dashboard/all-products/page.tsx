@@ -18,7 +18,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import DeleteConfirmationModal from '../../../shared/components/modals/delete.confirmation.modal';
 
-type CreateProductPayload = {
+type ShowProductSchema = {
   id: string;
   title: string;
   description: string;
@@ -63,7 +63,7 @@ const ProductList = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [selectedProduct, setSelectedProduct] = useState<CreateProductPayload | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ShowProductSchema | null>(null);
   const [deletedProductIds, setDeletedProductIds] = useState<Set<string>>(new Set());
 
   const { data: products = [], isLoading, error } = useQuery({
@@ -107,7 +107,7 @@ const ProductList = () => {
     },
   });
 
-  const openDeleteModal = useCallback((product: CreateProductPayload) => {
+  const openDeleteModal = useCallback((product: ShowProductSchema) => {
     setSelectedProduct(product);
     setShowDeleteModal(true);
   }, []);

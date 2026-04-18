@@ -138,7 +138,8 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="support@becodemy.com"
+                placeholder="support@rakib.com"
+                autoComplete="email"
                 className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
                   errors.email ? 'border-red-500 ring-1 ring-red-100 bg-red-50' : 'border-gray-300 focus:border-black focus:ring-2 focus:ring-gray-100'
                 }`}
@@ -148,7 +149,13 @@ const Login = () => {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                     message: "Invalid email address",
                   },
+                  onChange: (e) => e.target.value,
                 })}
+                 onInput={(e) =>                     // ← catches autofill injection
+                  setValue("email", (e.target as HTMLInputElement).value, { 
+                    shouldValidate: false 
+                  })
+                }
               />
               <FieldError message={errors.email?.message} />
             </div>
@@ -166,6 +173,11 @@ const Login = () => {
                   {...register("password", {
                     required: "Password is required",
                   })}
+                   onInput={(e) =>
+                  setValue("password", (e.target as HTMLInputElement).value, {
+                    shouldValidate: false
+                  })
+                }
                 />
                 <button
                   type="button"

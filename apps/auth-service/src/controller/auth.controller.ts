@@ -8,6 +8,28 @@ import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken"
 import { setCookie } from "../utils/cookies/setCookie";
 import Stripe from 'stripe';
 
+declare global {
+  namespace Express {
+    interface Request {
+      role: 'admin' | 'seller' | 'user';
+      admin?: {
+        id: string;
+        email: string;
+      };
+      seller?: {
+        id: string;
+        name: string; 
+        role: string;
+        shop?: { id: string; name: string; };
+      };
+      user?: {
+         id: string;
+        role: string;
+        name?: string
+      };
+    }
+  }
+}
 
 export const userRegistration = async (
   req: Request,
@@ -100,13 +122,12 @@ export const loginUser = async (
 
     //!!!  ---------  HAVE TO GET RID OF PREVIOUS TOKENS ------- MIGHT BE SELLER OR USER @@ -------------
 
-    // res.clearCookie("seller-access-token");
-    // res.clearCookie("seller-refresh-token");
+    res.clearCookie("seller-access-token");
+    res.clearCookie("seller-refresh-token");
       
   if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
     return next(new AuthError("Internal Server Error: Missing Token Secrets (for user)"));
 }
-
     const accessToken = jwt.sign(
     { id: user.id, role: "user" },
     process.env.JWT_ACCESS_SECRET as string,
@@ -196,20 +217,19 @@ export const loginUser = async (
 // Refresh Token - User
 
 
-export const refreshToken = async (
+
+export const refreshToken_User = async (
   
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const refreshToken =  
       req.cookies["refresh_token"] || 
-      req.cookies["seller-refresh-token"] ||
-      req.cookies["admin-refresh-token"] ||
       req.headers.authorization?.split(" ")[1];
 
-    console.log('REFRESH TOKEN FOUND:', refreshToken ? 'YES' : 'NO');
+    console.log('REFRESH_TOKEN FOUND ( USER) :', refreshToken ? 'YES' : 'NO');
     // console.log('COOKIE HEADER:', req.headers.cookie); 
 
     if (!refreshToken) {
@@ -217,31 +237,33 @@ export const refreshToken = async (
     }
     
     // ✅ Decode without verifying first — to check expiry gracefully
-    let decoded: { id: string; role: string };
-    
-    try {
+    interface JwtPayload {
+      id: string;
+      role: 'user';
+  }
+
+  let decoded:JwtPayload
+  try {
       decoded = jwt.verify(
         refreshToken,
-        process.env.JWT_REFRESH_SECRET as string
-      ) as { id: string; role: string };
+        process.env.JWT_REFRESH_SECRET!
+      ) as JwtPayload;
 
     } catch (err) {
       if (err instanceof TokenExpiredError) {
 
         //  Refresh token expired → clear cookies → force re-login
         res.clearCookie("refresh_token");
-        res.clearCookie("seller-refresh-token");
         res.clearCookie("access_token");
-        res.clearCookie("seller-access-token");
         return res.status(401).json({ 
           success: false, 
-          message: "Session expired. Please log in again." 
+          message: "Session expired For User. Please log in again." 
         });
       }
      
       return res.status(401).json({ 
         success: false, 
-        message: "Invalid refresh token." 
+        message: "Invalid refresh token (User)." 
       });
     }
 
@@ -250,20 +272,18 @@ export const refreshToken = async (
   }
 
     let account;
+    req.user = account;
+
     if (decoded.role === "user") {
       account = await prisma.users.findUnique({ where: { id: decoded.id },  });
   } 
-    else if(decoded.role === 'seller'){
-      account = await prisma.sellers.findUnique({  where: { id: decoded.id },
-      include: {shop: true}
-  });
-}
-  else if(decoded.role === 'admin'){
-      account =
-        (await prisma.users.findUnique({ where: { id: decoded.id } })) ||
-        (await prisma.sellers.findUnique({ where: { id: decoded.id } }));
-    }
     
+    if (decoded.role !== "user") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: Invalid role for user endpoint",
+      });
+    }
     if (!account) return next(new AuthError("Account not found!"));
 
     const newAccessToken = jwt.sign(
@@ -274,17 +294,111 @@ export const refreshToken = async (
     
     if (decoded.role === "user") {
       setCookie(res, "access_token", newAccessToken);
-    } else if (decoded.role === "seller") {
-      setCookie(res, "seller-access-token", newAccessToken);
-    }
-      
-    req.role = decoded.role;
+    } 
 
-    return res.status(201).json({ success: true }); 
+    req.role = decoded.role ;
+    return res.status(200).json({
+      success: true,
+      role : req.role
+
+    });
+
     } catch (error) { 
      return next(error); 
     }
 };
+
+
+export const refreshToken_Seller = async (
+  
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const refreshToken =  
+      req.cookies["seller-refresh-token"] ||
+      req.headers.authorization?.split(" ")[1];
+
+    console.log('REFRESH_TOKEN FOUND 4 SELLER:', refreshToken ? 'YES' : 'NO');
+    // console.log('COOKIE HEADER:', req.headers.cookie); 
+
+    if (!refreshToken) {
+      throw new ValidationError("Unauthorized! No refresh token (Seller).");
+    }
+    
+    //  Decode without verifying first — to check expiry gracefully
+    interface JwtPayload {
+      id: string;
+      role: 'seller' | 'admin';
+  }
+
+    let decoded:JwtPayload
+    try {
+        decoded = jwt.verify(
+          refreshToken, process.env.JWT_REFRESH_SECRET!
+        ) as JwtPayload;
+      
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+
+        //  Refresh token expired → clear cookies → force re-login
+        res.clearCookie("seller-refresh-token");
+        res.clearCookie("seller-access-token");
+        return res.status(401).json({ 
+          success: false, 
+          message: "Session expired (Seller). Please log in again." 
+        });
+      }
+     
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid refresh token (Seller )." 
+      });
+    }
+
+    if (!decoded || !decoded.id || !decoded.role) {
+    return next(new JsonWebTokenError("Forbidden! Invalid refresh token."));
+  }
+
+    let account;
+    req.seller = account;
+
+    if (decoded.role === "seller") {
+      account = await prisma.sellers.findUnique({ where: { id: decoded.id },  });
+  } 
+    
+    if (decoded.role !== "seller") {
+    return res.status(403).json({
+      success: false,
+      message: "Forbidden: Invalid role for user endpoint",
+    });
+  }
+    if (!account) return next(new AuthError("Account not found! (Seller)"));
+
+    const newAccessToken = jwt.sign(
+      { id: decoded.id, role: decoded.role }, 
+      process.env.JWT_ACCESS_SECRET as string, 
+      { expiresIn: "15m" }
+    );
+    
+    if (decoded.role === "seller") {
+      setCookie(res, "seller-access-token", newAccessToken);
+    } 
+
+    req.role = decoded.role ;
+     return res.status(200).json({
+      success: true,
+      role : req.role
+    });
+
+
+    } catch (error) { 
+     return next(error); 
+    }
+};
+
+
 
  export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -356,6 +470,7 @@ export const refreshToken = async (
   };
 
   import { addressType } from "@prisma/client";
+import { error } from "console";
   export const addUserAddress = async (
     req: Request,
     res: Response,
@@ -422,7 +537,7 @@ export const deleteUserAddress = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = req?.user?.id;
     const { addressId } = req.params;
 
     if (!addressId) {
@@ -463,7 +578,7 @@ export const getUserAddresses = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = req?.user?.id;
 
     const addresses = await prisma.address.findMany({
       where: { userId },

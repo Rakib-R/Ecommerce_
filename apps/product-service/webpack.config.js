@@ -3,10 +3,10 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join, resolve } = require('path');
 
 module.exports = {
+
   output: {
     path: join(__dirname, '../../dist/apps/product-service'),
   },
-
   resolve: {
     alias: {
       "@packages": resolve(__dirname, "../../packages"),

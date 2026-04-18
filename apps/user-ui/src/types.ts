@@ -48,3 +48,32 @@ export interface AuthResponse {
   user: UserType;
   token: string;
 }
+
+export interface ProductPayload {
+    _id : string;
+    title: string;
+    slug: string;
+    short_description: string;
+    detailed_description: string;
+
+    category: string;
+    subCategory: string;
+    brand?: string;
+
+    regularPrice: number;
+    salePrice?: number;
+    stock: number;
+    images: {
+      fileId: string;
+      file_url: string;
+    }[];
+
+    videoUrl?: string;
+    tags: string[] | string;
+    colors?: string[];
+    sizes?: string[];
+    starting_date?: string | Date;
+    discountCodes?: string[];
+    customProperties: Record<string, string  | boolean | undefined>;
+    customSpecifications: Record<string, string  | boolean | undefined>;
+}

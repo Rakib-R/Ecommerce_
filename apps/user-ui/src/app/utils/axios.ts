@@ -6,6 +6,8 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+
+
 let isRefreshing = false;
 let refreshSubscribers: Array<(success: boolean) => void> = [];
 
@@ -33,7 +35,7 @@ axiosInstance.interceptors.response.use(
       return Promise.resolve({ 
         data: { user: null },
         status: 200,
-        statusText: 'OK'
+        statusText: 'FORCEFULL RESOLVING'
       });
     }
 
@@ -60,11 +62,11 @@ axiosInstance.interceptors.response.use(
     }
     
     // Don't retry the refresh endpoint itself — would cause infinite loop
-    if (originalRequest.url?.includes('/api/refresh-token')) {
+    if (originalRequest.url?.includes('/api/refreshToken_User')) {
 
       const { useAuthState } = await import("../store/authStore");
       const { queryClient } = await import("@apps/utils/queryClient");
-        useAuthState.getState().logout();
+        useAuthState.getState().handleLogout();
         queryClient.setQueryData(['user'], null);
         return Promise.reject(error);
     }
@@ -83,7 +85,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
     try {
-      await axiosInstance.post("/api/refresh-token")
+      await axiosInstance.post("/api/refreshToken_User")
 
       isRefreshing = false;
       onRefreshSuccess();

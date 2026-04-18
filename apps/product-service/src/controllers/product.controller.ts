@@ -47,7 +47,6 @@ export const getCategories = async (
   } catch (error) {
     console.error('getCategories error:', error);
     return res.status(500).json({ error: 'Internal server & getCategories error' }); 
-  
   }
 };
 
@@ -447,7 +446,7 @@ export const getShopProducts = async (req: Request, res: Response, next: NextFun
       include: { images: true },
     });
 
-    res.status(200).json({ success: true, products });
+    return res.status(200).json({ success: true, products });
   } catch (error) {
     next(error);
   }
@@ -725,6 +724,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 //todo ------- WINSTON LOGGER
 import winston from 'winston';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { number } from "zod";
 const db = new PrismaClient();
 const checkPrices = async () => {
   const allProducts = await db.product.findMany({
@@ -852,7 +852,7 @@ const minMax = await db.product.aggregate({
 
 
     const totalPages = Math.ceil(total / parsedLimit);
-    res.json({
+    return res.json({
       products,
       pagination: {
       total,
@@ -918,7 +918,7 @@ export const getFilteredOffer = async (
         : [];
 
         if (colorArray.length > 0) {
-        filters.category = { in: colorArray };
+        filters.color = { in: colorArray };
       }
     }
 
@@ -929,10 +929,10 @@ export const getFilteredOffer = async (
         : [];
 
         if (sizeArray.length > 0) {
-        filters.category = { in: sizeArray };
+        filters.size = { in: sizeArray };
       }
     }
-    const [products, total] = await Promise.all([
+    const results = await Promise.allSettled([
       prisma.product.findMany({
         where: filters,
         skip,
@@ -944,6 +944,9 @@ export const getFilteredOffer = async (
       }),
       prisma.product.count({ where: filters }),
     ]);
+
+    const products = results[0].status == 'fulfilled' ? results[0].value : [];
+    const total = results[1].status == 'fulfilled' ? results[1].value : 0;
 
     const totalPages = Math.ceil(total / parsedLimit);
     res.json({
@@ -1000,7 +1003,7 @@ export const getFilteredShops = async (
       : []
 
       if (countryArray.length > 0) {
-        filters.category = { in: countryArray };
+        filters.country  = { in: countryArray };
       }
    }
     const [shops, total] = await Promise.all([
@@ -1019,7 +1022,7 @@ export const getFilteredShops = async (
     ]);
 
     const totalPages = Math.ceil(total / parsedLimit);
-    res.json({
+    return res.json({
       shops,
       pagination: {
       total,

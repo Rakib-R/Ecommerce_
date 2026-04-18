@@ -5,7 +5,6 @@
     "module": "commonjs",
      "moduleResolution": "node",
     "types": ["jest", "node"],
-    "ignoreDeprecations": "5.0"
   },
   "include": ["jest.config.ts", "src/**/*.ts"]
 }

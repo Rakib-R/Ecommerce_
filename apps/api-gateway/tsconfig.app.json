@@ -1,8 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "../../",  
-    "outDir": "../../dist/out-tsc",
     "module": "CommonJS",
     "types": ["node", "express"]
   },

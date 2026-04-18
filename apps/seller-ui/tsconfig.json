@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+
+    "ignoreDeprecations": "6.0",
     "jsx": "preserve",
     "strict": true,
     "noEmit": true,
@@ -29,8 +31,6 @@
       "@utils": ["src/utils/*"]
     },
 
-    "outDir": "dist",
-    "rootDir": "../../",
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
@@ -47,7 +47,8 @@
     ".next/types/**/*.ts",
      "next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"
 , "../../packages/libs/imageKit/index.ts", "tailwind.config.js", "postcss.config.js", "../../packages/middleware/src/globalMiddleware.ts"  ],
-  "exclude": [
+  
+"exclude": [
     "node_modules",
     "jest.config.ts",
     "**/*.spec.ts",

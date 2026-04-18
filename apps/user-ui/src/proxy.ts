@@ -18,9 +18,15 @@ async function isValidToken(token: string): Promise<boolean> {
   }
 }
 
+console.log('USER PROXY MIDDLWEAWER')
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("access_token")?.value;
+
+
+console.log('🔒USER PROXY MIDDLWEAWER🔒')
+console.log('🔒USER PROXY MIDDLWEAWER🔒')
 
   console.log('🔵 Token exists:', !!token);
 

@@ -9,6 +9,12 @@ import { categories } from 'src/app/configs/categories'
 import ShopCard from 'src/app/shared/components/cards/shop-card'
 import {countries} from '../../configs/countries'
 
+interface countryProps {
+  name : string;
+  code : string;
+  currency : string;
+}
+
 const Page = () => {
   const router = useRouter();
 
@@ -30,12 +36,11 @@ const Page = () => {
     
   }, [])
 
-const buildQuery = (
-  categories: string[],
-  countries: string,
-  page: number
-  
-) => {
+  const buildQuery = (
+    categories: string[],
+    countries: string,
+    page: number) => {
+
     const params = new URLSearchParams();
     if (categories.length > 0) params.set("categories", categories.join(","));
     if (countries && countries.length > 0) params.set("countries", countries);
@@ -124,16 +129,16 @@ useEffect(() => {
                   </h3>
                   
                   <ul className="space-y-2 !mt-3">
-                    {countries?.map((country: string) => (
-                      <li key={country} className="flex items-center justify-between">
+                    {countries?.map((country: countryProps) => (
+                      <li key={country.code} className="flex items-center justify-between">
                         <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={selectedCountries?.includes(country)}
-                            onChange={() => toggleCountry(country)}
+                            checked={selectedCountries?.includes(country.name)}
+                            onChange={() => toggleCountry(country.name)}
                             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          <span>{country}</span>
+                          <span>{country.name}</span>
                         </label>
                         
                         {/* Optional: Show count */}

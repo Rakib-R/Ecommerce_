@@ -1,13 +1,15 @@
 
 import express, { Router } from "express";
 import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, getSeller, 
-    getUser, getUserAddresses, loginSeller, loginUser, logout, refreshToken, 
+    getUser, getUserAddresses, loginSeller, loginUser, logout, 
+    refreshToken_Seller, 
+    refreshToken_User, 
     registerSeller, resetSellerPassword, resetUserPassword, sellerForgotPassword, 
     stripeWebhook, userForgotPassword, userRegistration, 
     verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 
 import { isBuyer, isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
-import { isAuthenticated } from "@packages/middleware"
+import { isAuthenticated } from "../../../../packages/middleware/src/index"
 import track_router_kafka, { kafka_batch } from "../controller/track-router-kafka";
 
 const router: Router = express.Router();
@@ -18,7 +20,9 @@ router.post("/login-user",loginUser);
 
 // router.post("/admin", admin);
 
-router.post("/refresh-token", refreshToken);
+router.post("/refresh-token-seller", refreshToken_Seller);
+router.post("/refresh-token-user", refreshToken_User);
+
 router.get("/logged-in-user", isAuthenticated, isBuyer, getUser);
 
 router.post("/forgot-password-buyer", userForgotPassword);

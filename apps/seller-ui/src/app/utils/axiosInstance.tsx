@@ -1,5 +1,4 @@
 
-
 //!!!!!!  THIS IS ONE FROM   !!!!!!!!!!!!!!
 
 import axios from "axios";
@@ -57,7 +56,7 @@ axiosInstance.interceptors.response.use(
     }
 
     // Don't retry the refresh endpoint itself — would cause infinite loop
-    if (originalRequest.url?.includes('/api/refresh-token')) {
+    if (originalRequest.url?.includes('/api/refreshToken_Seller')) {
       useAuthState.getState().logout();
       queryClient.setQueryData(['seller'], null);
       return Promise.reject(error);
@@ -76,7 +75,7 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axiosInstance.post(`/api/refresh-token`);
+        await axiosInstance.post(`/api/refreshToken_Seller`);
         isRefreshing = false;
         onRefreshSuccess();
 

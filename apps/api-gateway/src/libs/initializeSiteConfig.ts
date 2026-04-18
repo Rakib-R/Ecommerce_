@@ -23,7 +23,7 @@ export const initializeSiteConfig = async() => {
                 "Fashion": ["Men's Clothing", "Women's Clothing", "Footwear", "Luxurious"],
                 "Home & Kitchen": ["Furniture", "Cookware", "Decor", "Appliances"],
                 "Sports & Fitness": ["Gym Equipment", "Outdoor Sports", "Yoga", "Footwear"],
-                "Foods" : ["Drinks", "Fruits", "Snack","Vegetables"],
+                "Foods & Beverages" : ["Drinks", "Fruits", "Snack","Vegetables"],
                 "Clothes": ['Shirts', 'Jeans', 'Sweaters', 'Jackets',]
             }
         }

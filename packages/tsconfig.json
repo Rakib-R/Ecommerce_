@@ -3,11 +3,11 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     
+    "ignoreDeprecations": "6.0",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "../../dist/packages/error-handler",
-    "rootDir": ".", 
     "types": ["node"]
   },
   "include": ["**/*.ts",  "**/*.tsx",],

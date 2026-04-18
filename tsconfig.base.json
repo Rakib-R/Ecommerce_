@@ -1,13 +1,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": ".",
+
     "allowUnreachableCode": false,
 
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "ignoreDeprecations": "5.0",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -27,8 +27,12 @@
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/routes": ["apps/auth-service/src/routes/auth.router.ts"],
 
-      "apps/utils/*": ["apps/utils/*"],
-      "apps/user-ui/src/app/*": ["apps/user-ui/src/app/*"]
+      "@apps/utils/*": ["apps/utils/*"],
+      "@apps/user-ui/src/app/*": ["apps/user-ui/src/app/*"],
+
+      "@apps/*": ["/apps/*"],
+      "@user-ui/*":["apps/user-ui/src/*"],  
+      "@seller-ui/*":["apps/seller-ui/src/*"],  
     },
     
   },

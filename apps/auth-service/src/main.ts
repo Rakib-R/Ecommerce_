@@ -41,7 +41,8 @@ app.use(
 );
 
 // ─── General Middleware ──────────────────────────────────────────────────────
-app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: '10mb' })); 
 app.use(cookieParser());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 

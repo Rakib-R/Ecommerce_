@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 
 const defaultColors = [
-  
   "White",
   "Red",
   "Green",
@@ -14,8 +13,8 @@ const defaultColors = [
   "Cyan",
 ];
 
-
 export const ColorSelector = ({ control, errors }: any) => {
+
   const [customColors, setCustomColors] = useState<string[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(true);
   const [newColor, setNewColor] = useState("#ffffff");
@@ -36,12 +35,12 @@ export const ColorSelector = ({ control, errors }: any) => {
                     key={color}
                     type="button"
                     onClick={() => {
-                    const current = field.value || [];
+                      const current = field.value || [];
 
-                    if (current.includes(color)) {
-                        field.onChange(current.filter((c: string) => c !== color));
-                    } else {
-                        field.onChange([...current, color]);
+                      if (current.includes(color)) {
+                          field.onChange(current.filter((c: string) => c !== color));
+                      } else {
+                          field.onChange([...current, color]);
                     }}}
                   className={`flex items-center justify-center w-7 h-7 p-2 my-1 rounded-lg border-2 border-white transition ${ isSelected ?
                     "scale-110 border-white" : "border-transparent" } ${isLightColor ? "border-gray-600" : ""}`}

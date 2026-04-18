@@ -41,16 +41,16 @@ export const CustomProperties = ({ control, errors }: any) => {
           setNewValue("");
         };
 
-          const handleRemoveValue = (propIndex: number, valIndex: number) => {
-            const updated = [...properties];
-            updated[propIndex].values = updated[propIndex].values.filter((_, i) => i !== valIndex);
-            syncForm(updated);
-          };
+        const handleRemoveValue = (propIndex: number, valIndex: number) => {
+          const updated = [...properties];
+          updated[propIndex].values = updated[propIndex].values.filter((_, i) => i !== valIndex);
+          syncForm(updated);
+        };
 
-          const handleRemoveProperty = (index: number) => {
-            const updated = properties.filter((_, i) => i !== index);
-            syncForm(updated);
-          };
+        const handleRemoveProperty = (index: number) => {
+          const updated = properties.filter((_, i) => i !== index);
+          syncForm(updated);
+        };
 
           return (
             <div className="flex flex-col w-full">
@@ -126,8 +126,8 @@ export const CustomProperties = ({ control, errors }: any) => {
                   type="button"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md flex items-center gap-2 h-[42px] transition-all"
                   onClick={handleAddProperty}>
-                  <ListPlus size={18} />
                   <span>Add</span>
+                  <ListPlus size={18} />
                 </button>
               </section>
 

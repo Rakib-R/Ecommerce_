@@ -4,12 +4,7 @@
     "jsx": "preserve",
     "strict": true,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@packages/*": ["../../../packages/*"],
-      "@apps/*": ["../../apps/*"],
-      "@user-ui/*":["../user-ui/src/app/*"],  
-    },
+    "ignoreDeprecations": "6.0",
     "emitDeclarationOnly": false,
     "esModuleInterop": true,
     "module": "esnext",

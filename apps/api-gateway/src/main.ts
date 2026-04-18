@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { initializeSiteConfig } from './libs/initializeSiteConfig.js';
-import { globalMiddleware } from '@packages/middleware';
 
 const app = express();
 
@@ -83,7 +82,7 @@ app.get('/gateway-health', (req, res) => {
 });
 
 // ─── Auth Service Proxy → http://localhost:6001 ─────────────────────────────
-app.use(globalMiddleware);
+// app.use(globalMiddleware);
 
 app.use(
   '/api', proxy('http://localhost:6001', {

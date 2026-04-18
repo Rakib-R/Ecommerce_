@@ -61,6 +61,7 @@ const Page = () => {
   }, [])
 
 const buildQuery = (
+  
   priceRange: number[],
   categories: string[],
   colors: string[],
