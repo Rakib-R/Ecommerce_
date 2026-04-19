@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "module": "ESNext",
+    "module": "commonjs",
     "target": "ES2019"
   },
   "include": ["src/**/*.ts"]

@@ -2,9 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": ".",
-
     "allowUnreachableCode": false,
-
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
@@ -13,28 +11,17 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
     "lib": ["es2020"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "types": ["node"],
- 
     "paths": {
-      "@packages/error-handler": ["packages/error-handler/src/index.ts"],
-      "@packages/middleware": ["packages/middleware/src/index.ts"],
-      "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
-      "@packages/redis": ["packages/libs/redis/src/index.ts"],
-      "@packages/routes": ["apps/auth-service/src/routes/auth.router.ts"],
-
-      "@apps/utils/*": ["apps/utils/*"],
-      "@apps/user-ui/src/app/*": ["apps/user-ui/src/app/*"],
-
       "@apps/*": ["/apps/*"],
-      "@user-ui/*":["apps/user-ui/src/*"],  
-      "@seller-ui/*":["apps/seller-ui/src/*"],  
-    },
-    
+      "@apps/utils/*": ["apps/utils/*"],
+      "@seller-ui/*": ["apps/seller-ui/src/*"],
+      "@user-ui/*": ["apps/user-ui/src/*"],
+      "packages": ["packages/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -4,11 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "types": ["node", "express"],
-    "rootDir": "../../",
-    "paths": {
-      "@packages/*": ["../../packages/*"]
-    },
-
+    
   },
   "include": ["src/**/*.ts" , "../../packages/**/*.ts"]
 }

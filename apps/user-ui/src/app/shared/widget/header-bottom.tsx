@@ -6,12 +6,12 @@ import React, { useState, useEffect } from 'react';
 import { navItems } from '../../configs/constants';
 import Image from 'next/image';
 import Cart from "../../../../assests/svgs/cart.png"
-import useUser from "@apps/user-ui/src/app/hooks/useUser"
+import useUser from "@user-ui/app/hooks/useUser"
 import { useAuthState, useStore } from '../../store/authStore';
 import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
 import { queryClient } from '@apps/utils/queryClient';
 import { useRouter } from 'next/navigation';
-import axiosInstance from 'src/app/utils/axios';
+import axiosInstance from '@user-ui/app/utils/axios';
 
 interface HeaderBottomProps {
   topHeaderHeight?: number;

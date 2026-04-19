@@ -1,15 +1,13 @@
-
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    
-    "ignoreDeprecations": "6.0",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "outDir": "../../dist/packages/error-handler",
-    "types": ["node"]
+    "module": "commonjs"
   },
-  "include": ["**/*.ts",  "**/*.tsx",],
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
 }

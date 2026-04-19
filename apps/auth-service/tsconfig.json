@@ -3,8 +3,8 @@
  "compilerOptions": {
     "esModuleInterop": true,
 
-    "module": "ESNext",
-    "moduleResolution": "bundler"
+    "module": "commonjs",
+    "moduleResolution": "node"
   },
   "files": [],
   "include": [],
