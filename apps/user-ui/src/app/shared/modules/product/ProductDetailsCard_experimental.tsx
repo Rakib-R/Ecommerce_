@@ -17,9 +17,10 @@ import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
 import type { Store, Product } from '@user-ui/app/store/authStore'
 import ProductCard from '../../components/cards/product-card'
 import axiosInstance from '@user-ui/app/utils/axios'
+import { ProductPayload, imageType } from '@apps/user-ui/src/types'
 
 const ProductDetailsCard = ({
-    data,}: { data: any}) => {
+    data,}: { data: ProductPayload}) => {
 
     const [isZoomed, setIsZoomed]             = useState(false)
     const [mousePos, setMousePos]             = useState({ x: 50, y: 50 })
@@ -59,7 +60,7 @@ const ProductDetailsCard = ({
     const nextImage = () => {
     if (currentIndex < data?.images?.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        setCurrentImage(data?.images[currentIndex + 1]);
+        setCurrentImage(data?.imageType[currentIndex + 1]);
     }
     };
     const toggleWishlist = () => {
@@ -95,10 +96,12 @@ const ProductDetailsCard = ({
         query.set("limit", "5");
         
         const res = await axiosInstance.get(`/product/api/get-filtered-products?${query.toString()}`);
+        const res_except_self = res.data.products.filter( (f : ) => f.id!= data.id)
         setRecommendedProducts(res.data.products);
-    } catch (error) {
+    
+        } catch (error) {
         console.error("Failed to fetch filtered products", error);
-    }
+        }
     };
 
     useEffect(() => {
@@ -194,7 +197,7 @@ const ProductDetailsCard = ({
                                 {/* Vertical thumbnails */}
                                 {data?.images?.length > 1 && (
                                     <div className="flex flex-col gap-2 flex-shrink-0">
-                                        {data.images.map((img: any, index: number) => (
+                                        {data.images.map((img: imageType, index: number) => (
                                             <button
                                                 key={index}
                                                    onClick={() => {
@@ -206,7 +209,7 @@ const ProductDetailsCard = ({
                                                     ? 'border-emerald-500 scale-105 shadow-sm'
                                                     : 'border-gray-200 hover:border-emerald-300'}`}>
                                                 <Image
-                                                    src={img?.url || '/placeholder.webp'}
+                                                    src={img?.file_url  || '/placeholder.webp'}
                                                     alt={`thumb-${index}`}
                                                     fill
                                                     className="object-cover"
@@ -276,25 +279,25 @@ const ProductDetailsCard = ({
                                 <div className="flex items-center gap-2.5 min-w-0">
                                     <div className="relative w-9 h-9 flex-shrink-0 rounded-full overflow-hidden border-2 border-emerald-200">
                                         <Image
-                                            src={data?.Shop?.avatar || '/default-shop.jpg'}
+                                            src={data?.images?.[0]?.url || '/default-shop.jpg'}
                                             alt="Shop" fill className="object-cover" sizes="36px"
                                             onError={(e) => { e.currentTarget.src = '/default-shop.jpg' }}
                                         />
                                     </div>
                                     <div className="min-w-0">
                                         <Link
-                                            href={`/shop/${data?.Shop?.id}`}
+                                            href={`/shop/${data?.shop?.id}`}
                                             className="text-[13px] font-semibold text-gray-800
                                                         hover:text-emerald-700 transition block truncate">
-                                            {data?.Shop?.name || 'Shop Name'}
+                                            {data?.shop?.name || 'Shop Name'}
                                         </Link>
                                         <div className="mt-0.5">
-                                            <Ratings rating={data?.Shop?.ratings || 0} />
+                                            <Ratings rating={data?.shop?.rating || 0} />
                                         </div>
                                         <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
                                             <MapPin size={10} />
                                             <span className="truncate">
-                                                {data?.Shop?.address || 'Location unavailable'}
+                                                {data?.shop?.address || 'Location unavailable'}
                                             </span>
                                         </div>
                                     </div>
@@ -342,7 +345,7 @@ const ProductDetailsCard = ({
 
                             {/* Description */}
                             <p className="mt-3 text-[13.5px] text-gray-600 leading-[1.75]">
-                                {data?.short_description || data?.description || 'No description available.'}
+                                {data?.short_description || data?.short_description || 'No description available.'}
                             </p>
 
                             {/* Price */}
@@ -371,21 +374,21 @@ const ProductDetailsCard = ({
                                     ${data?.regularPrice?.toFixed(2) ?? '0.00'}
                                 </span>
                             }
-                            {data.sizes && (
-                                data.sizes.map((size : any)=> {
+                            {(data?.sizes?.length ?? 0 ) > 0 &&  (
+                                data?.sizes?.map((size : string, i: number) => (
                                     <span className=''>{size}</span>
-                                })
+                                ))
                             )}
                             </div>
 
                             <hr className="my-4 border-gray-100" />
 
                             {/* Size */}
-                            {data?.sizes?.length > 0 && (
+                            {(data?.sizes?.length ?? 0 ) > 0 && (
                                 <div className="mb-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Size</p>
                                     <div className="flex gap-2 flex-wrap">
-                                        {data.sizes.map((size: string, i: number) => (
+                                        {data?.sizes?.map((size: string, i: number) => (
                                             <button key={i} onClick={() => setIsSizeSelected(size)}
                                                 className={`px-4 py-1.5 rounded-lg text-[13px] font-medium border transition-all
                                                     ${isSizeSelected === size
@@ -399,11 +402,11 @@ const ProductDetailsCard = ({
                             )}
 
                             {/* Color */}
-                            {data?.colors?.length > 0 && (
+                            {(data?.colors?.length ?? 0) > 0 && (
                                 <div className="mb-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Color</p>
                                     <div className="flex gap-2 flex-wrap">
-                                        {data.colors.map((color: string, i: number) => (
+                                        {data.colors?.map((color: string, i: number) => (
                                             <button key={i} onClick={() => setIsSelected(color)}
                                                 className={`px-4 py-1.5 rounded-lg text-[13px] font-medium border transition-all
                                                     ${isSelected === color
@@ -476,7 +479,7 @@ const ProductDetailsCard = ({
                                 <div>
                                     <p className="text-sm font-medium text-gray-700">Delivery Option</p>
                                     <p className="text-sm text-gray-500">
-                                        {data?.Shop?.city || 'Petaling Jaya'}, {data?.Shop?.country || 'Malaysia'}
+                                        {data?.shop?.address || 'Petaling Jaya'}, {data?.shop?.address || 'Malaysia'}
                                     </p>
                                 </div>
                             </div>
@@ -504,15 +507,15 @@ const ProductDetailsCard = ({
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="relative w-10 h-10 rounded-full overflow-hidden">
                                         <Image
-                                            src={data?.Shop?.avatar || '/default-shop.jpg'}
-                                            alt={data?.Shop?.name}
+                                            src={data?.shop?.coverShop || '/default-shop.jpg'}
+                                            alt={data?.shop?.name}
                                             fill
                                             className="object-cover"
                                         />
                                     </div>
                                     <div>
                                         <p className="font-semibold text-gray-800">Sold by</p>
-                                        <p className="text-sm text-gray-600">{data?.Shop?.name || 'Becodemy'}</p>
+                                        <p className="text-sm text-gray-600">{data?.shop?.name || 'Becodemy'}</p>
                                     </div>
                                 </div>
                                 
@@ -521,19 +524,19 @@ const ProductDetailsCard = ({
                                     <div>
                                         <p className="text-xs text-gray-500">Positive Seller Ratings</p>
                                         <p className="text-sm font-semibold text-gray-800">
-                                            {data?.Shop?.positiveRating || '100'}%
+                                            {data?.shop?.rating || '100'}%
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500">Ship on Time Rate</p>
                                         <p className="text-sm font-semibold text-gray-800">
-                                            {data?.Shop?.shipOnTime || '100'}%
+                                            {data?.shop?.shipOnTime || '100'}%
                                         </p>
                                     </div>
                                 </div>
 
                                 <Link
-                                    href={`/shop/${data?.Shop?.id}`}
+                                    href={`/shop/${data?.shop?.id}`}
                                     className="mt-3 block text-center text-sm font-medium text-emerald-600 hover:text-emerald-700 transition">
                                     GO TO STORE →
                                 </Link>
@@ -554,7 +557,7 @@ const ProductDetailsCard = ({
                             )}
 
                             {/* If specifications is an array of stories */}
-                            {data?.stories && data.stories.length > 0 && (
+                            {/* {data?.stories && data.stories.length > 0 && (
                                 <div className="mt-4">
                                     <h3 className="text-sm font-semibold text-gray-800 mb-2">Product details</h3>
                                     <div className="space-y-1">
@@ -568,7 +571,7 @@ const ProductDetailsCard = ({
                                         )}
                                     </div>
                                 </div>
-                            )}
+                            )} */}
                         </section>
                     </div>
                 </div>
