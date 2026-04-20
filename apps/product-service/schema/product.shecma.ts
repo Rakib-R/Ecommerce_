@@ -138,13 +138,10 @@ export const CreateProductSchema = z.object({
   // Dates
   starting_date: z
     .union([
-      z.string().datetime({ message: "Invalid date format" }),
+      z.iso.datetime({ message: "Invalid date format" }),
       z.date(),
       z.literal(""),
     ])
-    .optional()
-    .nullish() // ✅ Handles both null and undefined
-    .transform(val => (val === "" || val === null) ? undefined : val)
   ,
 
   // Discount Codes (array of UUIDs)

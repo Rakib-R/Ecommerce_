@@ -6,7 +6,7 @@
 
     "declaration": true,
     "declarationMap": true,
-    "outDir": "../../dist/packages/error-handler",
+    "outDir": "../../dist/packages/middleware",
     "rootDir": "./src",
     "module": "commonjs",
     "target": "ES2019"

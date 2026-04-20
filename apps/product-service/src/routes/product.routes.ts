@@ -66,7 +66,7 @@ router.get("/get-filtered-shops", getFilteredShops);
 
 router.get("/search-products", searchProducts);
 
-router.get("/top-shops",isAuthenticated, getTopShops)
+router.get("/top-shops", getTopShops)
 
 router.get('/getEffectivePrice/:productId' , getEffectivePrice)
 

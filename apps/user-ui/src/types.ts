@@ -8,6 +8,7 @@ export interface OrderType{
 
 }
 
+type shop = ShopType['shop'];
 export interface ShopType {
   shop: {
     id: string;
@@ -50,7 +51,7 @@ export interface AuthResponse {
 }
 
 export interface ProductPayload {
-    _id : string;
+    id : string;
     title: string;
     slug: string;
     short_description: string;
@@ -67,6 +68,7 @@ export interface ProductPayload {
       fileId: string;
       file_url: string;
     }[];
+    shop? : shop,
 
     videoUrl?: string;
     tags: string[] | string;

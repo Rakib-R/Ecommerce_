@@ -1,19 +1,24 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noEmit": true,  //todo ==->> REAL FIX, NO MORE CHECKING FOR BUILD OUTPUTS!
+    "noEmit": true,
     "ignoreDeprecations": "6.0",
     "outDir": "../../dist/out-tsc",
+    "rootDir": "../../",          // ← ADD THIS
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2020",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["node", "express"],
+    "types": ["node", "express"]
   },
   "include": [
     "src/**/*.ts",
-    "src/swagger.ts"
+    "schema/**/*.ts",             // ← ADD THIS (you have schema folder outside src)
+    "../../packages/**/*.ts"      // ← ADD THIS
+  ],
+  "exclude": [
+    "../../node_modules"
   ]
 }

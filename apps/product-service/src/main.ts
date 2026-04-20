@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import router from './routes/product.routes';
 import swaggerUi from 'swagger-ui-express';
+import { imagekit } from '@packages/libs/imagekit';
 
 const app = express();
 
@@ -15,7 +16,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      "http://localhost:7777",
+      "http://127.0.0.1:7777",
       "http://localhost:7777", 
       "http://127.0.0.1:3000",
       "http://localhost:3000",
@@ -40,9 +41,6 @@ app.use(cors({
   const port = process.env.PORT || 6099;
 
 // ─── Health Check (Product Service) ─────────────────────────────────────────────
-app.get('/product/health', (req, res) => {
-  res.json({ message: '🔑 Auth Service is healthy', status: 'Active' });
-});
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

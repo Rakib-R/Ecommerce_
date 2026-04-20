@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from "../utils/axios";
 import { useEffect, useState } from 'react';
-import { UserType, UserProfileType } from "src/types";
+import { UserType } from "@user-ui/types";
 
 interface ApiResponse {
   user: UserType; 

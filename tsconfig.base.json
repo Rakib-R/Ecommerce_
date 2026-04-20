@@ -16,11 +16,22 @@
     "skipDefaultLibCheck": true,
     "types": ["node"],
     "paths": {
-      "@apps/*": ["/apps/*"],
+      "@apps/*": ["apps/*"],
       "@apps/utils/*": ["apps/utils/*"],
       "@seller-ui/*": ["apps/seller-ui/src/*"],
       "@user-ui/*": ["apps/user-ui/src/*"],
-      "packages": ["packages/src/index.ts"]
+      "@packages/redis": ["packages/libs/redis/src/index.ts"],
+      "@packages/libs/*": ["packages/libs/*"],
+      "@packages/error-handler": ["packages/error-handler/src/index.ts"],
+      "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
+      "@packages/middleware": ["packages/middleware/src/index.ts"],
+      "@packages/imagekit":  ["packages/libs/imagekit/index.ts"]
+
+    // "@packages/middleware": ["dist/packages/middleware"],
+    //   "@packages/error-handler": ["dist/packages/error-handler"],
+    //   "@packages/prisma": ["dist/packages/libs/prisma"],
+    //   "@packages/imagekit": ["dist/packages/libs/imagekit"]
+    
     }
   },
   "exclude": ["node_modules", "tmp"]

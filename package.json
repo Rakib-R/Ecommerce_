@@ -3,22 +3,29 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "npx nx run-many --target=serve --all",
-    "dev:backend": "npx nx run-many --target=serve --projects=api-gateway,auth-service,api",
-    "dev:frontend": "npx nx run-many --target=serve --projects=seller-ui,user-ui",
-    "product": "npx nx serve product-service",
-    "kafka": "npx nx serve kafka-service",
+    "dev": "pnpm exec nx run-many --target=serve --all",
+    "dev:backend": "pnpm exec nx run-many --target=serve --projects=api-gateway,auth-service,api",
+    "dev:frontend": "pnpm exec nx run-many --target=serve --projects=seller-ui,user-ui",
+    "product": "pnpm exec nx serve product-service",
+    "kafka": "pnpm exec nx serve kafka-service",
     "auth-docs": "node apps/auth-service/src/swagger.js",
     "product-docs": "node apps/product-service/src/swagger.js",
-    
     "prisma:generate": "prisma generate",
-
-    "build:analyze_user": "cross-env ANALYZE=true npx nx build user-ui",
-    "build:analyze_seller": "cross-env ANALYZE=true npx nx build seller-ui",
-    "build": "npx nx run-many --target=build --all",
-    "start:prod": "npx nx run-many --target=serve --all --prod"
+    "build:analyze_user": "cross-env ANALYZE=true pnpm exec nx build user-ui",
+    "build:analyze_seller": "cross-env ANALYZE=true pnpm exec nx build seller-ui",
+    "build": "pnpm exec nx run-many --target=build --all",
+    "start:prod": "pnpm exec nx run-many --target=serve --all --prod"
   },
   "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@babel/core",
+        "webpack"
+      ]
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@next/bundle-analyzer": "16.2.2",
@@ -61,7 +68,6 @@
     "jest": "30.0.5",
     "jest-environment-node": "^29.7.0",
     "jest-util": "30.0.5",
-    "npm": "^11.10.0",
     "nx": "^20.6.1",
     "postcss": "8.4.38",
     "prettier": "^2.6.2",
@@ -76,7 +82,6 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@imagekit/next": "^2.1.5",
     "@prisma/client": "6.5.0",
     "@tanstack/query-async-storage-persister": "^5.90.24",
     "@tanstack/query-sync-storage-persister": "^5.90.24",
@@ -97,7 +102,6 @@
     "express-rate-limit": "^8.2.1",
     "framer-motion": "^12.35.1",
     "helmet": "^8.1.0",
-    "imagekit": "^6.0.0",
     "ioredis": "^5.9.3",
     "isomorphic-dompurify": "3.7.1",
     "jose": "^6.2.1",
@@ -110,6 +114,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
+    "packages": "0.0.8",
     "prisma": "^6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { AuthError, ValidationError } from "../../../../packages/error-handler/src/AppError";
+import { AuthError, ValidationError } from "@packages/error-handler";
 import redis from "@packages/redis";
 import { NextFunction, Request, Response } from "express";
 import { sendEmail } from "./sendMail";

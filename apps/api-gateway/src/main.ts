@@ -5,8 +5,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
-import { initializeSiteConfig } from './libs/initializeSiteConfig.js';
-
+import { initializeSiteConfig } from './libs/initializeSiteConfig';
 const app = express();
 
 // ─── Security Headers ────────────────────────────────────────────────────────

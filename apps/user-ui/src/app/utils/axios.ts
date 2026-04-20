@@ -42,6 +42,7 @@ axiosInstance.interceptors.response.use(
       const skipRefreshRoutes = [
       '/api/home', '/api/seller-registration', '/api/register-user',
       '/api/login',
+      '/api/logged-in-user',
       '/api/signup',
       '/api/seller-login',
       '/api/seller-signup', '/api/admin',

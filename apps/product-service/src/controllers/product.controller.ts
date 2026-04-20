@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
-import { imagekit } from "@packages/libs/imagekit";
+import { imagekit } from "@packages/libs/imagekit"
 
 declare global {
   namespace Express {
@@ -305,7 +305,6 @@ export const createProduct = async (
 
   
   //! AUTH-ERROR AUTH-ERROR AUTH-ERROR
-  const role = req.role
   const seller = (req).seller || (req as any).admin;
 
   if (!seller || !seller.id) {
@@ -368,7 +367,7 @@ export const createProduct = async (
         subCategory:         clean.subCategory,
         brand:               clean.brand,
         slug:                clean.slug,
-        starting_date :      seller.starting_date,
+        starting_date :      parsed.data.starting_date,
         sizes:               clean.sizes,
         stock:               parsed.data.stock,              // already a number from Zod, no parseInt needed
         salePrice:           parsed.data.salePrice ?? 0,    // already a number from Zod, no parseFloat needed
@@ -560,75 +559,73 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
       const skip = (page - 1) * limit;
       const type = req.query.type;
       const now = new Date();
-      const nowISO = now.toISOString();
 
-  //! --------------  PRINT DEBUGGING  -------------- ----------- //! --------------  PRINT DEBUGGING  -------------- --------------   
+  //! --------------  PRINT DEBUGGING  --------------   PRINT DEBUGGING 
+  //! --------------  PRINT DEBUGGING  -------------- //! --------------  PRINT DEBUGGING  -------------- --------------   
   const allProducts = await prisma.product.findMany({
       select: { id: true, title: true, starting_date: true, ending_date: true, status: true }
     });
-  // console.log('📊 TOTAL PRODUCTS IN DB BEFORE LOGIC:', allProducts.length);
+
+// ADD THIS:
+// console.log('Total in DB:', allProducts.length);
+// console.log('Sample product:', JSON.stringify(allProducts[0], null, 2));
+
+// Current — fragile, converts string back to date inside MongoDB
 
   const rawFilter = {
-      isDeleted: false,
-      status: "Active",
-      $and: [
-        {
+    isDeleted: false,
+    status: "Active",
+    $and: [
+      {
         $or: [
-           { $expr: { $lte: ["$starting_date", { $dateFromString: { dateString: nowISO} }] } },
+          { $expr: { $lte: ["$starting_date", "$$NOW"] } },
           { starting_date: null }
         ]
       },
       {
         $or: [
           { ending_date: null },
-          { $expr: { $gte: ["$ending_date", { $dateFromString: { dateString: nowISO } }] } }
+          { $expr: { $gte: ["$ending_date", "$$NOW"] } }
         ]
       }
     ]
-};
+  };
 
   const sortStage = type === "latest" ? { createdAt: -1 } : { totalSales: -1 };
 
-  const productsPipeline = [
-    { $match: rawFilter },
-    { $sort: sortStage },
-      { $skip: skip },
-      { $limit: limit },
-    [
-      {
-        $lookup: {  // Stage 1
-          from: "images",
-          localField: "_id",
-          foreignField: "productId",
-          as: "images"
-        }
-      },
-      {// {  NOT REALLY NEEDED DURING ALL PRRODUCT FETCHING
-        //      BUt DOINT IT ANYWAY
-      // },
-        $lookup: {  // Stage 2 - different object
-          from: "shops",
-          localField: "shopId",
-          foreignField: "_id",
-          as: "Shop"
-        }
-      }
-    ],
-      
-      {
-        $unwind: {
-          path: "$Shop",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-
-        {
-      $addFields: {
-        id: { $toString: "$_id" }
-      }
+ const productsPipeline = [
+  { $match: rawFilter },
+  { $sort: sortStage },
+  { $skip: skip },
+  { $limit: limit },
+  {
+    $lookup: {
+      from: "images",
+      localField: "_id",
+      foreignField: "productId",
+      as: "images"
     }
-    ];
-
+  },
+  {
+    $lookup: {
+      from: "shops",
+      localField: "shopId",
+      foreignField: "_id",
+      as: "Shop"
+    }
+  },
+  {
+    $unwind: {
+      path: "$Shop",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+  $addFields: {
+    id: { $toString: "$_id" }
+  }
+}
+];
 
   const top10Pipeline = [
     { $match: rawFilter },
@@ -656,34 +653,41 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
         preserveNullAndEmptyArrays: true
       }
     },
-      {
-        $addFields: {
-          id: { $toString: "$_id" }
-        }
-     }
+    {
+    $addFields: {
+      id: { $toString: "$_id" }
+    }
+  },
+      
   ];
 
-  const total_Product = productsPipeline.length;
-  
+
   const [getAllProduct, totalResult, top10Product] = await Promise.allSettled([
     prisma.product.aggregateRaw({ pipeline: productsPipeline }),
     prisma.product.count(),
     prisma.product.aggregateRaw({ pipeline: top10Pipeline })
   ]);
-  
-  const products = getAllProduct.status === 'fulfilled' ? getAllProduct.value : [];
+
+  const total_Product = productsPipeline.length;
   const total = totalResult.status === 'fulfilled' ? totalResult.value : 0;
+
+    // ADD THESE:
+  console.log('getAllProduct status:', getAllProduct.status);
+  console.log('top10Product status:', top10Product.status);
+
+ const productsAll = getAllProduct.status === 'fulfilled' ? getAllProduct.value : [];
   const top10Products = top10Product.status === 'fulfilled' ? top10Product.value : [];
 
   //! --------------  PRINT DEBUGGING  -------------- ----------- //! --------------  PRINT DEBUGGING  -------------- --------------   
 
   // console.log("Changed products after all the logic ",  'Products' ,productsPipeline, 'Total' , productsPipeline.length ,'📊' )
   const response = {
-      getproductsPipeline : products,
+      getproductsPipeline : productsAll,
       top10Pipeline : top10Products,
       topBy: type,           
       orderType: type === "latest" ? "latest" : "topSales",
-      total_Product : total,
+      // total_Product : total,
+       total_Product: total,
       currentPage: page,
       totalPages: Math.ceil(total_Product / limit),
     };
@@ -849,8 +853,6 @@ const minMax = await db.product.aggregate({
     const total = totalResult.status === 'fulfilled' ? totalResult.value : 0;
 
     // console.log('%cfter Filterd _Products =>', 'color:red; font-weight:italic', products)
-
-
     const totalPages = Math.ceil(total / parsedLimit);
     return res.json({
       products,
@@ -1050,22 +1052,22 @@ export const getFilteredShops = async (
     }
     
     const products = await prisma.product.findMany({
-      where: {
-        // OR: [
-        //   {
-        //     title: {
-        //       contains: query,
-        //       mode: "insensitive"
-        //     }
-        //   },
-        //   {
-        //     short_description: {
-        //       contains: query,
-        //       mode: "insensitive"
-        //     }
-        //   }
-        // ]
-      },
+     where: {
+        OR: [
+          {
+            title: {
+              contains: query,
+              mode: "insensitive"
+            }
+          },
+          {
+            short_description: {
+              contains: query,
+              mode: "insensitive"
+            }
+          }
+        ]
+    },
       select: {
         id: true,
         title: true,
@@ -1083,7 +1085,6 @@ export const getFilteredShops = async (
     next(error);
   }
 };
-
  export const getTopShops = async (
   req: Request,
   res: Response,
@@ -1094,6 +1095,7 @@ export const getFilteredShops = async (
     console.log("=== REQUEST RECEIVED ===");
     console.log("Full URL:", req.url);
     console.log("Raw req.query:", JSON.stringify(req.query, null, 2));
+    
     // Aggregate total sales per shop from orders
     const topShopsData = await prisma.order.groupBy({
       by: ["shopId"],

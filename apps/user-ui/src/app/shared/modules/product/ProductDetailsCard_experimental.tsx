@@ -10,13 +10,13 @@ import {
     Heart, Truck, Shield, RotateCcw,CircleArrowRight, CircleArrowLeft 
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import useUser from 'src/app/hooks/useUser'
-import { useStore } from 'src/app/store/authStore'
-import { useLocationTracking } from 'src/app/hooks/useLocationTracking'
-import useDeviceTracking from 'src/app/hooks/useDeviceTracking'
-import type { Store, Product } from 'src/app/store/authStore'
+import useUser from '@user-ui/app/hooks/useUser'
+import { useStore } from '@user-ui/app/store/authStore'
+import { useLocationTracking } from '@user-ui/app/hooks/useLocationTracking'
+import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
+import type { Store, Product } from '@user-ui/app/store/authStore'
 import ProductCard from '../../components/cards/product-card'
-import axiosInstance from 'src/app/utils/axios'
+import axiosInstance from '@user-ui/app/utils/axios'
 
 const ProductDetailsCard = ({
     data,}: { data: any}) => {

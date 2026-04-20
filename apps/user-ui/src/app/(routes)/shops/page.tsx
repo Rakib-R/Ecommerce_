@@ -3,10 +3,10 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import axiosInstance from 'src/app/utils/axios'
+import axiosInstance from '@user-ui/app/utils/axios'
 import Link from 'next/link'
-import { categories } from 'src/app/configs/categories'
-import ShopCard from 'src/app/shared/components/cards/shop-card'
+import { categories } from '@user-ui/app/configs/categories'
+import ShopCard from '@user-ui/app/shared/components/cards/shop-card'
 import {countries} from '../../configs/countries'
 
 interface countryProps {

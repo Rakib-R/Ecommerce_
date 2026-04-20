@@ -7,15 +7,15 @@ module.exports = {
     path: join(__dirname, '../../dist/apps/api-gateway'),
   },
   resolve: {
-    alias: {
-      // This maps the "@/" prefix to the root of your project
-      '@': resolve(__dirname, '../../'),
-      '@packages': resolve(__dirname, '../../packages'),
-    },
+    // alias: {
+    //   // This maps the "@/" prefix to the root of your project
+    //   '@': resolve(__dirname, '../../'),
+    //   '@packages': resolve(__dirname, '../../packages'),
+    // },
 
-    extensionAlias: {
-      '.js': ['.ts', '.js'],
-    },
+    // extensionAlias: {
+    //   '.js': ['.ts', '.js'],
+    // },
     extensions: ['.ts', '.js'],
   },
   plugins: [

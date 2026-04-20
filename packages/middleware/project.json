@@ -1,0 +1,16 @@
+{
+  "name": "middleware",
+  "sourceRoot": "packages/middleware/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{workspaceRoot}/dist/packages/middleware"],
+      "options": {
+        "outputPath": "dist/packages/middleware",
+        "main": "packages/middleware/src/index.ts",
+        "tsConfig": "packages/middleware/tsconfig.json"
+      }
+    }
+  }
+}

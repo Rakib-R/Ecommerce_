@@ -399,7 +399,6 @@ export const refreshToken_Seller = async (
 };
 
 
-
  export const getUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     // Allow access to home route without user check

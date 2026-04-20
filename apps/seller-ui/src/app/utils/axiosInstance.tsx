@@ -36,6 +36,7 @@ axiosInstance.interceptors.response.use(
     const skipRefreshRoutes = [
       '/api/seller-registration', '/api/register-user',
       '/api/login',
+      '/api/logged-in-seller',
       '/api/signup',
       '/api/seller-login',
       '/api/seller-signup', '/api/admin',
@@ -57,7 +58,7 @@ axiosInstance.interceptors.response.use(
 
     // Don't retry the refresh endpoint itself — would cause infinite loop
     if (originalRequest.url?.includes('/api/refreshToken_Seller')) {
-      useAuthState.getState().logout();
+      useAuthState.getState().handleLogout();
       queryClient.setQueryData(['seller'], null);
       return Promise.reject(error);
     }
@@ -79,7 +80,7 @@ axiosInstance.interceptors.response.use(
         isRefreshing = false;
         onRefreshSuccess();
 
-        // Invalidate user query to refetch with new token
+        // Invalidate Seller query to refetch with new token
         queryClient.invalidateQueries({ queryKey: ['seller'] });
         return axiosInstance(originalRequest);
       }  
@@ -90,7 +91,7 @@ axiosInstance.interceptors.response.use(
             useAuthState.getState().handleLogout();
         }
 
-        // Clear user data on refresh failure
+        // Clear Seller data on refresh failure
         queryClient.setQueryData(['seller'], null);
           return Promise.reject(err);
         }

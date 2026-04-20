@@ -15,13 +15,14 @@ const nextConfig = {
   output: 'standalone', // FOR PROD IN RAILWAY
   
   // ✅ ADD THIS SECTION to suppress hydration warnings
-  onError: (err) => {
+  /** @param {any} error */
+  onError: (error) => {
     // Suppress Codeium extension hydration warnings
-    if (err.message && err.message.includes('cz-shortcut-listen')) {
+    if (error.message && error.message.includes('cz-shortcut-listen')) {
       return;
     }
     // Re-throw other errors
-    throw err;
+    throw error;
   },
   
   experimental: {

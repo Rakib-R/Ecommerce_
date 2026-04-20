@@ -1,21 +1,23 @@
 
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
 export async function getUser() {
   try {
-    const url = `${process.env.NEXT_PUBLIC_SERVER_URI}/api/logged-in-user`;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("refresh-token")?.value;
 
-    console.log("Fetching:", url);
+    if (!token) return null;
 
-    const res = await fetch(url,
-      { 
-      cache: "no-store" , 
-      credentials: "include"});
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!);
 
-    if (!res.ok) return null;
+    return {
+      id: (decoded as any).id,
+      role: (decoded as any).role,
+    };
 
-    return await res.json();
   } catch (err) {
-    console.error("Fetch error:", err);
+    console.error("JWT error:", err);
     return null;
   }
 }

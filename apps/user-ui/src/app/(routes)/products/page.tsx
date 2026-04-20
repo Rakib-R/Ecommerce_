@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import axiosInstance from 'src/app/utils/axios'
+import axiosInstance from '@user-ui/app/utils/axios'
 import Link from 'next/link'
 import { Range } from 'react-range';
-import ProductCard from 'src/app/shared/components/cards/product-card'
+import ProductCard from '@user-ui/app/shared/components/cards/product-card'
 
 const MIN = 0;
 const MAX = 1199;

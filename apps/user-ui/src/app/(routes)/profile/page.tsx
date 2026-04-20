@@ -4,14 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Bell, CheckCircle, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, ShoppingCart, Truck, User } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, {  useEffect, useState } from "react";
-import useUser from "src/app/hooks/useUser";
-import StatCard from "src/app/shared/components/cards/stat-card";
-import { useAuthState } from "src/app/store/authStore";
-import axiosInstance from "src/app/utils/axios";
+import useUser from "@user-ui/app/hooks/useUser";
+import StatCard from "@user-ui/app/shared/components/cards/stat-card";
+import { useAuthState } from "@user-ui/app/store/authStore";
+import axiosInstance from "@user-ui/app/utils/axios";
 import Image from "next/image";
-import QuickActionCard from "src/app/shared/components/cards/quick-action.card";
+import QuickActionCard from "@user-ui/app/shared/components/cards/quick-action.card";
 import { type LucideIcon } from 'lucide-react';
-import ShippingAddressSection from "@user-ui/shared/components/ShippingAddressSection";
+import ShippingAddressSection from "@user-ui/app/shared/components/ShippingAddressSection";
 
 interface NavItemTypes{
   label : string;
