@@ -14,8 +14,9 @@ import useUser from '../../../hooks/useUser'
 import { useLocationTracking } from '../../../hooks/useLocationTracking'
 import useDeviceTracking from '../../../hooks/useDeviceTracking'
 
+import { ProductPayloadWithDetails } from '@apps/user-ui/src/types'
 
-const ProductCard = ({product, isEvent} : {product: any, isEvent?: boolean}) => { 
+const ProductCard = ({product, isEvent} : {product: ProductPayloadWithDetails, isEvent?: boolean}) => { 
 
 const [timeLeft, setTimeLeft] = useState("")
 const [open, setOpen] = useState(false)
@@ -54,9 +55,9 @@ useEffect(() => {
   }
 
   const interval = setInterval(() => {
-    const endTime = new Date(product?.ending_date).getTime();
+    const endTime = product?.ending_date;
     const now = Date.now();
-    const diff = endTime - now;
+    const diff = (endTime ? new Date(endTime).getTime() : now) - now;
 
     if (diff <= 0) {
       setTimeLeft("Expired");
@@ -106,7 +107,7 @@ return(
     <Link href={`/product/${product?.slug || product?.id}`}>
       <div className="relative w-full h-[150px] overflow-hidden rounded-t-lg">
         <Image
-          src={product?.images?.[0]?.url || "/placeholder.webp"} // Add a placeholder in your public folder
+          src={product?.images?.[0]?.file_url || "/placeholder.webp"} // Add a placeholder in your public folder
           alt={product?.title || "Product image"}
           fill
           className="object-cover hover:scale-105 transition-transform duration-300"
@@ -161,11 +162,11 @@ return(
     </Link>
 
     {/* Shop Name */}
-    {product?.Shop?.name && (
+    {product?.shop?.name && (
       <Link
-        href={`/shop/${product?.Shop?.id}`}
+        href={`/shop/${product?.shop?.id}`}
         className="block text-sm font-medium mt-2 px-2 hover:text-blue-600 transition-colors">
-        {product.Shop.name}
+        {product?.shop?.name}
       </Link>
     )}
 

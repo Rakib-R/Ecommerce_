@@ -27,7 +27,7 @@
       "@packages/middleware": ["packages/middleware/src/index.ts"],
       "@packages/imagekit":  ["packages/libs/imagekit/index.ts"]
 
-    // "@packages/middleware": ["dist/packages/middleware"],
+    // "@packages/middleware": ["dist/packages/middleware"],  ------!B A D D ADVICE
     //   "@packages/error-handler": ["dist/packages/error-handler"],
     //   "@packages/prisma": ["dist/packages/libs/prisma"],
     //   "@packages/imagekit": ["dist/packages/libs/imagekit"]

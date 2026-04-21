@@ -3,7 +3,7 @@
 
 export interface imageType {
   file_id: string;
-  url : string;
+  file_url : string;
 }
 
 export interface SellerType {

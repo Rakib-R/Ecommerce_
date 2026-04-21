@@ -14,13 +14,13 @@ import useUser from '@user-ui/app/hooks/useUser'
 import { useStore } from '@user-ui/app/store/authStore'
 import { useLocationTracking } from '@user-ui/app/hooks/useLocationTracking'
 import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
-import type { Store, Product } from '@user-ui/app/store/authStore'
+import type { Store } from '@user-ui/app/store/authStore'
 import ProductCard from '../../components/cards/product-card'
 import axiosInstance from '@user-ui/app/utils/axios'
-import { ProductPayload, imageType } from '@apps/user-ui/src/types'
+import { ProductPayloadWithDetails, imageType } from '@apps/user-ui/src/types'
 
-const ProductDetailsCard = ({
-    data,}: { data: ProductPayload}) => {
+
+const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
 
     const [isZoomed, setIsZoomed]             = useState(false)
     const [mousePos, setMousePos]             = useState({ x: 50, y: 50 })
@@ -28,18 +28,18 @@ const ProductDetailsCard = ({
     const [isSelected, setIsSelected]         = useState(data?.colors?.[0] || '')
     const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '')
     const [quantity, setQuantity]             = useState(1)
-    const [priceRange, setPriceRange]         = useState([data?.salePrice, 1199])
+    const [priceRange, setPriceRange] = useState([data?.salePrice ?? 0, 1199])
     const [recommendedProducts, setRecommendedProducts] = useState([]);
     const [currentIndex, setCurrentIndex]     =         useState<number>(0);  
-    const [currentImage, setCurrentImage]           = useState<[]>([]);
+    const [currentImage, setCurrentImage] = useState<imageType | undefined>(data?.images?.[0])
 
     const addToCart     = useStore((state: Store) => state.addToCart)
     const addToWishlist = useStore((state: Store) => state.addToWishlist)
     const removeFromWishlist = useStore((state: Store) => state.removeFromWishlist)
-    const wishlist      = useStore((state: Store) => state.wishlist)
-    const isWishlisted  = wishlist?.some((item: Product) => item.id === data.id)
     const cart          = useStore((state: Store) => state.cart)
-    const isInCart      = cart?.some((item: Product) => item.id === data.id)
+    const wishlist      = useStore((state: Store) => state.wishlist)
+    const isWishlisted  = wishlist?.some((item: any) => item.id === data.id)
+    const isInCart      = cart?.some((item: any) => item.id === data.id)
 
     const { user }   = useUser()
     const location   = useLocationTracking()
@@ -60,7 +60,7 @@ const ProductDetailsCard = ({
     const nextImage = () => {
     if (currentIndex < data?.images?.length - 1) {
         setCurrentIndex(currentIndex + 1);
-        setCurrentImage(data?.imageType[currentIndex + 1]);
+        setCurrentImage(data?.images[currentIndex + 1]);
     }
     };
     const toggleWishlist = () => {
@@ -81,7 +81,7 @@ const ProductDetailsCard = ({
         return Math.round(((regular - sale) / regular) * 100);
     })();
 
-    const activeImageUrl = data?.images?.[currentIndex]?.url || '/active.web'
+    const activeImageUrl = data?.images?.[currentIndex]?.file_url || '/active.web'
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -279,7 +279,7 @@ const ProductDetailsCard = ({
                                 <div className="flex items-center gap-2.5 min-w-0">
                                     <div className="relative w-9 h-9 flex-shrink-0 rounded-full overflow-hidden border-2 border-emerald-200">
                                         <Image
-                                            src={data?.images?.[0]?.url || '/default-shop.jpg'}
+                                            src={data?.images?.[0]?.file_url || '/default-shop.jpg'}
                                             alt="Shop" fill className="object-cover" sizes="36px"
                                             onError={(e) => { e.currentTarget.src = '/default-shop.jpg' }}
                                         />
@@ -304,7 +304,7 @@ const ProductDetailsCard = ({
                                 </div>
 
                                 <button
-                                    onClick={() => router.push(`/inbox?shopId=${data?.Shop?.id}`)}
+                                    onClick={() => router.push(`/inbox?shopId=${data?.shop?.id}`)}
                                     className="flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-lg
                                                 text-xs font-medium bg-emerald-50 text-emerald-700
                                                 border border-emerald-200 hover:bg-emerald-100 transition">
@@ -524,13 +524,13 @@ const ProductDetailsCard = ({
                                     <div>
                                         <p className="text-xs text-gray-500">Positive Seller Ratings</p>
                                         <p className="text-sm font-semibold text-gray-800">
-                                            {data?.shop?.rating || '100'}%
+                                            {data?.ratings || '100'}%
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500">Ship on Time Rate</p>
                                         <p className="text-sm font-semibold text-gray-800">
-                                            {data?.shop?.shipOnTime || '100'}%
+                                           {data?.shipOnTime ? String(data.shipOnTime) : '100'}% Days
                                         </p>
                                     </div>
                                 </div>
@@ -543,11 +543,23 @@ const ProductDetailsCard = ({
                             </div>
 
                             {/* Product Details Section */}
-                            {data?.specifications && Object.keys(data.specifications).length > 0 && (
+                            {data?.customSpecifications && Object.keys(data.customSpecifications).length > 0 && (
                                 <div className="mt-4">
                                     <h3 className="text-sm font-semibold text-gray-800 mb-2">Product details</h3>
                                     <div className="space-y-1">
-                                        {Object.entries(data.specifications).map(([key, value]) => (
+                                        {Object.entries(data.customSpecifications).map(([key, value]) => (
+                                            <p key={key} className="text-xs text-gray-500">
+                                                <span className="text-gray-600">{key}:</span> {String(value)}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                             {data?.customProperties && Object.keys(data.customProperties).length > 0 && (
+                                <div className="mt-4">
+                                    <h3 className="text-sm font-semibold text-gray-800 mb-2">Product details</h3>
+                                    <div className="space-y-1">
+                                        {Object.entries(data.customProperties).map(([key, value]) => (
                                             <p key={key} className="text-xs text-gray-500">
                                                 <span className="text-gray-600">{key}:</span> {String(value)}
                                             </p>
@@ -597,7 +609,7 @@ const ProductDetailsCard = ({
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {recommendedProducts.map((product) => (
-                            <ProductCard key={data.id || data._id} product={product} />
+                            <ProductCard key={data.id} product={product} />
                             ))}
                         </div>
                         </div>

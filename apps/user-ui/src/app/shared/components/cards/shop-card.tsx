@@ -4,22 +4,17 @@ import Image from 'next/image';
 import { ArrowRight, MapPin, Star } from 'lucide-react';
 import Link from "next/link";
 import { ShopType } from '../../../../types' 
+import { imageType } from '../../../../types';
 
-
-interface ImageType {
-  id: string;
-  url: string;
-  file_id: string;
-}
 
 const ShopCard = ({ shop }: ShopType) => {
 
   const avatarSrc =
-        shop.seller?.avatar?.[0]?.url ||
+        shop.seller?.avatar?.[0]?.file_url ||
        "https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704";
   
   const coverSrc =
-    shop.coverShop?.[0]?.url || "https://ik.imagekit.io/hasanRakib/shops/shop_placeholder_Main.svg";
+    shop.coverShop?.[0]?.file_url || "https://ik.imagekit.io/hasanRakib/shops/shop_placeholder_Main.svg";
 
     console.log('SHop COVer =>', shop.coverShop, shop.coverShop[0])
     console.log('Avatar COVer =>',shop.seller?.avatar , shop.seller )

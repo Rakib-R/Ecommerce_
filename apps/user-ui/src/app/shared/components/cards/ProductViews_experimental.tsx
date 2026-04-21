@@ -10,7 +10,7 @@ import useUser from '@user-ui/app/hooks/useUser'
 import { useStore } from '@user-ui/app/store/authStore'
 import { useLocationTracking } from '@user-ui/app/hooks/useLocationTracking'
 import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
-import type { Store, Product } from '@user-ui/app/store/authStore'
+import type { Store } from '@user-ui/app/store/authStore'
 
 const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: boolean) => void }) => {
     const [activeImage, setActiveImage] = useState(0)
@@ -22,9 +22,9 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
     const addToCart     = useStore((state: Store) => state.addToCart)
     const addToWishlist = useStore((state: Store) => state.addToWishlist)
     const wishlist      = useStore((state: Store) => state.wishlist)
-    const isWishlisted  = wishlist?.some((item: Product) => item.id === data.id)
+    const isWishlisted  = wishlist?.some((item: any) => item.id === data.id)
     const cart          = useStore((state: Store) => state.cart)
-    const isInCart      = cart?.some((item: Product) => item.id === data.id)
+    const isInCart      = cart?.some((item: any) => item.id === data.id)
 
     const { user }   = useUser()
     const location   = useLocationTracking()

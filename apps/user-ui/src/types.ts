@@ -1,7 +1,7 @@
 
 export interface imageType {
     file_id: string;
-    url : string;
+    file_url : string;
 }
 
 export interface OrderType{
@@ -60,14 +60,12 @@ export interface ProductPayload {
     category: string;
     subCategory: string;
     brand?: string;
+    warranty? : string;
 
     regularPrice: number;
     salePrice?: number;
     stock: number;
-    images: {
-      fileId: string;
-      file_url: string;
-    }[];
+    images:imageType[]
     shop? : shop,
 
     videoUrl?: string;
@@ -75,7 +73,16 @@ export interface ProductPayload {
     colors?: string[];
     sizes?: string[];
     starting_date?: string | Date;
+    ending_date?: string | Date;
     discountCodes?: string[];
     customProperties: Record<string, string  | boolean | undefined>;
     customSpecifications: Record<string, string  | boolean | undefined>;
+}
+
+export interface ProductPayloadWithDetails extends ProductPayload{
+    quantity : number;
+    ratings :  number;
+    totalSales :number;
+    shipOnTime: string | Date;
+    returnPolicy: string
 }

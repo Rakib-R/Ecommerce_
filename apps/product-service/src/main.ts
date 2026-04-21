@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import router from './routes/product.routes';
 import swaggerUi from 'swagger-ui-express';
-import { imagekit } from '@packages/libs/imagekit';
 
 const app = express();
 

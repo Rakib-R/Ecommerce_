@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { sendKafkaEvent } from '../../actions/track-user';
+import { ProductPayload } from '../../types';
 
 // ============ TYPES ============
 interface AuthState {
@@ -21,23 +22,9 @@ interface User {
   email?: string;
 }
 
-interface imageType {
-  file_id:  string;
-  url    :  string;
-}
-
-// Product from API
-export interface Product {
-  id: string;
-  title: string;
-  regularPrice: number;
-  salePrice: number | null;
-  images: imageType[];
-  shopId: string;
-}
 
 // Cart item with calculated price
-export interface CartItem extends Product {
+export interface CartItem extends ProductPayload {
   quantity: number;
   effectivePrice: number; // Pre-calculated!
   totalPrice: number;     // Pre-calculated!
@@ -45,12 +32,12 @@ export interface CartItem extends Product {
 
 export interface Store {
   cart: CartItem[];
-  wishlist: Product[];
+  wishlist: ProductPayload[];
   isModalOpen: boolean;
   setModalOpen: (val: boolean) => void;
   
   addToCart: (
-    product: Product,
+    product: ProductPayload,
     user: any,
     location: any,
     deviceInfo: any
@@ -69,7 +56,7 @@ export interface Store {
     deviceInfo: any
   ) => void;
   addToWishlist: (
-    product: Product,
+    product: ProductPayload,
     user: any,
     location: any,
     deviceInfo: any
@@ -84,13 +71,13 @@ export interface Store {
 }
 
 // ============ HELPER FUNCTIONS ============
-export const getEffectivePrice = (product: Product): number => {
+export const getEffectivePrice = (product: ProductPayload): number => {
   return product.salePrice && product.salePrice > 0 && product.salePrice < product.regularPrice
     ? product.salePrice
     : product.regularPrice;
 };
 
-export const calculateCartItem = (product: Product, quantity: number): CartItem => {
+export const calculateCartItem = (product: ProductPayload, quantity: number): CartItem => {
   const effectivePrice = getEffectivePrice(product);
   return {
     ...product,
@@ -115,7 +102,7 @@ export const useStore = create<Store>()(
           sendKafkaEvent({
             userId: user.id,
             productId: product.id,
-            shopId: product.shopId,
+            shopId: product.shop?.id,
             action: "add_to_cart",
             country: location?.country || "Unknown",
             city: location?.city || "Unknown",
@@ -156,7 +143,7 @@ export const useStore = create<Store>()(
             sendKafkaEvent({
               userId: user.id,
               productId: id,
-              shopId: item.shopId,
+              shopId: item.shop?.id,
               action: quantity > item.quantity ? "increase_quantity" : "decrease_quantity",
               country: location?.country || "Unknown",
               city: location?.city || "Unknown",
@@ -182,7 +169,7 @@ export const useStore = create<Store>()(
           sendKafkaEvent({
             userId: user.id,
             productId: removedItem.id,
-            shopId: removedItem.shopId,
+            shopId: removedItem.shop?.id,
             action: "remove_from_cart",
             country: location?.country || "Unknown",
             city: location?.city || "Unknown",
@@ -204,7 +191,7 @@ export const useStore = create<Store>()(
           sendKafkaEvent({
             userId: user.id,
             productId: product.id,
-            shopId: product.shopId,
+            shopId: product.shop?.id,
             action: "add_to_wishlist",
             country: location?.country || "Unknown",
             city: location?.city || "Unknown",
@@ -228,7 +215,7 @@ export const useStore = create<Store>()(
           sendKafkaEvent({
             userId: user.id,
             productId: removedItem.id,
-            shopId: removedItem.shopId,
+            shopId: removedItem.shop?.id,
             action: "remove_from_wishlist",
             country: location?.country || "Unknown",
             city: location?.city || "Unknown",
