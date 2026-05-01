@@ -3,13 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "nx build",
+    "dev": "nx serve",
+    "start": "node ../../dist/apps/product-service/main.js"
   },
   "dependencies": {
-    "packages": "0.0.8",
     "@packages/error-handler": "workspace:*",
     "@packages/middleware": "workspace:*",
     "@packages/prisma": "workspace:*",

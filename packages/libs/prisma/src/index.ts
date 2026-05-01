@@ -1,14 +1,1 @@
-
-// Import the generated client from the local folder we just defined
-import { PrismaClient } from "@prisma/client"
-
-declare global {
-    namespace globalThis {
-        var prismadb: PrismaClient;
-    }
-}
-
-const prisma = new PrismaClient();
-
-if (process.env.NODE_ENV === 'production') global.prismadb = prisma;
-export default prisma;
+export * from './lib/prisma';

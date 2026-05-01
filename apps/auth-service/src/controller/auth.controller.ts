@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyForgotPasswordOtp, verifyOtp } from "../utils/auth.helper";
 import { AppError, AuthError, ValidationError } from "@packages/error-handler";
-import prisma from "@packages/prisma";
+import {prisma} from "@packages/prisma";
 import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken"
 import { setCookie } from "../utils/cookies/setCookie";

@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noEmit": true,
+    "noEmit": false,
     "ignoreDeprecations": "6.0",
     "outDir": "../../dist/out-tsc",
-    "rootDir": "../../",          // ← ADD THIS
+    "rootDir": ".",          // ← ADD THIS
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2020",
@@ -16,7 +16,6 @@
   "include": [
     "src/**/*.ts",
     "schema/**/*.ts",             // ← ADD THIS (you have schema folder outside src)
-    "../../packages/**/*.ts"      // ← ADD THIS
   ],
   "exclude": [
     "../../node_modules"

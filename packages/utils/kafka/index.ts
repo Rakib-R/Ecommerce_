@@ -1,3 +1,4 @@
+
 import { Kafka, logLevel, Producer, Partitioners } from "kafkajs";
 
 const BROKER = process.env.KAFKA_BOOTSTRAP_SERVERS || process.env.KAFKA_BROKER || "localhost:9092";
@@ -34,7 +35,7 @@ export const kafka = new Kafka({
     maxRetryTime: 30000,
   },
   logLevel: process.env.NODE_ENV === 'development' ? logLevel.DEBUG : logLevel.ERROR,
-  logCreator: () => ({ namespace, level, log }) => {
+  logCreator: () => ({ namespace, level }: { namespace: string; level: number }) => {
     // Only log errors and warnings in production
     if (process.env.NODE_ENV !== 'production' || level <= logLevel.ERROR) {
       console.log(` [${namespace}]`);

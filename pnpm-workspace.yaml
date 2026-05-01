@@ -2,5 +2,6 @@
 packages:
   - 'apps/*'
   - 'packages/*'
-  - 'packages/**'
-  - 'packages/libs/*'
+  - 'packages/*/*'
+autoInstallPeers: true
+strictPeerDependencies: false

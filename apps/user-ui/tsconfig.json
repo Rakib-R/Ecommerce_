@@ -28,17 +28,16 @@
   },
   "include": [
     "**/*.js",
-    "**/*.jsx",
+    "**/*.jsx", 
     "**/*.ts",
     "**/*.tsx",
-    "../../apps/user-ui/.next/types/**/*.ts",
-    "../../dist/apps/user-ui/.next/types/**/*.ts",
     "next-env.d.ts",
-    "next.config.mjs",
     "next.config.js",
+    "next.config.mjs",
     ".next/types/**/*.ts",
-    "react-image-magnify.d.ts",
-  "tailwind.config.js", "postcss.config.js", "../utils/providers.tsx", "../utils/queryClient.ts"  ],
+    "types.d.ts"
+],
+
   "exclude": [
     "node_modules",
     "jest.config.ts",

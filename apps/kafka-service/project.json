@@ -9,11 +9,15 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
+
+         "clean": false,
+        "external": "none",
+
         "outputPath": "dist/apps/kafka-service",
         "main": "apps/kafka-service/src/main.ts",
-        "tsConfig": "apps/kafka-service/tsconfig.json",
+        "tsConfig": "apps/kafka-service/tsconfig.app.json",
         "webpackConfig": "apps/kafka-service/webpack.config.js",
-        "generatePackageJson": true
+        "generatePackageJson": false
       },
       "configurations": {
         "development": {

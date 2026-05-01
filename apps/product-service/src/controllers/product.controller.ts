@@ -1,6 +1,6 @@
 
 import { NextFunction, Request, Response } from "express";
-import prisma from "@packages/prisma";
+import { prisma } from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "@packages/libs/imagekit"
 

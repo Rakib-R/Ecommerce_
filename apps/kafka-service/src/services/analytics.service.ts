@@ -1,5 +1,5 @@
 
-import prisma from "@packages/libs/prisma";
+import { prisma } from "../lib/prisma";
 
 export const updateUserAnalytics = async (event: any) => {
   try {

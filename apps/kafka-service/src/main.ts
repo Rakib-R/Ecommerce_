@@ -1,4 +1,6 @@
-import {kafka} from '@packages/utils/kafka'
+
+import type { ConsumerCrashEvent, EachMessagePayload } from "kafkajs";
+import { kafka } from "./lib/kafka";
 import { updateUserAnalytics } from './services/analytics.service';
 
 const consumer = kafka.consumer({heartbeatInterval: 3000, sessionTimeout: 30000, groupId: 'user-events-group'})
@@ -53,7 +55,7 @@ export async function consumeKafkaMessages(): Promise<void> {
   });
   
   await consumer.run({
-    eachMessage: async ({ message }) => {
+    eachMessage: async ({ message }: EachMessagePayload) => {
       if (!message.value) return;
       
       const event = JSON.parse(message.value.toString());
@@ -61,7 +63,7 @@ export async function consumeKafkaMessages(): Promise<void> {
     }
   });
 };
-  consumer.on(consumer.events.CRASH, async ({ payload }) => {
+  consumer.on(consumer.events.CRASH, async ({ payload }: ConsumerCrashEvent) => {
     console.error('[Consumer] Crashed:', payload.error.message);
     isRunning = false;
     await consumer.disconnect().catch(() => {});

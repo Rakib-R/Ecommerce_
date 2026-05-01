@@ -1,11 +1,12 @@
 {
-  "name": "@packages/root-meta",
+  "name": "@packages/kafka",
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "dependencies": {
+    "kafkajs": "^2.2.4",
     "tslib": "^2.3.0"
   }
 }

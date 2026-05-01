@@ -3,7 +3,7 @@ import { AuthError, ValidationError } from "@packages/error-handler";
 import redis from "@packages/redis";
 import { NextFunction, Request, Response } from "express";
 import { sendEmail } from "./sendMail";
-import prisma from "@packages/prisma";
+import { prisma } from "@packages/prisma";
 
 export const validateRegistrationData = (data: any, userType: 'buyer' | "seller" | "admin") => {
   const {

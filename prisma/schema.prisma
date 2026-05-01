@@ -4,6 +4,7 @@ generator client {
   provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
                                   //!!  ADD -JS    ADD -JS    ADD -JS    ADD -JS    ADD -JS  
   // output   = "../packages/libs/prisma/src/generated"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -317,9 +318,9 @@ model userAnalytics {
   city           String?
   
   // extraFields —
-  totalVisits    Int?      @default(1)
-  actions       Json     // ← updatedActions (array/object of user actions)
-  pageViews      Json?    // { "/home": 5, "/product": 3 }
+  totalVisits    Int?     @default(1)
+  actions       Json     @default("[]")// ← updatedActions (array/object of user actions)
+  pageViews      Json?    @default("[]")// { "/home": 5, "/product": 3 }
   device        String?  // mobile, desktop
   browser        String?
   referrer       String?
@@ -329,7 +330,7 @@ model userAnalytics {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   lastVisited     DateTime?
-  user          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model productAnalytics {
