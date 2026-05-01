@@ -2,9 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "master",
   "nxCloudAccessToken": " ",
-  "tui": {
-    "enabled": false
-  },
+  "tui": { "enabled": false },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
@@ -19,23 +17,12 @@
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
-  "nxCloudId": "699344f839aabe1d0607396f",
+  "nxCloudId": "69f4e54a964748c3df8b5297",
   "generators": {
-    "@nx/js:library": {
-      "directory": "packages"
-    },
-    "@nx/node:library": {
-      "directory": "packages"
-    },
-    "@nx/node:application": {
-      "directory": "apps"
-    },
-    "@nx/next": {
-      "application": {
-        "style": "tailwind",
-        "linter": "none"
-      }
-    }
+    "@nx/js:library": { "directory": "packages" },
+    "@nx/node:library": { "directory": "packages" },
+    "@nx/node:application": { "directory": "apps" },
+    "@nx/next": { "application": { "style": "tailwind", "linter": "none" } }
   },
   "plugins": [
     {
@@ -48,9 +35,7 @@
     },
     {
       "plugin": "@nx/jest/plugin",
-      "options": {
-        "targetName": "test"
-      },
+      "options": { "targetName": "test" },
       "exclude": [
         "apps/api-e2e/**/*",
         "apps/api-gateway-e2e/**/*",
