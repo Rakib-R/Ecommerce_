@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import axiosInstance from '@user-ui/app/utils/axios'
+import axiosInstance from '../../utils/axios'
 import Link from 'next/link'
 import { Range } from 'react-range';
-import ProductCard from '@user-ui/app/shared/components/cards/product-card'
+import ProductCard from '../../shared/components/cards/product-card'
+import { ProductPayloadWithDetails } from '../../../types'
 
 const MIN = 0;
-const MAX = 1199;
+const MAX = 1200;
 
 const Page = () => {
   const [mounted, setMounted] = useState(false);
@@ -20,14 +21,14 @@ const Page = () => {
   }, []);
 
   const [isProductLoading, setIsProductLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 1199]);
+  const [priceRange, setPriceRange] = useState([0, 1200]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductPayloadWithDetails[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [tempPriceRange, setTempPriceRange] = useState([0, 1199]);
+  const [tempPriceRange, setTempPriceRange] = useState([0, 1200]);
 
 
   const colors = [
@@ -41,16 +42,20 @@ const Page = () => {
 
   const sizes = [ "XS", "S", "M", 'L', "XL", "XXL"];
 
-  useEffect(() => {
-    const URLSearch = new URLSearchParams(window.location.search);
-    const priceRangeParam = URLSearch.get('priceRange');
-
-    if (priceRangeParam) {
-      const [min, max] = priceRangeParam.split(',').map(Number)
-      setPriceRange([min, max])
-      setTempPriceRange([min, max])
+   useEffect(() => {
+      // Read price range from URL
+      const URLSearch = new URLSearchParams(window.location.search);
+      const priceRangeParam = URLSearch.get('priceRange');
+  
+      if (priceRangeParam) {
+        const [rawMin, rawMax] = priceRangeParam.split(',').map(Number);
+      
+      const cleanMin = Math.max(MIN, Math.round(rawMin / 10) * 10);
+      const cleanMax = Math.min(MAX, Math.round(rawMax / 10) * 10);
+        
+      setPriceRange([cleanMin, cleanMax]);
+      setTempPriceRange([cleanMin, cleanMax]);
     }
-    
     // Read page from URL
     const pageParam = URLSearch.get('page')
     if (pageParam) {
@@ -109,7 +114,7 @@ useEffect(() => {
     setSelectedSizes(prev => prev.includes(size) ? prev.filter(item => item !== size) : [...prev, size]);
   };
 
-  const { data: categories, isLoading, isError } = useQuery({
+  const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: async() => {
       const res = await axiosInstance.get('/product/api/get-categories');

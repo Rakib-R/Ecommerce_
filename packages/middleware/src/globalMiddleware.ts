@@ -49,8 +49,8 @@
 
 // const ROLE_TOKENS: Record<string, string[]> = {
 //   user:   ['access_token'],
-//   seller: ['seller-access-token'],
-//   admin:  ['admin-access-token', 'admin-refresh-token'],
+//   seller: ['seller_refresh_token'],
+//   admin:  ['admin_access_token', 'admin_refresh_token'],
 // };
 
 

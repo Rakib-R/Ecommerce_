@@ -1,4 +1,3 @@
-
 import { Response, CookieOptions } from "express";
 
 export const setCookie = (
@@ -7,23 +6,31 @@ export const setCookie = (
   value: string,
   options?: Partial<CookieOptions>
 ) => {
+  const isProd = process.env.NODE_ENV === "production";
 
+  // 1. Set global structural security rules
   const defaultOptions: CookieOptions = {
-    // secure: process.env.NODE_ENV === "production",
-    // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    // path: "/",
-
     httpOnly: true,
-    secure: false,                    //!SHOULD BE FALSE IN DEV MODE AND SAMESITE = RELAX
-    sameSite: process.env.NODE_ENV === "Production" ? "none" : "lax", //! NONE ONLY WORKS WITH SECURE ==true
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
-    domain: undefined
   };
 
-  // Merge defaults with provided options
-  const cookieOptions = { ...defaultOptions, ...options };
+  // 2. Automatically assign maxAge based on token name if not manually specified
+  let dynamicMaxAge = 7 * 24 * 60 * 60 * 1000; // fallback default (7 days)
+
+  if (name.includes("access_token")) {
+    dynamicMaxAge = 15 * 60 * 1000; // 15 minutes
+  } else if (name.includes("refresh_token")) {
+    dynamicMaxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+  }
+
+  // 3. Clean merge: Incoming options take highest priority
+  const cookieOptions = {
+    maxAge: dynamicMaxAge,
+    ...defaultOptions,
+    ...options,
+  };
 
   res.cookie(name, value, cookieOptions);
 };

@@ -1,0 +1,19 @@
+{
+  "name": "imagekit",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/libs/imagekit/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/libs/imagekit",
+        "main": "packages/libs/imagekit/src/index.ts",
+        "tsConfig": "packages/libs/imagekit/tsconfig.lib.json",
+        "assets": ["packages/libs/imagekit/*.md"]
+      }
+    }
+  }
+}

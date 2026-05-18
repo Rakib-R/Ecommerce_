@@ -16,9 +16,12 @@ export interface ShopType {
     category: string;
     coverShop : imageType[];
     coverBanner: string;
-    description?: string;
     address?: string;
     followers?: string[];
+    opening_hours: string;
+    website?:    string;
+    sellerId: string;
+    socialLinks?: JSON;
     rating?: number;
     seller: {
       name: string;
@@ -29,6 +32,7 @@ export interface ShopType {
 
 export interface UserType {
   id: string;
+  role: 'user';
   name: string;
   email: string;
   avatar?: imageType;

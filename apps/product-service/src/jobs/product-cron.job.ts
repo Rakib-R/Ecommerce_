@@ -1,5 +1,6 @@
 
-import prisma from "@packages/prisma";
+
+import { prisma } from "@packages/prisma";
 import cron from 'node-cron'
 
 cron.schedule('0 * * * *', async () => {
@@ -15,5 +16,7 @@ cron.schedule('0 * * * *', async () => {
     });
 
     console.log(`${deletedProducts.count} expired products permanently deleted.`);
-  } catch (error) {}
+  } catch (error) {
+    return error
+  }
 });

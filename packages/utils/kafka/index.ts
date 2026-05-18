@@ -1,10 +1,10 @@
 
 import { Kafka, logLevel, Producer, Partitioners } from "kafkajs";
 
-const BROKER = process.env.KAFKA_BOOTSTRAP_SERVERS || process.env.KAFKA_BROKER || "localhost:9092";
-const API_KEY = process.env.KAFKA_API_KEY;
-const API_SECRET = process.env.KAFKA_API_SECRET;
-const TOPIC = process.env.KAFKA_TOPIC || "user-events";
+const BROKER = process.env['KAFKA_BOOTSTRAP_SERVERS'] || process.env['KAFKA_BROKER'] || "localhost:9092";
+const API_KEY = process.env['KAFKA_API_KEY'];
+const API_SECRET = process.env['KAFKA_API_SECRET'];
+const TOPIC = process.env['KAFKA_TOPIC'] || "user-events";
 
 // Only log if we're in development or debug mode
 // if (process.env.NODE_ENV !== 'production') {
@@ -34,13 +34,12 @@ export const kafka = new Kafka({
     multiplier: 1.5,
     maxRetryTime: 30000,
   },
-  logLevel: process.env.NODE_ENV === 'development' ? logLevel.DEBUG : logLevel.ERROR,
-  logCreator: () => ({ namespace, level }: { namespace: string; level: number }) => {
-    // Only log errors and warnings in production
-    if (process.env.NODE_ENV !== 'production' || level <= logLevel.ERROR) {
-      console.log(` [${namespace}]`);
-    }
-  },
+  logLevel: process.env["NODE_ENV"] === "development" ? logLevel.DEBUG : logLevel.ERROR,
+  logCreator: () => ({ namespace, level, log }) => {
+  if (level <= logLevel.ERROR) {
+    console.error(`[${namespace}]`, log.message);
+  }
+},
 });
 
 // Singleton producer
@@ -84,7 +83,7 @@ export async function getProducer(): Promise<Producer> {
   connectionPromise = (async () => {
     try {
       console.log('🚀 Connecting to Kafka...');
-      await producer!.connect();
+      await producer.connect();
       console.log('✅ Kafka producer connected successfully');
     } catch (error) {
       console.error('❌ Failed to connect Kafka producer:', error);
@@ -96,7 +95,7 @@ export async function getProducer(): Promise<Producer> {
   })();
 
   await connectionPromise;
-  return producer!;
+  return producer;
 }
 
 // Helper function to send events with retry logic
@@ -110,7 +109,7 @@ export async function sendKafkaEvent(eventData: {
   city?: string;
 }) {
   // Skip if no credentials in development
-  if (process.env.NODE_ENV === 'development' && (!API_KEY || API_KEY === 'your-api-key')) {
+  if (process.env["NODE_ENV"] === "development" && (!API_KEY || API_KEY === "your-api-key")) {
     console.log('📝 [DEV] Event (skipped):', eventData.action);
     return;
   }
@@ -120,19 +119,19 @@ export async function sendKafkaEvent(eventData: {
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const producer = await getProducer();
+      const kafkaProducer = await getProducer();
       
       const message = {
         ...eventData,
         metadata: {
           timestamp: new Date().toISOString(),
           source: 'user-ui',
-          environment: process.env.NODE_ENV,
+          environment: process.env["NODE_ENV"],
           attempt: attempt,
         },
       };
       
-      await producer.send({
+      await kafkaProducer.send({
         topic: TOPIC,
         messages: [{
           key: eventData.userId || eventData.productId || 'unknown',

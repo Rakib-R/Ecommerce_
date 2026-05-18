@@ -4,6 +4,7 @@ export function sendKafkaEvent(eventData: {
   userId?: string;
   productId?: string;
   shopId?: string;
+  quantity?: number;
   action: string;
   device?: string;
   country?: string;

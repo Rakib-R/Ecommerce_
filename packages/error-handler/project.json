@@ -1,0 +1,19 @@
+{
+  "name": "error-handler",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/error-handler/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/error-handler",
+        "main": "packages/error-handler/src/index.ts",
+        "tsConfig": "packages/error-handler/tsconfig.lib.json",
+        "assets": ["packages/error-handler/*.md"]
+      }
+    }
+  }
+}

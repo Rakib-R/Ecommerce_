@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@packages/error-handler": "workspace:*",
-    "@packages/middleware": "workspace:*",
+    "@packages/imagekit": "workspace:*",
     "@packages/prisma": "workspace:*",
     "@packages/redis": "workspace:*",
-    "@packages/imagekit": "workspace:*"
+    "@prisma/client": "6.5.0"
   }
 }

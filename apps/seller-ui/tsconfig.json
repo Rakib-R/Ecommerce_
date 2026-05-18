@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
 
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "jsx": "preserve",
     "strict": true,
     "noEmit": true,
@@ -26,10 +26,6 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["src/*"],
-      "@utils": ["src/utils/*"]
-    },
 
     "tsBuildInfoFile": ".tsbuildinfo"
   },

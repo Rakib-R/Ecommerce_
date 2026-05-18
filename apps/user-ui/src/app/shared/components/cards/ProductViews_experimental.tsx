@@ -3,16 +3,17 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Ratings from '@user-ui/app/utils/Ratings'
+import Ratings from '../../../utils/Ratings'
 import { MapPin, MessageCircle, X, ShoppingCart, Shield, RotateCcw, Truck, Heart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import useUser from '@user-ui/app/hooks/useUser'
-import { useStore } from '@user-ui/app/store/authStore'
-import { useLocationTracking } from '@user-ui/app/hooks/useLocationTracking'
-import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
-import type { Store } from '@user-ui/app/store/authStore'
+import useUser from '../../../hooks/useUser'
+import { useStore } from '../../../store/authStore';
+import { useLocationTracking } from '../../../hooks/useLocationTracking';
+import useDeviceTracking from '../../../hooks/useDeviceTracking'
+import { Store } from '../../../store/authStore';
+import { ProductPayloadWithDetails, UserType } from '../../../../types';
 
-const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: boolean) => void }) => {
+const ProductDetailsCard = ({ data, setOpen }: { data: ProductPayloadWithDetails; setOpen: (open: boolean) => void }) => {
     const [activeImage, setActiveImage] = useState(0)
     const router = useRouter()
     const [isSelected, setIsSelected] = useState(data?.colors?.[0] || '')
@@ -22,9 +23,9 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
     const addToCart     = useStore((state: Store) => state.addToCart)
     const addToWishlist = useStore((state: Store) => state.addToWishlist)
     const wishlist      = useStore((state: Store) => state.wishlist)
-    const isWishlisted  = wishlist?.some((item: any) => item.id === data.id)
+    const isWishlisted  = wishlist?.some((item) => item.id === data.id)
     const cart          = useStore((state: Store) => state.cart)
-    const isInCart      = cart?.some((item: any) => item.id === data.id)
+    const isInCart      = cart?.some((item) => item.id === data.id)
 
     const { user }   = useUser()
     const location   = useLocationTracking()
@@ -93,7 +94,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                             {/* Main image */}
                             <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-white border border-emerald-100/80">
                                 <Image
-                                    src={data?.images?.[activeImage]?.url || '/placeholder.webp'}
+                                    src={data?.images?.[activeImage]?.file_url || '/placeholder.webp'}
                                     alt={data?.title || 'Product'}
                                     fill
                                     className="object-contain p-6"
@@ -109,16 +110,16 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                             ) : <></>}
 
                             {data.sizes && (
-                                data.sizes.map((size : any)=> {
+                                data.sizes.map((size)=> 
                                     <span className='bg-black'>{size}</span>
-                                })
+                                )
                             )}
                         </div>
 
                         {/* Thumbnails */}
                         {data?.images?.length > 1 && (
                             <div className="flex gap-2 flex-wrap">
-                                {data.images.map((img: any, i: number) => (
+                                {data.images.map((img, i: number) => (
                                     <button
                                         key={i}
                                         onClick={() => setActiveImage(i)}
@@ -127,7 +128,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                                                 ? 'border-emerald-500 scale-105 shadow-sm'
                                                 : 'border-gray-200 hover:border-emerald-300'}`}>
                                         <Image
-                                            src={img?.url || '/placeholder.webp'}
+                                            src={img?.file_url || '/placeholder.webp'}
                                             alt={`thumb-${i}`}
                                             fill className="object-cover" sizes="56px"
                                             onError={(e) => { e.currentTarget.src = '/placeholder.webp' }}
@@ -164,29 +165,29 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                             <div className="flex items-center gap-2.5 min-w-0">
                                 <div className="relative w-9 h-9 flex-shrink-0 rounded-full overflow-hidden border-2 border-emerald-200">
                                     <Image
-                                        src={data?.Shop?.avatar || '/default-shop.jpg'}
+                                        src={data?.shop?.coverShop[0].file_url || '/default-shop.jpg'}
                                         alt="Shop" fill className="object-cover" sizes="36px"
                                         onError={(e) => { e.currentTarget.src = '/default-shop.jpg' }}
                                     />
                                 </div>
                                 <div className="min-w-0">
                                     <Link
-                                        href={`/shop/${data?.Shop?.id}`}
+                                        href={`/shop/${data?.shop?.id}`}
                                         className="text-[13px] font-semibold text-gray-800 hover:text-emerald-700 transition block truncate">
-                                        {data?.Shop?.name || 'Shop Name'}
+                                        {data?.shop?.name || 'Shop Name'}
                                     </Link>
                                     <div className="mt-0.5">
-                                        <Ratings rating={data?.Shop?.ratings || 0} />
+                                        <Ratings rating={data?.shop?.rating || 0} />
                                     </div>
                                     <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
                                         <MapPin size={10} />
-                                        <span className="truncate">{data?.Shop?.address || 'Location unavailable'}</span>
+                                        <span className="truncate">{data?.shop?.address || 'Location unavailable'}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <button
-                                onClick={() => router.push(`/inbox?shopId=${data?.Shop?.id}`)}
+                                onClick={() => router.push(`/inbox?shopId=${data?.shop?.id}`)}
                                 className="flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium
                                             bg-emerald-50 text-emerald-700 border border-emerald-200
                                             hover:bg-emerald-100 transition">
@@ -213,7 +214,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
 
                         {/* ── Description — legible, full contrast ── */}
                         <p className="mt-3 text-[13.5px] font-semibold text-gray-600 leading-[1.75]">
-                            {data?.short_description || data?.description || 'No description available.'}
+                            {data?.short_description || 'No description available.'}
                         </p>
 
                         {/* Price row */}
@@ -248,7 +249,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                         <hr className="my-4 border-gray-100" />
 
                         {/* Size */}
-                        {data?.sizes?.length > 0 && (
+                        {data?.sizes?.length && (
                             <div className="mb-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Size</p>
                                 <div className="flex gap-2 flex-wrap">
@@ -268,7 +269,7 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                         )}
 
                         {/* Color */}
-                        {data?.colors?.length > 0 && (
+                        {data?.colors?.length && (
                             <div className="mb-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Color</p>
                                 <div className="flex gap-2 flex-wrap">
@@ -313,10 +314,15 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
 
                                     {/* Wishlist */}
                                     <button
-                                        onClick={() => addToWishlist(
-                                            { ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
-                                            user, location?.country ?? '', deviceInfo
-                                        )}
+                                        onClick={() => {
+                                            if (!location) return;
+                                            addToWishlist({
+                                                product:data, quantity, 
+                                                selectedOptions: { color: isSelected, size: isSizeSelected },
+                                                user: user as UserType,
+                                                location, 
+                                                deviceInfo });
+                                            }}
                                         className={`w-10 h-10 flex-shrink-0 rounded-xl border flex items-center justify-center transition-all
                                             ${isWishlisted
                                                 ? 'bg-red-50 border-red-200'
@@ -332,12 +338,14 @@ const ProductDetailsCard = ({ data, setOpen }: { data: any; setOpen: (open: bool
                                     <button
                                         disabled={isInCart}
                                         onClick={() => {
-                                            if (!location) return
-                                            addToCart(
-                                                { ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
-                                                user, location.country, deviceInfo
-                                            )
-                                        }}
+                                            if (!location) return;
+                                            addToCart({
+                                                product:data, quantity, 
+                                                selectedOptions: { color: isSelected, size: isSizeSelected },
+                                                user: user as UserType,
+                                                location, 
+                                                deviceInfo });
+                                            }}
                                         className={`flex-1 min-w-[100px] h-10 flex items-center justify-center gap-2
                                                 rounded-xl text-[13px] font-semibold transition-all
                                         ${isInCart

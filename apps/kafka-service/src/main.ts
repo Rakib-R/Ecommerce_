@@ -4,7 +4,7 @@ import { kafka } from "./lib/kafka";
 import { updateUserAnalytics } from './services/analytics.service';
 
 const consumer = kafka.consumer({heartbeatInterval: 3000, sessionTimeout: 30000, groupId: 'user-events-group'})
-const eventQueue: any[] = [];
+const eventQueue: [] = [];
 let isRunning = false;
 
 async function processQueue() {
@@ -50,7 +50,7 @@ export async function consumeKafkaMessages(): Promise<void> {
   // connect to the kafka broker
   await consumer.connect();
   await consumer.subscribe({ 
-    topic: process.env.KAFKA_TOPIC!,
+    topic: process.env.KAFKA_TOPIC ?? 'default-topic',
     fromBeginning: false 
   });
   
@@ -66,7 +66,7 @@ export async function consumeKafkaMessages(): Promise<void> {
   consumer.on(consumer.events.CRASH, async ({ payload }: ConsumerCrashEvent) => {
     console.error('[Consumer] Crashed:', payload.error.message);
     isRunning = false;
-    await consumer.disconnect().catch(() => {});
+    await consumer.disconnect().catch(() => undefined);
     setTimeout(() => consumeKafkaMessages(), 5000);  // backoff retry
   });
 

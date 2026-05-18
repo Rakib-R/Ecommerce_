@@ -1,5 +1,5 @@
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@packages/prisma'; 
 
 const prisma = new PrismaClient();
 

@@ -1,14 +1,14 @@
+
 {
   "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    }
-  ],
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "esModuleInterop": true
-  }
+    "types": ["node"],
+    "moduleResolution": "node", 
+    "resolveJsonModule": true,
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/utils/src/global.d.ts"
+  ],
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

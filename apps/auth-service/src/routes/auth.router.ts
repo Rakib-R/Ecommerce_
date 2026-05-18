@@ -8,8 +8,8 @@ import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress,
     stripeWebhook, userForgotPassword, userRegistration, 
     verifySeller, verifySellerForgotPassword, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 
-import { isBuyer, isSeller } from '../../../../packages/middleware/src/authorizeRoles' 
-import { isAuthenticated } from "../../../../packages/middleware/src/index"
+import { isBuyer, isSeller } from "@packages/middleware"
+import { isAuthenticated } from "@packages/middleware"
 import track_router_kafka, { kafka_batch } from "../controller/track-router-kafka";
 
 const router: Router = express.Router();

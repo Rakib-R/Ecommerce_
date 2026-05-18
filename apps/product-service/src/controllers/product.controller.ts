@@ -2,30 +2,8 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
-import { imagekit } from "@packages/libs/imagekit"
+import { imagekit } from "@packages/imagekit"
 
-declare global {
-  namespace Express {
-    interface Request {
-      role?: 'admin' | 'seller' | 'user';
-      admin?: {
-        id: string;
-        email: string;
-      };
-      seller?: {
-        id: string;
-        name: string; 
-        role: string;
-        shop?: { id: string; name: string; };
-      };
-      user?: {
-         id: string;
-        role: string;
-        name?: string
-      };
-    }
-  }
-}
 
 // GET product categories
 export const getCategories = async (
@@ -106,7 +84,7 @@ export const createDiscountCodes = async (
 
 // GET all discount codes for the current seller
 export const getDiscountCodes = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -135,7 +113,7 @@ export const getDiscountCodes = async (
 };
 
 export const deleteDiscountCode = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -252,8 +230,9 @@ export const deleteProductImage = async (
     const response = await imagekit.deleteFile(fileId);
     res.status(200).json({ success: true, response });
 
-  } catch (error : any) {
-    console.error('⭕Image deletion failed ⭕', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('⭕Image deletion failed ⭕', errorMessage);
     next(error); // sends error to your error middleware, no hanging
   }
 };
@@ -305,7 +284,7 @@ export const createProduct = async (
 
   
   //! AUTH-ERROR AUTH-ERROR AUTH-ERROR
-  const seller = (req).seller || (req as any).admin;
+  const seller = req.seller || req.admin;
 
   if (!seller || !seller.id) {
       return next (new AuthError('Only seller and admin can create product!'))
@@ -410,12 +389,13 @@ export const createProduct = async (
       newProduct
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Creating Product Error:", error);
     
     res.status(500).json({ 
       success: false,  message: "Internal Server Error (Creating Product)", 
-      error: error.message 
+      error: errorMessage 
       
     });
   }
@@ -707,7 +687,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
   try {
     const product = await prisma.product.findUnique({
       where: {
-        slug: req.params.slug!,
+        slug: req.params.slug,
       },
       include: {
         images: true,
@@ -727,7 +707,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 
 //todo ------- WINSTON LOGGER
 import winston from 'winston';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@packages/prisma';
 import { number } from "zod";
 const db = new PrismaClient();
 const checkPrices = async () => {
@@ -767,7 +747,6 @@ const minMax = await db.product.aggregate({
       limit = 12
     } = req.query;
 
-    let priceRange_filter: [number, number]
     function parsedPriceRange( defaultRange: [number, number] = [0, 10000]): [number, number] {
       if (typeof priceRange !== "string") return defaultRange;
       
@@ -781,8 +760,9 @@ const minMax = await db.product.aggregate({
         : defaultRange;
     }
 
-    priceRange_filter = parsedPriceRange();
-
+    const priceRange_filter = parsedPriceRange();
+    // priceRange_filter: [number, number]
+    
     const parsedPage = Number(page);
     const parsedLimit = Number(limit)
     
@@ -828,7 +808,7 @@ const minMax = await db.product.aggregate({
     }
 
 
-  let [productsResult, totalResult] = await Promise.allSettled([
+  const [productsResult, totalResult] = await Promise.allSettled([
       prisma.product.findMany({
         where: filters,
         skip,

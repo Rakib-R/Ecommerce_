@@ -11,12 +11,14 @@ import useUser from '../../hooks/useUser'
 import { useLocationTracking } from '../../hooks/useLocationTracking'
 import useDeviceTracking from '../../hooks/useDeviceTracking'
 import type { CartItem } from '../../store/authStore'
+import { UserType } from '../../../types';
 
 const CartPage = () => {
   const { user } = useUser()
   const location = useLocationTracking()
   const deviceInfo = useDeviceTracking()
-  
+
+  const baseUser: UserType | null = user; 
   // Get pre-calculated values from store
   const cart = useCart()
   const storeSubtotal = useCartTotal()
@@ -129,7 +131,7 @@ const CartPage = () => {
                       <div className="flex items-center gap-4">
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                           <Image
-                            src={item.images?.[0]?.url || '/placeholder.jpg'}
+                            src={item.images?.[0]?.file_url || '/placeholder.jpg'}
                             alt={item.title}
                             fill
                             className="object-cover"
@@ -152,11 +154,11 @@ const CartPage = () => {
                     <td className="py-4 align-middle">
                       {item.salePrice && item.salePrice > 0 && item.salePrice < item.regularPrice ? (
                         <div>
-                          <span className="font-medium text-red-600">${item.effectivePrice.toFixed(2)}</span>
+                          <span className="font-medium text-red-600">${item.regularPrice.toFixed(2)}</span>
                           <span className="text-xs text-gray-400 line-through ml-2">${item.regularPrice.toFixed(2)}</span>
                         </div>
                       ) : (
-                        <span className="font-medium text-gray-600">${item.effectivePrice.toFixed(2)}</span>
+                        <span className="font-medium text-gray-600">${item.getExactRegularPrice.toFixed(2)}</span>
                       )}
                     </td>
 
@@ -165,8 +167,7 @@ const CartPage = () => {
                       <div className="flex max-w-[90px] mx-auto justify-center items-center border border-gray-300 rounded-md overflow-hidden">
                         <button
                           className="px-2 py-1 bg-gray-50 hover:bg-gray-200 transition border-r"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1, user, location, deviceInfo)}
-                        >
+                          onClick={() => user && updateQuantity(item.id, item.quantity - 1, user, location ?? undefined, deviceInfo)}>
                           −
                         </button>
                         <span className="px-3 py-1 text-sm font-medium">
@@ -174,8 +175,7 @@ const CartPage = () => {
                         </span>
                         <button
                           className="px-2 py-1 bg-gray-50 hover:bg-gray-200 transition border-l"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1, user, location, deviceInfo)}
-                        >
+                        onClick={() => user && updateQuantity(item.id, item.quantity + 1, user, location ?? undefined, deviceInfo)}>
                           +
                         </button>
                       </div>
@@ -192,9 +192,9 @@ const CartPage = () => {
                     <td className="py-4 pr-6 text-right align-middle">
                       <button
                         className="text-gray-400 hover:text-red-600 transition-colors p-2"
-                        onClick={() => removeFromCart(item.id, user, location, deviceInfo)}
-                        title="Remove"
-                      >
+                        onClick={() => baseUser && removeFromCart({ id: item.id, user: baseUser, location, deviceInfo })}
+
+                        title="Remove">
                         <Trash2 size={18} />
                       </button>
                     </td>

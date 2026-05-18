@@ -13,11 +13,12 @@ import {useRouter} from "next/navigation";
 import { usePathname } from 'next/navigation';
 import { queryClient } from "@apps/utils/queryClient";
 import axiosInstance from "../../utils/axios";
+import { Adamina } from "next/font/google";
 
 const Header = () => {
   const { user, isLoading } = useUser();
-  const wishlist = useStore((state: any) => state.wishlist);
-  const cart = useStore((state: any) => state.cart);
+  const wishlist = useStore((state) => state.wishlist);
+  const cart = useStore((state) => state.cart);
   const router = useRouter();
   const path = usePathname();
   const [pathname, setPath] = useState('');
@@ -97,7 +98,7 @@ const Header = () => {
                     <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0"  sizes="(max-width: 512px) 100vw, 33vw"
                       loading="lazy"/>
                     <p className="font-medium text-black">
-                      <span className='text-md'>Hello, {user.role === 'admin' ? 'Admin' : ''}</span>
+                      <span className='text-md'>Hello,</span>
                       <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
                   </Link>

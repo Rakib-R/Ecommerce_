@@ -1,7 +1,15 @@
 
 packages:
   - 'apps/*'
+  - '!apps/api-e2e'
+  - '!apps/api-gateway-e2e'
+  - '!apps/auth-service-e2e'
+  - '!apps/utils'
+  - 'packages/utils/*'
+  - 'packages/libs/*'
   - 'packages/*'
-  - 'packages/*/*'
+  - '!packages/components'
+  - '!packages/libs'
+  - '!packages/src'
 autoInstallPeers: true
 strictPeerDependencies: false

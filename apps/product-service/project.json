@@ -1,5 +1,6 @@
 {
   "name": "product-service",
+  "implicitDependencies": ["prisma", "imagekit", "middleware"],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/product-service/src",
   "projectType": "application",
@@ -47,7 +48,7 @@
     "swagger": {
     "executor": "nx:run-commands",
     "options": {
-      "command": "ts-node -P apps/product-service/tsconfig.app.json apps/product-service/src/swagger.ts"
+      "command": "tsx apps/product-service/src/swagger.ts"
     }
   }
   },

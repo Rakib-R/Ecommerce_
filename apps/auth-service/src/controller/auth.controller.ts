@@ -8,29 +8,6 @@ import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken"
 import { setCookie } from "../utils/cookies/setCookie";
 import Stripe from 'stripe';
 
-declare global {
-  namespace Express {
-    interface Request {
-      role: 'admin' | 'seller' | 'user';
-      admin?: {
-        id: string;
-        email: string;
-      };
-      seller?: {
-        id: string;
-        name: string; 
-        role: string;
-        shop?: { id: string; name: string; };
-      };
-      user?: {
-         id: string;
-        role: string;
-        name?: string
-      };
-    }
-  }
-}
-
 export const userRegistration = async (
   req: Request,
   res: Response,
@@ -122,8 +99,8 @@ export const loginUser = async (
 
     //!!!  ---------  HAVE TO GET RID OF PREVIOUS TOKENS ------- MIGHT BE SELLER OR USER @@ -------------
 
-    res.clearCookie("seller-access-token");
-    res.clearCookie("seller-refresh-token");
+    res.clearCookie("seller_refresh_token", { path : '/' });
+    res.clearCookie("seller_refresh_token", { path : '/' });
       
   if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
     return next(new AuthError("Internal Server Error: Missing Token Secrets (for user)"));
@@ -141,10 +118,16 @@ export const loginUser = async (
     { expiresIn: refreshTokenExpiry }
   );
 
-    const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+    const accessCookieMaxAge = rememberMe 
+      ? 2 * 24 * 60 * 60 * 1000   // 2 days in ms
+      : 15 * 60 * 1000;           // 15 minutes in ms
+
+    const refreshCookieMaxAge = rememberMe 
+      ? 15 * 24 * 60 * 60 * 1000  // 15 days in ms
+      : 7 * 24 * 60 * 60 * 1000; 
 
     setCookie(res, "refresh_token", refreshToken, {
-      maxAge: cookieMaxAge,
+      maxAge: refreshCookieMaxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -152,7 +135,7 @@ export const loginUser = async (
     });
     
     setCookie(res, "access_token", accessToken, {
-      maxAge: cookieMaxAge,
+      maxAge: accessCookieMaxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -197,8 +180,8 @@ export const loginUser = async (
 //         { expiresIn: '7d' }
 //       );
 
-//       setCookie(res, "admin-access-token", accessToken);
-//       setCookie(res, "admin-refresh-token", refreshToken);
+//       setCookie(res, "admin_access_token", accessToken);
+//       setCookie(res, "admin_refresh_token", refreshToken);
 
 //       return res.status(200).json({
 //         message: "Admin Login successful!",
@@ -253,8 +236,8 @@ export const refreshToken_User = async (
       if (err instanceof TokenExpiredError) {
 
         //  Refresh token expired → clear cookies → force re-login
-        res.clearCookie("refresh_token");
-        res.clearCookie("access_token");
+        res.clearCookie("refresh_token", { path: "/" });
+        res.clearCookie("access_token",  { path: "/" });
         return res.status(401).json({ 
           success: false, 
           message: "Session expired For User. Please log in again." 
@@ -272,12 +255,12 @@ export const refreshToken_User = async (
   }
 
     let account;
-    req.user = account;
 
     if (decoded.role === "user") {
       account = await prisma.users.findUnique({ where: { id: decoded.id },  });
   } 
-    
+    req.user = account;
+
     if (decoded.role !== "user") {
       return res.status(403).json({
         success: false,
@@ -317,10 +300,10 @@ export const refreshToken_Seller = async (
 ) => {
   try {
     const refreshToken =  
-      req.cookies["seller-refresh-token"] ||
+      req.cookies["seller_refresh_token"] ||
       req.headers.authorization?.split(" ")[1];
 
-    console.log('REFRESH_TOKEN FOUND 4 SELLER:', refreshToken ? 'YES' : 'NO');
+    console.log('REFRESH_TOKEN FOUND foR SELLER:', refreshToken ? 'YES' : 'NO');
     // console.log('COOKIE HEADER:', req.headers.cookie); 
 
     if (!refreshToken) {
@@ -342,9 +325,9 @@ export const refreshToken_Seller = async (
     } catch (err) {
       if (err instanceof TokenExpiredError) {
 
-        //  Refresh token expired → clear cookies → force re-login
-        res.clearCookie("seller-refresh-token");
-        res.clearCookie("seller-access-token");
+        // ✅ FIX 2: Explicitly pass path configuration when clearing cookies
+        res.clearCookie("refresh_token", { path: "/" });
+        res.clearCookie("access_token", { path: "/" });
         return res.status(401).json({ 
           success: false, 
           message: "Session expired (Seller). Please log in again." 
@@ -362,12 +345,12 @@ export const refreshToken_Seller = async (
   }
 
     let account;
-    req.seller = account;
 
     if (decoded.role === "seller") {
       account = await prisma.sellers.findUnique({ where: { id: decoded.id },  });
   } 
-    
+      req.seller= account
+
     if (decoded.role !== "seller") {
     return res.status(403).json({
       success: false,
@@ -383,7 +366,7 @@ export const refreshToken_Seller = async (
     );
     
     if (decoded.role === "seller") {
-      setCookie(res, "seller-access-token", newAccessToken);
+      setCookie(res, "seller_refresh_token", newAccessToken);
     } 
 
     req.role = decoded.role ;
@@ -399,9 +382,16 @@ export const refreshToken_Seller = async (
 };
 
 
- export const getUser = async (req: any, res: Response, next: NextFunction) => {
+ export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Allow access to home route without user check
+    const user = req.user || req.admin;
+
+    // 1. If user exists, always return the user data
+    if (user) {
+      return res.status(200).json({ success: true, user });
+    }
+
+    // 2. If no user, check if the path allows public access
     if (req.path === '/' || req.path === '/home') {
       return res.status(200).json({ 
         success: true, 
@@ -410,20 +400,17 @@ export const refreshToken_Seller = async (
       });
     }
     
-    const user = req.user || req.admin;
+    // 3. No user and not a public path means forbidden
+    return res.status(403).json({ 
+      success: false, 
+      message: "Does Not Exist: Not a User or Admin" 
+    });
 
-    if (!user) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Forbidden: Not a User or Admin" 
-      });
-    }
-    
-    res.status(200).json({ success: true, user });
-  } catch (error) {
-    next(error);
+  } catch (error: unknown) {
+    next(error); // Pass TypeScript safe error handling to Express
   }
 };
+
 
   export const userForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     await  handleForgotPassword(req, res, next, "buyer");
@@ -450,7 +437,7 @@ export const refreshToken_Seller = async (
       if (!user) return next(new ValidationError("User not found!"));
 
       // compare new password with the existing one
-      const isSamePassword = await bcrypt.compare(newPassword, user.password!);
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
       if (isSamePassword)
         throw new ValidationError("New password cannot be the same as the old password!");
       
@@ -468,8 +455,7 @@ export const refreshToken_Seller = async (
     }
   };
 
-  import { addressType } from "@prisma/client";
-import { error } from "console";
+  import { addressType } from '@packages/prisma';
   export const addUserAddress = async (
     req: Request,
     res: Response,
@@ -675,49 +661,69 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
 };
 
 // Create shop
+import { ShopType } from "packages/utils/src/global";
+// 1. Force the input type to accept the Prisma relation block, ignoring the global interface structure
+type CreateShopInput = Omit<ShopType, 'id' | 'seller' | 'coverShop'> & {
+  coverShop?: {
+    create: {
+      file_id: string;
+      url: string;
+    };
+  };
+};
+
 export const createShop = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, bio, address, opening_hours, website, category, sellerId , avatarData} = req.body;
+    const { name, bio, address, opening_hours, website, category, sellerId, avatarData } = req.body;
 
-    if (
-      !name || !bio || !address || !sellerId || !opening_hours || !category
-    ) {
-      return next (new ValidationError('All fields are required for creating shop!'));
+    if (!name || !bio || !address || !sellerId || !opening_hours || !category) {
+      return next(new ValidationError('All fields are required for creating shop!'));
     }
-    const shopData: any = {
-        name, bio, address, opening_hours, category, sellerId
-      };
 
-      if (website && website.trim().length > 0) {
-        shopData.website = website;
-      }
-       if (avatarData) {
-        shopData.ShopCover = {
+    // 2. Remove the trailing ', seller' field from this object literal block
+    const shopData: CreateShopInput = {
+      name, 
+      bio, 
+      address, 
+      opening_hours, 
+      category, 
+      sellerId
+    };
+
+    if (website && website.trim().length > 0) {
+      shopData.website = website;
+    }
+
+    if (avatarData) {
+      // 3. This will now compile cleanly because we overrode 'coverShop' above
+      shopData.coverShop = {
         create: {
-          file_id: avatarData.file_id,   // ← Match frontend
-          url: avatarData.file_url       // ← Match schema field name
+          file_id: avatarData.file_id,   
+          url: avatarData.file_url       
         }
       };
-      }
+    }
 
-      const shop = await prisma.shops.create({
-          data: shopData,
-        });
+    // 4. Cast to any here to satisfy Prisma's complex dynamic type checker
+    const shop = await prisma.shops.create({
+      data: shopData as any,
+    });
     
-      // SELLERS DATA UPDATE. COULD ALSO DO INSIDE shop.create
-      await prisma.sellers.update({ 
-        where : { id: sellerId},
-        data: { shop: { connect: { id: shop.id } } }
-      })
+    await prisma.sellers.update({ 
+      where: { id: sellerId },
+      data: { shop: { connect: { id: shop.id } } }
+    });
 
-      res.status(201).json({
-        success: true,
-        shop,
-      });
-    } catch (error) {
-      next(error);
+    return res.status(201).json({
+      success: true,
+      shop,
+    });
+    
+  } catch (error) {
+    return next(error);
   }
 };
+
 
 // create stripe connect account link
 export const createStripeConnectLink = async (
@@ -739,7 +745,7 @@ export const createStripeConnectLink = async (
     });
 
     if (!seller) {
-      return next(new Error("Seller account not found."));
+      return next(new Error("Does Not Exist: Not a sellr or admin"));
     }
 
     let stripeAccountId = seller.stripeId;
@@ -814,17 +820,18 @@ export const loginSeller = async (
 
     const seller = await prisma.sellers.findUnique({ where: { email } });
     if (!seller) return next(new AuthError("Seller doesn't exist!"));
-    const isMatch = await bcrypt.compare(password, seller.password!);
+    const isMatch = await bcrypt.compare(password, seller.password);
 
     if (!isMatch) {
       return next(new ValidationError("Invalid email or password!"));
     }
 
-    const cookieMaxAge = rememberMe ? 15 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days vs 7 days
+    const cookieMaxAge_access = rememberMe ? 2 * 24 * 60 * 60 * 1000 : 15 * 60 * 60 * 1000; // 30 days vs 7 days
+    const cookieMaxAge_refresh = rememberMe ? 15 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days vs 7 days
 
     // Clear any existing buyer tokens so sessions don't conflict
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
+    res.clearCookie("access_token", { path : '/' });
+    res.clearCookie("refresh_token", { path : '/' });
     
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
       return next(new AuthError("Internal Server Error: Missing Token Secrets (for seller)"));
@@ -847,21 +854,19 @@ export const loginSeller = async (
     // setCookie(res, "refreshToken", refreshToken);
     // setCookie(res, "accessToken", accessToken);
     // SHORT CUT 
-    // setCookie(res, "seller-refresh-token", refreshToken);
-    // setCookie(res, "seller-access-token", accessToken);
+    // setCookie(res, "seller_refresh_token", refreshToken);
+    // setCookie(res, "seller_refresh_token", accessToken);
 
-    // --------------- ~ LONG CUT ~  ----------------------
-    //! OPTIONAL FOR FULLY FUNCTIONAL REMEMBER-ME!
-    setCookie(res, "seller-refresh-token", refreshToken, {
-      maxAge: cookieMaxAge,
+    setCookie(res, "seller_refresh_token", refreshToken, {
+      maxAge: cookieMaxAge_refresh,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
        path: "/",
     });
     
-    setCookie(res, "seller-access-token", accessToken, {
-      maxAge: cookieMaxAge,
+    setCookie(res, "seller_refresh_token", accessToken, {
+      maxAge: cookieMaxAge_access,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -879,7 +884,7 @@ export const loginSeller = async (
 
 // Get logged-in seller
 export const getSeller = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -910,10 +915,10 @@ export const stripeWebhook = async (req: Request, res: Response, next: NextFunct
     event = stripe.webhooks.constructEvent(
       req.body, // ⚠️ Must use raw body — see Step 4
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
-  } catch (err) {
-    return res.status(400).json({ message: "Webhook signature failed" });
+  } catch (err : unknown) {
+    return res.status(400).json({ message: "Webhook signature failed", err });
   }
 
   if (event.type === "account.updated") {
@@ -956,7 +961,7 @@ export const resetSellerPassword = async (
     if (!seller) return next(new ValidationError("Seller not found!"));
 
     // compare new password with the existing one
-    const isSamePassword = await bcrypt.compare(newPassword, seller.password!);
+    const isSamePassword = await bcrypt.compare(newPassword, seller.password);
     if (isSamePassword)
       throw new ValidationError("New password cannot be the same as the old password!");
     
@@ -988,10 +993,10 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
     // Clear all role-based tokens
     res.clearCookie("access_token",          cookieOptions);
     res.clearCookie("refresh_token",         cookieOptions);
-    res.clearCookie("seller-access-token",   cookieOptions);
-    res.clearCookie("seller-refresh-token",  cookieOptions);
-    res.clearCookie("admin-access-token",    cookieOptions);
-    res.clearCookie("admin-refresh-token",   cookieOptions);
+    res.clearCookie("seller_refresh_token",   cookieOptions);
+    res.clearCookie("seller_refresh_token",  cookieOptions);
+    res.clearCookie("admin_access_token",    cookieOptions);
+    res.clearCookie("admin_refresh_token",   cookieOptions);
 
     res.status(200).json({ message: "Logged out successfully." });
   } catch (error) {

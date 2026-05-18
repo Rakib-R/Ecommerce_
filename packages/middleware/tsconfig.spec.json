@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "../../dist/out-tsc",
+    "composite": true,
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "../utils/global.d.ts",
+    "jest.config.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ],
+
+  "references": [
+  { "path": "./tsconfig.lib.json" } // Reference your own code here
+]
+}

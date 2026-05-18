@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const useDeviceTracking = () => {
-  const [deviceInfo, setDeviceInfo] = useState("");
+  const [deviceInfo, setDeviceInfo] = useState({type: ''});
 
   useEffect(() => {
     fetch("/api")

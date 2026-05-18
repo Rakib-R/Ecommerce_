@@ -1,8 +1,8 @@
 
 
 
-import ShopCard from "@user-ui/app/shared/components/cards/shop-card";
-import { ShopType } from "@apps/user-ui/src/types";
+import ShopCard from "../../../shared/components/cards/shop-card";
+import { ShopType } from "../../../../types";
 
 type Shop = ShopType['shop'];
 

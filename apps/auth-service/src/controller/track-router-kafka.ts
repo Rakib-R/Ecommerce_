@@ -1,5 +1,5 @@
 // apps/api-gateway/src/routes/track.route.ts
-import { getProducer } from '../../../../packages/utils/kafka';
+import { getProducer } from '@packages/kafka';
 import { NextFunction, Request, Response } from "express";
 
 

@@ -1,7 +1,7 @@
 
 
-  import ProductCard from "@user-ui/app/shared/components/cards/product-card";
-  import { ProductPayload } from "../../../../types";
+  import ProductCard from "../../../shared/components/cards/product-card";
+  import {  ProductPayloadWithDetails } from "../../../../types";
 
 
   export const ProductSection = async () => {
@@ -21,13 +21,13 @@
     const data = await res.json();
     const product = data.getproductsPipeline;
 
-    const ids = product.map((p: ProductPayload) => String(p.id));
-    const hasDupes = ids.length !== new Set(ids).size;
+    const ids = product.map((p: ProductPayloadWithDetails) => String(p.id));
+    // const hasDupes = ids.length !== new Set(ids).size;
     // console.log('Products IDs:', ids, 'Product | Has duplicates:', hasDupes);
 
     return (
       <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
-        {product.map((product: ProductPayload) => (
+        {product.map((product: ProductPayloadWithDetails) => (
           <ProductCard key={`${String(product.id)}-product`} product={product} />
         ))}
       </div>

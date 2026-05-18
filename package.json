@@ -3,43 +3,80 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "pnpm exec nx run-many --target=serve --all",
     "dev:backend": "pnpm exec nx run-many --target=serve --projects=api-gateway,auth-service,api",
     "dev:frontend": "pnpm exec nx run-many --target=serve --projects=seller-ui,user-ui",
     "product": "pnpm exec nx serve product-service",
     "kafka": "pnpm exec nx serve kafka-service",
-    "auth-docs": "node apps/auth-service/src/swagger.js",
-    "product-docs": "node apps/product-service/src/swagger.js",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "pnpm --filter @packages/prisma exec prisma generate --schema=prisma/schema.prisma",
+    "start:prod": "pnpm exec nx run-many --target=serve --all --prod",
     "build:analyze_user": "cross-env ANALYZE=true pnpm exec nx build user-ui",
     "build:analyze_seller": "cross-env ANALYZE=true pnpm exec nx build seller-ui",
     "build": "pnpm exec nx run-many --target=build --all",
-    "start:prod": "pnpm exec nx run-many --target=serve --all --prod"
+    "product-docs": "node apps/product-service/src/swagger.js",
+    "auth-docs": "node apps/auth-service/src/swagger.js"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.33.0"
+  },
   "pnpm": {
+    "supportedArchitectures": {
+      "os": ["win32"],
+      "cpu": ["x64"]
+  },
     "peerDependencyRules": {
       "ignoreMissing": [
         "@babel/core",
         "webpack"
       ]
+    },
+    "onlyBuiltDependencies": [
+      "prisma",
+      "@prisma/client",
+      "esbuild",
+      "@swc/core",
+      "sharp"
+    ]
+  },
+  "overrides": {
+    "prisma": "6.5.0",
+    "@prisma/client": "6.5.0"
+  },
+  "prisma": {
+    "schema": "packages/libs/prisma/prisma/schema.prisma"
+  },
+  "THIS IS COMMENTED OUT": {
+    "nx": {
+      "targets": {
+        "build": {},
+        "serve": {
+          "dependsOn": [
+            "^build"
+          ]
+        }
+      }
     }
   },
   "devDependencies": {
+    "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "^9.8.0",
     "@next/bundle-analyzer": "16.2.2",
-    "@nx/devkit": "20.6.1",
-    "@nx/eslint-plugin": "20.6.1",
-    "@nx/express": "22.6.0",
-    "@nx/jest": "^20.6.1",
-    "@nx/js": "^20.6.1",
-    "@nx/next": "^20.6.1",
-    "@nx/node": "^20.6.1",
-    "@nx/react": "^20.6.1",
-    "@nx/web": "20.6.1",
-    "@nx/webpack": "^20.6.1",
-    "@nx/workspace": "20.6.1",
+    "@nx/devkit": "20.8.4",
+    "@nx/eslint": "20.8.4",
+    "@nx/eslint-plugin": "20.8.4",
+    "@nx/express": "20.8.4",
+    "@nx/jest": "20.8.4",
+    "@nx/js": "20.8.4",
+    "@nx/next": "^20.8.4",
+    "@nx/node": "^20.8.4",
+    "@nx/react": "^20.8.4",
+    "@nx/web": "20.8.4",
+    "@nx/webpack": "^20.8.4",
+    "@nx/workspace": "20.8.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@svgr/webpack": "^8.0.1",
     "@swc-node/register": "1.11.1",
@@ -68,17 +105,19 @@
     "jest": "30.0.5",
     "jest-environment-node": "^29.7.0",
     "jest-util": "30.0.5",
-    "nx": "^20.6.1",
+    "jsonc-eslint-parser": "^2.1.0",
+    "nx": "^20.8.4",
     "postcss": "8.4.38",
     "prettier": "^2.6.2",
     "react-refresh": "^0.10.0",
     "tailwindcss": "3.4.3",
     "ts-jest": "29.4.6",
     "ts-node": "10.9.1",
-    "tsconfig-paths": "^4.2.0",
+    "tsconfig-paths-webpack-plugin": "4.2.0",
     "tslib": "^2.3.0",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
+    "typescript-eslint": "8.59.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
@@ -89,6 +128,7 @@
     "@tanstack/react-query-persist-client": "^5.90.24",
     "@tanstack/react-table": "^8.21.3",
     "@types/node-cron": "^3.0.11",
+    "@upstash/redis": "1.38.0",
     "axios": "1.13.5",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
@@ -113,7 +153,6 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
-    "packages": "0.0.8",
     "prisma": "^6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

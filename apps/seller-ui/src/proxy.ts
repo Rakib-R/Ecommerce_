@@ -23,7 +23,7 @@ async function isValidToken(token: string): Promise<boolean> {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get('seller-access-token')?.value || req.cookies.get('admin-access-token')?.value;
+  const token = req.cookies.get('seller_refresh_token')?.value || req.cookies.get('admin_access_token')?.value;
   
   // Set pathname header
   const requestHeaders = new Headers(req.headers);

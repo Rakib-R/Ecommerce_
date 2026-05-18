@@ -16,11 +16,6 @@ export interface SellerType {
   updatedAt: string;
 }
 
-export interface SellerType {
-  user: SellerType;
-  token: string;
-}
-
 export interface ShopType {
   id: string;
   name: string;

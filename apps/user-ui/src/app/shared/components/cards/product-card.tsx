@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import Ratings from '../../../utils/Ratings'
 import { Eye, Heart, ShoppingBag } from 'lucide-react'
 
-import ProductDetailsCard from './productViews'
+// import ProductDetailsCard from './productViews'
 import ProductDetails_experimental from './ProductViews_experimental'
 
 import { useStore } from '../../../store/authStore'
@@ -14,28 +14,29 @@ import useUser from '../../../hooks/useUser'
 import { useLocationTracking } from '../../../hooks/useLocationTracking'
 import useDeviceTracking from '../../../hooks/useDeviceTracking'
 
-import { ProductPayloadWithDetails } from '@apps/user-ui/src/types'
+import { ProductPayloadWithDetails, UserType } from '../../../../types';
 
 const ProductCard = ({product, isEvent} : {product: ProductPayloadWithDetails, isEvent?: boolean}) => { 
 
 const [timeLeft, setTimeLeft] = useState("")
 const [open, setOpen] = useState(false)
 
-const addToCart = useStore((state: any) => state.addToCart)
-const removeToCart = useStore((state: any) => state.removeFromCart)
-const addToWishlist = useStore((state: any) => state.addToWishlist)
-const removeFromWishlist = useStore((state: any) => state.removeFromWishlist)
-const wishlist = useStore((state : any) => state.wishlist)
-const isWishlisted = wishlist?.some((item : any) => item.id === product.id)
+const addToCart = useStore((state) => state.addToCart)
+const removeFromCart = useStore((state) => state.removeFromCart)
+const addToWishlist = useStore((state) => state.addToWishlist)
+const removeFromWishlist = useStore((state) => state.removeFromWishlist)
+const wishlist = useStore((state) => state.wishlist)
+const isWishlisted = wishlist?.some((item) => item.id === product.id)
 
-  const cart = useStore((state : any) => state.cart)
-  const isInCart = cart?.some((item : any) => item.id === product.id)
+  const cart = useStore((state) => state.cart)
+  const isInCart = cart?.some((item) => item.id === product.id)
   const setModalOpen = useStore((state) => state.setModalOpen)
 
   const {user} = useUser() 
   const location = useLocationTracking()
   const deviceInfo = useDeviceTracking()
 
+  const baseUser : UserType | null = user;
   // HEADER TURNING OFF MECHANISM
 useEffect(() => {
     setModalOpen(open)           // ← syncs local `open` state → global store
@@ -124,10 +125,28 @@ return(
         aria-label="Add to wishlist">
         <Heart 
           onClick={(e) => {
-             e.preventDefault();
-             e.stopPropagation();  
-            isWishlisted ? removeFromWishlist(product.id, user, location, deviceInfo) : 
-            addToWishlist({...product, quantity: 1}, user, location,deviceInfo)}}
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!baseUser) return;
+
+            if (isWishlisted) {
+              removeFromWishlist({
+                id: product.id,
+                user: baseUser,
+                location,
+                deviceInfo
+              });
+            } else {
+              addToWishlist({
+                product,
+                user: baseUser,
+                quantity: 1,
+                location,
+                deviceInfo
+              });
+            }
+          }}
             stroke={isWishlisted ? 'red' : "#4B5563"}
             className='cursor-pointer hover:scale-110 transition-transform' 
             size={16}
@@ -152,8 +171,26 @@ return(
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();  
-            isInCart ? removeToCart(product.id, user, location, deviceInfo) :
-              addToCart({...product, quantity : 1}, user, location, deviceInfo)
+
+            if (!baseUser) return; 
+             if (isInCart) {
+    // Match the Object payload signature: { id, user, location, deviceInfo }
+              removeFromCart({ 
+              id: product.id, 
+                user: baseUser, 
+                location, 
+                deviceInfo 
+              });
+            } else {
+              // Match the Object payload signature: { product, user, location, deviceInfo }
+              addToCart({ 
+                product: product, 
+                quantity : 1,
+                user: baseUser, 
+                location, 
+                deviceInfo 
+              });
+            }
           }}>
           <ShoppingBag className="cursor-pointer hover:scale-110 transition-transform" size={16}/>
         </button>

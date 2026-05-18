@@ -4,14 +4,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Bell, CheckCircle, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, ShoppingCart, Truck, User } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, {  useEffect, useState } from "react";
-import useUser from "@user-ui/app/hooks/useUser";
-import StatCard from "@user-ui/app/shared/components/cards/stat-card";
-import { useAuthState } from "@user-ui/app/store/authStore";
-import axiosInstance from "@user-ui/app/utils/axios";
 import Image from "next/image";
-import QuickActionCard from "@user-ui/app/shared/components/cards/quick-action.card";
+import { useAuthState } from '../../store/authStore';
+import useUser from "../../hooks/useUser";
+import StatCard from "../../shared/components/cards/stat-card";
+import axiosInstance from "../../utils/axios";
+import QuickActionCard from "../../shared/components/cards/quick-action.card";
 import { type LucideIcon } from 'lucide-react';
-import ShippingAddressSection from "@user-ui/app/shared/components/ShippingAddressSection";
+import ShippingAddressSection from "../../shared/components/ShippingAddressSection";
+import { UserProfileType } from '../../../types';
 
 interface NavItemTypes{
   label : string;
@@ -30,6 +31,8 @@ const Page = () => {
     const {user, isLoading} = useUser();
     const queryTab = searchParams.get('active') || 'Profile';
     const [activeTab, setActiveTab] = useState(queryTab)
+
+    const UserProfile_Points = user as UserProfileType | null;
 
     useEffect(() => {
     if (activeTab !== queryTab) {
@@ -147,7 +150,7 @@ const Page = () => {
                 <div className="flex flex-col gap-4">
                 <aside className="flex flex-row">
                     <Image
-                      src={user.avatar?.url || 'https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704'}
+                      src={user.avatar?.file_url || 'https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704'}
                       alt="profile_photo"
                       width={60}
                       height={60}
@@ -168,7 +171,7 @@ const Page = () => {
                     </p> 
                     <p>
                         <span className="font-semibold">Earned Points:</span>{" "}
-                        {user.Points || 0}
+                        {UserProfile_Points?.Points || 0}
                     </p>
                 </div>
               </div>

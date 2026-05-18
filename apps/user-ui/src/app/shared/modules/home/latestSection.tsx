@@ -1,8 +1,7 @@
 
-import axiosInstance from "../../../utils/axios";
 
-import ProductCard from "@user-ui/app/shared/components/cards/product-card";
-import { ProductPayload } from "@user-ui/types";
+import ProductCard from "../../../shared/components/cards/product-card";
+import { ProductPayloadWithDetails } from "../../../../types";
 
 
 export const LatestSection = async () => {
@@ -24,7 +23,7 @@ export const LatestSection = async () => {
 
   return (
     <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
-      {latest.map((latest: ProductPayload) => (
+      {latest.map((latest: ProductPayloadWithDetails) => (
         <ProductCard key={`${String(latest.id)}-latest`} product={latest} />
       ))}
     </div>

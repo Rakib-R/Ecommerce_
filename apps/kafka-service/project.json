@@ -10,7 +10,7 @@
         "target": "node",
         "compiler": "tsc",
 
-         "clean": false,
+        "clean": false,
         "external": "none",
 
         "outputPath": "dist/apps/kafka-service",

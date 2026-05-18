@@ -6,18 +6,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Ratings from '../../../utils/Ratings'
 import {
-    MapPin, MessageCircle, X, ShoppingCart,
+    MapPin, MessageCircle, ShoppingCart,
     Heart, Truck, Shield, RotateCcw,CircleArrowRight, CircleArrowLeft 
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import useUser from '@user-ui/app/hooks/useUser'
-import { useStore } from '@user-ui/app/store/authStore'
-import { useLocationTracking } from '@user-ui/app/hooks/useLocationTracking'
-import useDeviceTracking from '@user-ui/app/hooks/useDeviceTracking'
-import type { Store } from '@user-ui/app/store/authStore'
+import useUser from '../../../hooks/useUser';
+import { useStore } from '../../../store/authStore';
+import { useLocationTracking } from '../../../hooks/useLocationTracking';
+import useDeviceTracking from '../../../hooks/useDeviceTracking';
+import { Store } from '../../../store/authStore';
 import ProductCard from '../../components/cards/product-card'
-import axiosInstance from '@user-ui/app/utils/axios'
-import { ProductPayloadWithDetails, imageType } from '@apps/user-ui/src/types'
+import axiosInstance from '../../../utils/axios';
+import { ProductPayload, ProductPayloadWithDetails, UserType, imageType } from '../../../../types'
 
 
 const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
@@ -28,7 +28,7 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
     const [isSelected, setIsSelected]         = useState(data?.colors?.[0] || '')
     const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '')
     const [quantity, setQuantity]             = useState(1)
-    const [priceRange, setPriceRange] = useState([data?.salePrice ?? 0, 1199])
+    const [priceRange] = useState([data?.salePrice ?? 0, 1200])
     const [recommendedProducts, setRecommendedProducts] = useState([]);
     const [currentIndex, setCurrentIndex]     =         useState<number>(0);  
     const [currentImage, setCurrentImage] = useState<imageType | undefined>(data?.images?.[0])
@@ -38,8 +38,8 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
     const removeFromWishlist = useStore((state: Store) => state.removeFromWishlist)
     const cart          = useStore((state: Store) => state.cart)
     const wishlist      = useStore((state: Store) => state.wishlist)
-    const isWishlisted  = wishlist?.some((item: any) => item.id === data.id)
-    const isInCart      = cart?.some((item: any) => item.id === data.id)
+    const isWishlisted  = wishlist?.some((item) => item.id === data.id)
+    const isInCart      = cart?.some((item) => item.id === data.id)
 
     const { user }   = useUser()
     const location   = useLocationTracking()
@@ -64,22 +64,25 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
     }
     };
     const toggleWishlist = () => {
+
         if (isWishlisted) {
-            removeFromWishlist(data.id, user, location?.country ?? '', deviceInfo);
-        } else {
-            addToWishlist({ ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
-            user, 
-            location?.country ?? '', 
-            deviceInfo
-            );
-        }
-    };
-        const discountPct = (() => {
-        const regular = data?.regularPrice;
-        const sale = data?.salePrice;
-        if (!regular || !sale || regular <= sale) return 0;
-        return Math.round(((regular - sale) / regular) * 100);
-    })();
+            removeFromWishlist({ id: data.id, // 👈 Uses data.id from your component props
+                            user: user as UserType,
+                            location,
+                            deviceInfo
+                        });
+                        } else {
+                            addToWishlist({ product :data, quantity, user: user as UserType , 
+                                selectedOptions: { color: isSelected, size: isSizeSelected }});
+                        }};
+
+            const discountPct = (() => {
+                
+            const regular = data?.regularPrice;
+            const sale = data?.salePrice;
+            if (!regular || !sale || regular <= sale) return 0;
+                return Math.round(((regular - sale) / regular) * 100);
+            })();
 
     const activeImageUrl = data?.images?.[currentIndex]?.file_url || '/active.web'
 
@@ -96,8 +99,8 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
         query.set("limit", "5");
         
         const res = await axiosInstance.get(`/product/api/get-filtered-products?${query.toString()}`);
-        const res_except_self = res.data.products.filter( (f : ) => f.id!= data.id)
-        setRecommendedProducts(res.data.products);
+        const res_except_self = res.data.products.filter( (f : ProductPayload) => f.id!= data.id)
+        setRecommendedProducts(res_except_self.data.products);
     
         } catch (error) {
         console.error("Failed to fetch filtered products", error);
@@ -375,8 +378,8 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                                 </span>
                             }
                             {(data?.sizes?.length ?? 0 ) > 0 &&  (
-                                data?.sizes?.map((size : string, i: number) => (
-                                    <span className=''>{size}</span>
+                                data?.sizes?.map(( size : string, i: number) => (
+                                    <span key={i} className=''>{size}</span>
                                 ))
                             )}
                             </div>
@@ -455,9 +458,8 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                                     onClick={() => {
                                         if (!location) return
                                         addToCart(
-                                            { ...data, quantity, selectedOptions: { color: isSelected, size: isSizeSelected } },
-                                            user, location.country, deviceInfo
-                                        )
+                                            { product : data, quantity, user : user as UserType,
+                                                selectedOptions: { color: isSelected, size: isSizeSelected }, location, deviceInfo});
                                     }}
                                         className={`flex-1 min-w-[120px] h-10 flex items-center justify-center gap-2
                                                     rounded-xl text-[13px] font-semibold transition-all
@@ -474,7 +476,7 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                         {/* ══════════ RIGHT — ADDITIONAL INFO (20%) ══════════ */}
                         <section className="w-full md:w-[20%] flex-shrink-0 p-5 border-l border-gray-100">
                             {/* Delivery Location */}
-                            <div className="flex items-start gap-3 mb-4">
+                            <div className="flex items-3 mb-4">
                                 <Truck size={18} className="text-emerald-600 mt-0.5" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-700">Delivery Option</p>
@@ -484,7 +486,7 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                                 </div>
                             </div>
 
-                            {/* Return & Warranty */}
+                            {/* Return & Warranty */}-start gap
                             <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
                                 <div className="flex items-center gap-2">
                                     <RotateCcw size={16} className="text-emerald-600" />
@@ -507,8 +509,8 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="relative w-10 h-10 rounded-full overflow-hidden">
                                         <Image
-                                            src={data?.shop?.coverShop || '/default-shop.jpg'}
-                                            alt={data?.shop?.name}
+                                            src={data?.shop?.coverShop[0].file_url || '/default-shop.jpg'}
+                                            alt={data?.shop?.name ?? 'Shop Logo'}
                                             fill
                                             className="object-cover"
                                         />

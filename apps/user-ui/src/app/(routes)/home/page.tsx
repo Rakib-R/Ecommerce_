@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { Suspense } from 'react';
-import { ProductSection } from '@user-ui/app/shared/modules/home/productSection';
-import { LatestSection } from '@user-ui/app/shared/modules/home/latestSection';
-import { OfferSection } from '@user-ui/app/shared/modules/home/offerSection';
-import { ShopSection } from '@user-ui/app/shared/modules/home/shopSection';
+import { ProductSection } from '../../../app/shared/modules/home/productSection';
+import { LatestSection } from '../../shared/modules/home/latestSection';
+import { OfferSection } from '../../shared/modules/home/offerSection';
+import { ShopSection } from '../../shared/modules/home/shopSection';
 import { getUser } from './user-content';
 
 import { GridSkeleton } from '../../utils/skeletons/Skeletons'

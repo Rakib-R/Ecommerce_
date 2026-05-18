@@ -43,7 +43,8 @@
         "buildTargetName": "build",
         "devTargetName": "dev",
         "startTargetName": "start"
-      }
+      },
+    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
     },
     {
       "plugin": "@nx/jest/plugin",
@@ -53,7 +54,8 @@
       "exclude": [
         "apps/api-e2e/**/*",
         "apps/api-gateway-e2e/**/*",
-        "apps/auth-service-e2e/**/*"
+        "apps/auth-service-e2e/**/*",
+        "packages/libs/prisma/src/lib/generated/**"
       ]
     },
     {
@@ -64,7 +66,15 @@
         "previewTargetName": "preview",
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
-      }
+      },
+    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
     }
   ],
   "targetDefaults": {

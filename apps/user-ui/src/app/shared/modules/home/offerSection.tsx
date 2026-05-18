@@ -1,8 +1,8 @@
 
 
 
-import ProductCard from "@user-ui/app/shared/components/cards/product-card";
-import { ProductPayload } from "@user-ui/types";
+import ProductCard from "../../../shared/components/cards/product-card";
+import { ProductPayloadWithDetails } from "../../../../types";
 
 export const OfferSection = async () => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-filtered-offers`, {
@@ -19,7 +19,7 @@ export const OfferSection = async () => {
 
   return (
     <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
-      {offer.map((offer: ProductPayload) => (
+      {offer.map((offer: ProductPayloadWithDetails) => (
         <ProductCard
           key={`${String(offer.id)}-offer`}
           product={offer}

@@ -1,12 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
+     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "types": ["node"],
     "tsBuildInfoFile": "out-tsc/auth-service/tsconfig.app.tsbuildinfo"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "../../packages/utils/src/global.d.ts"
   ],
   "exclude": [
     "out-tsc",

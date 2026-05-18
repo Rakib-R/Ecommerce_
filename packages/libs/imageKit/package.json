@@ -2,9 +2,12 @@
   "name": "@packages/imagekit",
   "version": "0.0.1",
   "private": true,
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
   "dependencies": {
-    "imagekit": "^6.0.0"
+    "@prisma/client": "6.5.0",
+    "imagekit": "^6.0.0",
+    "tslib": "^2.3.0"
   }
 }

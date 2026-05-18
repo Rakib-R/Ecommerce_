@@ -14,7 +14,7 @@ import { BellPlus, BellRing, CalendarPlus, CreditCard, Home, ListOrdered, LogOut
 import SidebarMenu from './sidebar.menu';
 import axiosInstance from '../../../utils/axiosInstance';
 import { useAuthState } from '../../../store/authStore';
-import { queryClient } from 'apps/utils/queryClient';
+import { queryClient } from "@apps/utils";
 import { useRouter } from 'next/navigation';
 
 const SideBarWrapper = () => {

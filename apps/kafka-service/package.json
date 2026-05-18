@@ -2,9 +2,10 @@
   "name": "kafka-service",
   "version": "1.0.0",
   "description": "Kafka consumer service for analytics",
-  "main": "src/main.ts",
+  "main": "./src/main.ts",
   "dependencies": {
+    "@packages/kafka": "workspace:*",
     "@packages/prisma": "workspace:*",
-    "@packages/kafka": "workspace:*"
+    "@prisma/client": "6.5.0"
   }
 }

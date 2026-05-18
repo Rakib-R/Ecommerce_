@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+
+import { PrismaClient } from './generated';
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
@@ -16,4 +17,4 @@ export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 if (process.env['NODE_ENV'] !== 'production') globalForPrisma.prisma = prisma;
 
-export * from '@prisma/client';
+export * from './generated';

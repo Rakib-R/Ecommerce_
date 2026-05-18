@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from "../utils/axios";
 import { useEffect, useState } from 'react';
-import { UserType } from "@user-ui/types";
+import { UserType } from '../../types';
+import axios from 'axios';
 
 interface ApiResponse {
   user: UserType; 
@@ -13,8 +14,8 @@ const fetchUser = async (): Promise<UserType | null> => {
   try {
     const response = await axiosInstance.get<ApiResponse>("/api/logged-in-user");
     return response.data.user ?? null;
-  } catch (error: any) {
-    if (error?.response?.status === 401) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error?.response?.status === 401) {
       return null;
     }
     throw error;
@@ -22,7 +23,7 @@ const fetchUser = async (): Promise<UserType | null> => {
 };
 
 interface UseUserReturn {
-  user: UserType & { Points?: number } | null;
+  user: UserType | null;
   isLoading: boolean;
   isError: boolean;
   refetch: () => void;
@@ -30,6 +31,7 @@ interface UseUserReturn {
 }
 
 const useUser = (): UseUserReturn => {
+  
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ const useUser = (): UseUserReturn => {
     isLoading: mounted && isLoading, 
     isError: isError && mounted,
     refetch,
-    error: error ?? null
+    error: error
   };
 };
 

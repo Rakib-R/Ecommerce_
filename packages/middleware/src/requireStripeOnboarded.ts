@@ -1,16 +1,21 @@
 
 // middleware/requireStripeOnboarded.ts
-import { Response, NextFunction } from "express";
-import prisma from "@packages/prisma";
+import { Request,Response, NextFunction } from "express";
+import { prisma } from "@packages/prisma";
 import { AuthError } from "@packages/error-handler";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
+if (!stripeSecretKey) {
+  throw new Error("STRIPE_SECRET_KEY is not defined");
+}
+
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: "2026-02-25.clover",
 });
 
 export const requireStripeOnboarded = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

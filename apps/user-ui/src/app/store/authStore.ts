@@ -2,31 +2,66 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { sendKafkaEvent } from '../../actions/track-user';
-import { ProductPayload } from '../../types';
+import { ProductPayload, UserType } from '../../types';
 
 // ============ TYPES ============
 interface AuthState {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: UserType | null;
+  setUser: (user: UserType | null) => void;
   logout: () => void;
   tempEmail: string | null;
   setTempEmail: (email: string | null) => void;
   clearTempEmail: () => void;
   handleLogout: () => void;
 }
+export type AddToCartPayload = {
+    product: ProductPayload,
+    user: UserType,
+    quantity : number,
+    selectedOptions?: {
+      color : string,
+      size: string
+    },
+    location?: {country : string , city: string},
+    deviceInfo?: {
+      type : string
+    }
+  };
 
-interface User {
+  
+export type RemoveFromCartPayload = {
   id: string;
-  role: string;
-  name?: string;
-  email?: string;
-}
+  user: UserType;
+  location: { country: string; city: string };
+  deviceInfo: { type: string };
+};
+
+export type RemoveFromWishlistPayload = {
+  id: string;
+  user: UserType;
+  location: { country: string; city: string };
+  deviceInfo: { type: string };
+};
+
+export type AddToWishlistPayload = { 
+    product: ProductPayload,
+    user: UserType,
+    quantity : number,
+    selectedOptions?: {
+      color : string,
+      size: string
+    },
+    location?: {country : string , city: string},
+     deviceInfo?: {
+      type : string
+    }
+  };
 
 
 // Cart item with calculated price
 export interface CartItem extends ProductPayload {
   quantity: number;
-  effectivePrice: number; // Pre-calculated!
+  getExactRegularPrice: number; // Pre-calculated!
   totalPrice: number;     // Pre-calculated!
 }
 
@@ -36,54 +71,41 @@ export interface Store {
   isModalOpen: boolean;
   setModalOpen: (val: boolean) => void;
   
-  addToCart: (
-    product: ProductPayload,
-    user: any,
-    location: any,
-    deviceInfo: any
-  ) => void;
-  removeFromCart: (
-    id: string,
-    user: any,
-    location: any,
-    deviceInfo: any
-  ) => void;
+  addToCart: (params: AddToCartPayload) => void;
+
+  removeFromCart: (params: RemoveFromCartPayload) => void;
+
   updateQuantity: (
     id: string,
     quantity: number,
-    user: any,
-    location: any,
-    deviceInfo: any
+    user: UserType,
+    location: {country : string , city: string},
+     deviceInfo: {
+      type : string
+    }
   ) => void;
-  addToWishlist: (
-    product: ProductPayload,
-    user: any,
-    location: any,
-    deviceInfo: any
-  ) => void;
-  removeFromWishlist: (
-    id: string,
-    user: any,
-    location: any,
-    deviceInfo: any
-  ) => void;
+
+  addToWishlist: (params: AddToWishlistPayload) => void;
+
+  removeFromWishlist: (params: RemoveFromWishlistPayload) => void;
+  
   clearCart: () => void;
 }
 
 // ============ HELPER FUNCTIONS ============
-export const getEffectivePrice = (product: ProductPayload): number => {
+export const getRegularPrice__ = (product: ProductPayload): number => {
   return product.salePrice && product.salePrice > 0 && product.salePrice < product.regularPrice
     ? product.salePrice
     : product.regularPrice;
 };
 
-export const calculateCartItem = (product: ProductPayload, quantity: number): CartItem => {
-  const effectivePrice = getEffectivePrice(product);
+export const calculateCartItem = (product: ProductPayload, quantity: number) => {
+  const getExactRegularPrice = getRegularPrice__(product);
   return {
     ...product,
     quantity,
-    effectivePrice,
-    totalPrice: effectivePrice * quantity
+    getExactRegularPrice,
+    totalPrice: getExactRegularPrice * quantity
   };
 };
 
@@ -96,8 +118,9 @@ export const useStore = create<Store>()(
       isModalOpen: false,
       setModalOpen: (val: boolean) => set({ isModalOpen: val }),
 
-      addToCart: (product, user, location, deviceInfo) => {
-        // Send analytics event
+      addToCart: ({product, user, location, deviceInfo}) => {
+        
+        //todo Send analytics event
         if (user?.id && location?.country && deviceInfo) {
           sendKafkaEvent({
             userId: user.id,
@@ -126,7 +149,7 @@ export const useStore = create<Store>()(
           }
           // Add new item with quantity 1
           return {
-            cart: [...state.cart, calculateCartItem(product, 1)]
+            cart: [...state.cart, calculateCartItem(product, 1) as CartItem]
           };
         });
       },
@@ -154,14 +177,14 @@ export const useStore = create<Store>()(
           return {
             cart: state.cart.map((item) =>
               item.id === id
-                ? { ...item, quantity, totalPrice: item.effectivePrice * quantity }
+                ? { ...item, quantity, totalPrice: item.getExactRegularPrice * quantity }
                 : item
             )
           };
         });
       },
 
-      removeFromCart: (id, user, location, deviceInfo) => {
+      removeFromCart: ({id, user, location, deviceInfo} : RemoveFromCartPayload) => {
         const removedItem = get().cart.find((item) => item.id === id);
         
         // Send analytics
@@ -186,11 +209,12 @@ export const useStore = create<Store>()(
         set({ cart: [] });
       },
 
-      addToWishlist: (product, user, location, deviceInfo) => {
+      addToWishlist: ({product, user, quantity, location, deviceInfo} : AddToWishlistPayload) => {
         if (user?.id && location?.country && deviceInfo) {
           sendKafkaEvent({
             userId: user.id,
             productId: product.id,
+            quantity,
             shopId: product.shop?.id,
             action: "add_to_wishlist",
             country: location?.country || "Unknown",
@@ -206,9 +230,9 @@ export const useStore = create<Store>()(
             wishlist: [...state.wishlist, product]
           };
         });
-      },
+      },    
 
-      removeFromWishlist: (id, user, location, deviceInfo) => {
+      removeFromWishlist: ({id, user, location, deviceInfo} : RemoveFromWishlistPayload) => {
         const removedItem = get().wishlist.find((item) => item.id === id);
         
         if (user?.id && location?.country && deviceInfo && removedItem) {

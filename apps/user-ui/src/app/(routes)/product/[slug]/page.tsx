@@ -1,9 +1,8 @@
 
 import { Metadata } from 'next';
 import React from 'react'
-import ProductDetails from '@user-ui/app/shared/modules/product/productDetails';
-import ProductDetails_experimental from '@user-ui/app/shared/modules/product/ProductDetailsCard_experimental';
-import axiosInstance from '@user-ui/app/utils/axios';
+import ProductDetails_experimental from '../../../shared/modules/product/ProductDetailsCard_experimental';
+import axiosInstance from '../../../utils/axios';
 
 async function fetchProductDetails(slug: string) {
   const response = await axiosInstance.get(`/product/api/get-product/${slug}`);
