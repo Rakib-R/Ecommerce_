@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
+    "module": "esnext",
     "ignoreDeprecations": "5.0",
 
     "declaration": true,
@@ -9,7 +10,6 @@
     "moduleResolution": "node",
     "outDir": "../../dist/packages/error-handler",
     "rootDir": "./src",
-    "module": "commonjs",
     "target": "ES2019"
   },
   "include": ["src/**/*.ts"],

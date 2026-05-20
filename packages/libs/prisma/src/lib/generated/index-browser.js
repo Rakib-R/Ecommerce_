@@ -113,7 +113,7 @@ Prisma.NullTypes = {
 exports.Prisma.ImagesScalarFieldEnum = {
   id: 'id',
   file_id: 'file_id',
-  url: 'url',
+  file_url: 'file_url',
   productId: 'productId',
   userAvatarsId: 'userAvatarsId',
   sellerAvatarsId: 'sellerAvatarsId',

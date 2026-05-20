@@ -5,17 +5,19 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "pnpm exec nx run-many --target=serve --all",
-    "dev:backend": "pnpm exec nx run-many --target=serve --projects=api-gateway,auth-service,api",
-    "dev:frontend": "pnpm exec nx run-many --target=serve --projects=seller-ui,user-ui",
+    "dev:back": "pnpm exec nx run-many --target=serve --projects=api-gateway,auth-service,api",
+    "dev:front": "pnpm exec nx run-many --target=serve --projects=seller-ui,user-ui",
     "product": "pnpm exec nx serve product-service",
     "kafka": "pnpm exec nx serve kafka-service",
     "prisma:generate": "pnpm --filter @packages/prisma exec prisma generate --schema=prisma/schema.prisma",
     "start:prod": "pnpm exec nx run-many --target=serve --all --prod",
+    "lint": "next lint",
     "build:analyze_user": "cross-env ANALYZE=true pnpm exec nx build user-ui",
     "build:analyze_seller": "cross-env ANALYZE=true pnpm exec nx build seller-ui",
     "build": "pnpm exec nx run-many --target=build --all",
     "product-docs": "node apps/product-service/src/swagger.js",
-    "auth-docs": "node apps/auth-service/src/swagger.js"
+    "auth-docs": "node apps/auth-service/src/swagger.js",
+    "prepare": "husky"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0",
@@ -25,9 +27,13 @@
   },
   "pnpm": {
     "supportedArchitectures": {
-      "os": ["win32"],
-      "cpu": ["x64"]
-  },
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "x64"
+      ]
+    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "@babel/core",
@@ -41,10 +47,6 @@
       "@swc/core",
       "sharp"
     ]
-  },
-  "overrides": {
-    "prisma": "6.5.0",
-    "@prisma/client": "6.5.0"
   },
   "prisma": {
     "schema": "packages/libs/prisma/prisma/schema.prisma"
@@ -93,7 +95,7 @@
     "@types/jest": "30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
-    "@types/node": "~18.16.9",
+    "@types/node": "^22.10.0",
     "@types/nodemailer": "^7.0.10",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
@@ -114,14 +116,12 @@
     "ts-jest": "29.4.6",
     "ts-node": "10.9.1",
     "tsconfig-paths-webpack-plugin": "4.2.0",
-    "tslib": "^2.3.0",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.59.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@prisma/client": "6.5.0",
     "@tanstack/query-async-storage-persister": "^5.90.24",
     "@tanstack/query-sync-storage-persister": "^5.90.24",
     "@tanstack/react-query": "^5.90.21",
@@ -153,7 +153,6 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
-    "prisma": "^6.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.71.1",

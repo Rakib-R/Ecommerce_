@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import axiosInstance from '../utils/axiosInstance';
 import { convertFileToBase64 } from '../utils/convertFile2Base64';
 import toast from 'react-hot-toast';
+import { ProductFormData } from '../(routes)/dashboard/create-product/page';
 
 export interface UploadedImage {
   fileId: string;
@@ -66,7 +67,6 @@ export const useImageManagement = ({
       return newIndex;
     });
   };
-
   // Handle image upload
   const handleImageChange = async (file: File | null, index: number) => {
     if (!file) return;
@@ -89,6 +89,10 @@ export const useImageManagement = ({
           updated.push(null);
         }
         
+        // Sync directly to React Hook Form from inside the hook!
+        const validImages = updated.filter(img => img !== null);
+        setValue(formFieldName, validImages, { shouldDirty: true });
+
         if (setValue) {
           setValue(formFieldName, updated, { shouldDirty: true });
         }
@@ -111,7 +115,8 @@ export const useImageManagement = ({
     } catch (error) {
       console.error("Upload failed!", error);
       toast.error("Failed to upload image.");
-    } finally {
+    } 
+    finally {
       setPictureUploadLoader(false);
     }
   };
@@ -123,7 +128,6 @@ const handleRemoveImage = async (indexToRemove: number) => {
     console.log("Delete already in progress, skipping...");
     return;
   }
-  
   setPictureUploadLoader(true);
   
   try {
@@ -152,10 +156,6 @@ const handleRemoveImage = async (indexToRemove: number) => {
 
       if (updatedImages.length === 0 || !updatedImages.some(img => img === null)) {
         updatedImages.push(null);
-      }
-
-      while (updatedImages.length > maxImages) {
-        updatedImages.pop();
       }
 
       if (setValue) {

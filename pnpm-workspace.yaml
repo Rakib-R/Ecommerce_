@@ -4,7 +4,7 @@ packages:
   - '!apps/api-e2e'
   - '!apps/api-gateway-e2e'
   - '!apps/auth-service-e2e'
-  - '!apps/utils'
+  - 'apps/utils'
   - 'packages/utils/*'
   - 'packages/libs/*'
   - 'packages/*'

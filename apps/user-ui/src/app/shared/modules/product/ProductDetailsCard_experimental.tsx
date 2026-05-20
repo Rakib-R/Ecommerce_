@@ -40,7 +40,6 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
     const wishlist      = useStore((state: Store) => state.wishlist)
     const isWishlisted  = wishlist?.some((item) => item.id === data.id)
     const isInCart      = cart?.some((item) => item.id === data.id)
-
     const { user }   = useUser()
     const location   = useLocationTracking()
     const deviceInfo = useDeviceTracking()
@@ -99,13 +98,29 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
         query.set("limit", "5");
         
         const res = await axiosInstance.get(`/product/api/get-filtered-products?${query.toString()}`);
-        const res_except_self = res.data.products.filter( (f : ProductPayload) => f.id!= data.id)
-        setRecommendedProducts(res_except_self.data.products);
+        // 1. Get the current product's ID string checking both formats
+        const currentId = String(data?.id || data?._id || "");
+
+        // 2. Filter out the current product (handles id and _id variations)
+        const filteredList = res.data.products.filter((item: ProductPayload) => {
+            const itemId = String(item?.id || item?._id || "");
+            return itemId !== currentId;
+        });
+        // 3. FORCE deduplication in case the API response returned identical duplicates
+        const uniqueProducts = filteredList.filter(
+            (product: any, index: number, self: any[]) => {
+                const pId = String(product?.id || product?._id || "");
+                return index === self.findIndex((p) => String(p?.id || p?._id || "") === pId);
+            }
+        );
+        
+        setRecommendedProducts(uniqueProducts);
     
-        } catch (error) {
+    } catch (error) {
         console.error("Failed to fetch filtered products", error);
-        }
-    };
+    }
+};
+
 
     useEffect(() => {
         fetchFilteredProducts();

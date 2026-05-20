@@ -22,7 +22,7 @@ export const LatestSection = async () => {
   console.log('Latest Product _id value:', latest[0]?.id, typeof latest[0]?.id)
 
   return (
-    <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
+    <div className="m-auto grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
       {latest.map((latest: ProductPayloadWithDetails) => (
         <ProductCard key={`${String(latest.id)}-latest`} product={latest} />
       ))}

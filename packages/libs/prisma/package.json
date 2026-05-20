@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",
+  "rootDir": "./src",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "dependencies": {
-    "@prisma/client": "6.5.0",
+    "@prisma/client": "6.19.3",
+    "prisma": "6.19.3",
     "tslib": "^2.3.0"
   }
 }

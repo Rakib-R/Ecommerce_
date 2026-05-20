@@ -2508,7 +2508,7 @@ export namespace Prisma {
   export type ImagesMinAggregateOutputType = {
     id: string | null
     file_id: string | null
-    url: string | null
+    file_url: string | null
     productId: string | null
     userAvatarsId: string | null
     sellerAvatarsId: string | null
@@ -2518,7 +2518,7 @@ export namespace Prisma {
   export type ImagesMaxAggregateOutputType = {
     id: string | null
     file_id: string | null
-    url: string | null
+    file_url: string | null
     productId: string | null
     userAvatarsId: string | null
     sellerAvatarsId: string | null
@@ -2528,7 +2528,7 @@ export namespace Prisma {
   export type ImagesCountAggregateOutputType = {
     id: number
     file_id: number
-    url: number
+    file_url: number
     productId: number
     userAvatarsId: number
     sellerAvatarsId: number
@@ -2540,7 +2540,7 @@ export namespace Prisma {
   export type ImagesMinAggregateInputType = {
     id?: true
     file_id?: true
-    url?: true
+    file_url?: true
     productId?: true
     userAvatarsId?: true
     sellerAvatarsId?: true
@@ -2550,7 +2550,7 @@ export namespace Prisma {
   export type ImagesMaxAggregateInputType = {
     id?: true
     file_id?: true
-    url?: true
+    file_url?: true
     productId?: true
     userAvatarsId?: true
     sellerAvatarsId?: true
@@ -2560,7 +2560,7 @@ export namespace Prisma {
   export type ImagesCountAggregateInputType = {
     id?: true
     file_id?: true
-    url?: true
+    file_url?: true
     productId?: true
     userAvatarsId?: true
     sellerAvatarsId?: true
@@ -2643,7 +2643,7 @@ export namespace Prisma {
   export type ImagesGroupByOutputType = {
     id: string
     file_id: string
-    url: string
+    file_url: string
     productId: string | null
     userAvatarsId: string | null
     sellerAvatarsId: string | null
@@ -2670,7 +2670,7 @@ export namespace Prisma {
   export type imagesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     file_id?: boolean
-    url?: boolean
+    file_url?: boolean
     productId?: boolean
     userAvatarsId?: boolean
     sellerAvatarsId?: boolean
@@ -2686,14 +2686,14 @@ export namespace Prisma {
   export type imagesSelectScalar = {
     id?: boolean
     file_id?: boolean
-    url?: boolean
+    file_url?: boolean
     productId?: boolean
     userAvatarsId?: boolean
     sellerAvatarsId?: boolean
     coverShopId?: boolean
   }
 
-  export type imagesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_id" | "url" | "productId" | "userAvatarsId" | "sellerAvatarsId" | "coverShopId", ExtArgs["result"]["images"]>
+  export type imagesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_id" | "file_url" | "productId" | "userAvatarsId" | "sellerAvatarsId" | "coverShopId", ExtArgs["result"]["images"]>
   export type imagesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     coverShop?: boolean | images$coverShopArgs<ExtArgs>
     sellerAvatar?: boolean | images$sellerAvatarArgs<ExtArgs>
@@ -2712,7 +2712,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       file_id: string
-      url: string
+      file_url: string
       productId: string | null
       userAvatarsId: string | null
       sellerAvatarsId: string | null
@@ -3115,7 +3115,7 @@ export namespace Prisma {
   interface imagesFieldRefs {
     readonly id: FieldRef<"images", 'String'>
     readonly file_id: FieldRef<"images", 'String'>
-    readonly url: FieldRef<"images", 'String'>
+    readonly file_url: FieldRef<"images", 'String'>
     readonly productId: FieldRef<"images", 'String'>
     readonly userAvatarsId: FieldRef<"images", 'String'>
     readonly sellerAvatarsId: FieldRef<"images", 'String'>
@@ -19094,7 +19094,7 @@ export namespace Prisma {
   export const ImagesScalarFieldEnum: {
     id: 'id',
     file_id: 'file_id',
-    url: 'url',
+    file_url: 'file_url',
     productId: 'productId',
     userAvatarsId: 'userAvatarsId',
     sellerAvatarsId: 'sellerAvatarsId',
@@ -19522,7 +19522,7 @@ export namespace Prisma {
     NOT?: imagesWhereInput | imagesWhereInput[]
     id?: StringFilter<"images"> | string
     file_id?: StringFilter<"images"> | string
-    url?: StringFilter<"images"> | string
+    file_url?: StringFilter<"images"> | string
     productId?: StringNullableFilter<"images"> | string | null
     userAvatarsId?: StringNullableFilter<"images"> | string | null
     sellerAvatarsId?: StringNullableFilter<"images"> | string | null
@@ -19536,7 +19536,7 @@ export namespace Prisma {
   export type imagesOrderByWithRelationInput = {
     id?: SortOrder
     file_id?: SortOrder
-    url?: SortOrder
+    file_url?: SortOrder
     productId?: SortOrder
     userAvatarsId?: SortOrder
     sellerAvatarsId?: SortOrder
@@ -19553,7 +19553,7 @@ export namespace Prisma {
     OR?: imagesWhereInput[]
     NOT?: imagesWhereInput | imagesWhereInput[]
     file_id?: StringFilter<"images"> | string
-    url?: StringFilter<"images"> | string
+    file_url?: StringFilter<"images"> | string
     productId?: StringNullableFilter<"images"> | string | null
     userAvatarsId?: StringNullableFilter<"images"> | string | null
     sellerAvatarsId?: StringNullableFilter<"images"> | string | null
@@ -19567,7 +19567,7 @@ export namespace Prisma {
   export type imagesOrderByWithAggregationInput = {
     id?: SortOrder
     file_id?: SortOrder
-    url?: SortOrder
+    file_url?: SortOrder
     productId?: SortOrder
     userAvatarsId?: SortOrder
     sellerAvatarsId?: SortOrder
@@ -19583,7 +19583,7 @@ export namespace Prisma {
     NOT?: imagesScalarWhereWithAggregatesInput | imagesScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"images"> | string
     file_id?: StringWithAggregatesFilter<"images"> | string
-    url?: StringWithAggregatesFilter<"images"> | string
+    file_url?: StringWithAggregatesFilter<"images"> | string
     productId?: StringNullableWithAggregatesFilter<"images"> | string | null
     userAvatarsId?: StringNullableWithAggregatesFilter<"images"> | string | null
     sellerAvatarsId?: StringNullableWithAggregatesFilter<"images"> | string | null
@@ -20865,7 +20865,7 @@ export namespace Prisma {
   export type imagesCreateInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     coverShop?: shopsCreateNestedOneWithoutCoverShopInput
     sellerAvatar?: sellersCreateNestedOneWithoutAvatarInput
     userAvatar?: usersCreateNestedOneWithoutAvatarInput
@@ -20875,7 +20875,7 @@ export namespace Prisma {
   export type imagesUncheckedCreateInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
@@ -20884,7 +20884,7 @@ export namespace Prisma {
 
   export type imagesUpdateInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     coverShop?: shopsUpdateOneWithoutCoverShopNestedInput
     sellerAvatar?: sellersUpdateOneWithoutAvatarNestedInput
     userAvatar?: usersUpdateOneWithoutAvatarNestedInput
@@ -20893,7 +20893,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20903,7 +20903,7 @@ export namespace Prisma {
   export type imagesCreateManyInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
@@ -20912,12 +20912,12 @@ export namespace Prisma {
 
   export type imagesUpdateManyMutationInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type imagesUncheckedUpdateManyInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22340,7 +22340,7 @@ export namespace Prisma {
   export type imagesCountOrderByAggregateInput = {
     id?: SortOrder
     file_id?: SortOrder
-    url?: SortOrder
+    file_url?: SortOrder
     productId?: SortOrder
     userAvatarsId?: SortOrder
     sellerAvatarsId?: SortOrder
@@ -22350,7 +22350,7 @@ export namespace Prisma {
   export type imagesMaxOrderByAggregateInput = {
     id?: SortOrder
     file_id?: SortOrder
-    url?: SortOrder
+    file_url?: SortOrder
     productId?: SortOrder
     userAvatarsId?: SortOrder
     sellerAvatarsId?: SortOrder
@@ -22360,7 +22360,7 @@ export namespace Prisma {
   export type imagesMinOrderByAggregateInput = {
     id?: SortOrder
     file_id?: SortOrder
-    url?: SortOrder
+    file_url?: SortOrder
     productId?: SortOrder
     userAvatarsId?: SortOrder
     sellerAvatarsId?: SortOrder
@@ -25844,7 +25844,7 @@ export namespace Prisma {
   export type imagesCreateWithoutUserAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     coverShop?: shopsCreateNestedOneWithoutCoverShopInput
     sellerAvatar?: sellersCreateNestedOneWithoutAvatarInput
     products?: productCreateNestedOneWithoutImagesInput
@@ -25853,7 +25853,7 @@ export namespace Prisma {
   export type imagesUncheckedCreateWithoutUserAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     sellerAvatarsId?: string | null
     coverShopId?: string | null
@@ -26060,7 +26060,7 @@ export namespace Prisma {
     NOT?: imagesScalarWhereInput | imagesScalarWhereInput[]
     id?: StringFilter<"images"> | string
     file_id?: StringFilter<"images"> | string
-    url?: StringFilter<"images"> | string
+    file_url?: StringFilter<"images"> | string
     productId?: StringNullableFilter<"images"> | string | null
     userAvatarsId?: StringNullableFilter<"images"> | string | null
     sellerAvatarsId?: StringNullableFilter<"images"> | string | null
@@ -26180,7 +26180,7 @@ export namespace Prisma {
   export type imagesCreateWithoutSellerAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     coverShop?: shopsCreateNestedOneWithoutCoverShopInput
     userAvatar?: usersCreateNestedOneWithoutAvatarInput
     products?: productCreateNestedOneWithoutImagesInput
@@ -26189,7 +26189,7 @@ export namespace Prisma {
   export type imagesUncheckedCreateWithoutSellerAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     coverShopId?: string | null
@@ -26574,7 +26574,7 @@ export namespace Prisma {
   export type imagesCreateWithoutCoverShopInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     sellerAvatar?: sellersCreateNestedOneWithoutAvatarInput
     userAvatar?: usersCreateNestedOneWithoutAvatarInput
     products?: productCreateNestedOneWithoutImagesInput
@@ -26583,7 +26583,7 @@ export namespace Prisma {
   export type imagesUncheckedCreateWithoutCoverShopInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
@@ -27841,7 +27841,7 @@ export namespace Prisma {
   export type imagesCreateWithoutProductsInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     coverShop?: shopsCreateNestedOneWithoutCoverShopInput
     sellerAvatar?: sellersCreateNestedOneWithoutAvatarInput
     userAvatar?: usersCreateNestedOneWithoutAvatarInput
@@ -27850,7 +27850,7 @@ export namespace Prisma {
   export type imagesUncheckedCreateWithoutProductsInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
     coverShopId?: string | null
@@ -29056,7 +29056,7 @@ export namespace Prisma {
   export type imagesCreateManyUserAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     sellerAvatarsId?: string | null
     coverShopId?: string | null
@@ -29140,7 +29140,7 @@ export namespace Prisma {
 
   export type imagesUpdateWithoutUserAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     coverShop?: shopsUpdateOneWithoutCoverShopNestedInput
     sellerAvatar?: sellersUpdateOneWithoutAvatarNestedInput
     products?: productUpdateOneWithoutImagesNestedInput
@@ -29148,7 +29148,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateWithoutUserAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29156,7 +29156,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateManyWithoutUserAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29236,7 +29236,7 @@ export namespace Prisma {
   export type imagesCreateManySellerAvatarInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     coverShopId?: string | null
@@ -29296,7 +29296,7 @@ export namespace Prisma {
 
   export type imagesUpdateWithoutSellerAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     coverShop?: shopsUpdateOneWithoutCoverShopNestedInput
     userAvatar?: usersUpdateOneWithoutAvatarNestedInput
     products?: productUpdateOneWithoutImagesNestedInput
@@ -29304,7 +29304,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateWithoutSellerAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29312,7 +29312,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateManyWithoutSellerAvatarInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29478,7 +29478,7 @@ export namespace Prisma {
   export type imagesCreateManyCoverShopInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     productId?: string | null
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
@@ -29563,7 +29563,7 @@ export namespace Prisma {
 
   export type imagesUpdateWithoutCoverShopInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     sellerAvatar?: sellersUpdateOneWithoutAvatarNestedInput
     userAvatar?: usersUpdateOneWithoutAvatarNestedInput
     products?: productUpdateOneWithoutImagesNestedInput
@@ -29571,7 +29571,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateWithoutCoverShopInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29579,7 +29579,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateManyWithoutCoverShopInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29839,7 +29839,7 @@ export namespace Prisma {
   export type imagesCreateManyProductsInput = {
     id?: string
     file_id: string
-    url: string
+    file_url: string
     userAvatarsId?: string | null
     sellerAvatarsId?: string | null
     coverShopId?: string | null
@@ -29866,7 +29866,7 @@ export namespace Prisma {
 
   export type imagesUpdateWithoutProductsInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     coverShop?: shopsUpdateOneWithoutCoverShopNestedInput
     sellerAvatar?: sellersUpdateOneWithoutAvatarNestedInput
     userAvatar?: usersUpdateOneWithoutAvatarNestedInput
@@ -29874,7 +29874,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateWithoutProductsInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29882,7 +29882,7 @@ export namespace Prisma {
 
   export type imagesUncheckedUpdateManyWithoutProductsInput = {
     file_id?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
+    file_url?: StringFieldUpdateOperationsInput | string
     userAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     sellerAvatarsId?: NullableStringFieldUpdateOperationsInput | string | null
     coverShopId?: NullableStringFieldUpdateOperationsInput | string | null

@@ -9,25 +9,27 @@ import Input from 'packages/components/input';
 import { ColorSelector } from 'packages/components/color-selector';
 import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
-import { queryClient } from 'apps/utils/queryClient';
 import { SizeSelector } from 'packages/components/size-selector';
 import Image from 'next/image';
 import { AxiosError } from "axios";
 import Link from 'next/link';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
+import { FieldErrors } from "react-hook-form";
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../configs/AI.enhancements';
 import { useRouter } from 'next/navigation';
 import { useImageManagement } from '../../../utils/useImageManagement';
 import { useDraftStore } from '../../../store/useDraftStore';
 
+import { DiscountCodeType } from "packages/utils/src/global"
+
   interface UploadedImage {
       fileId : string;
       file_url: string;
     }
-    interface ProductFormData {
+  export interface ProductFormData {
       title: string;
       short_description: string; // Short description
       detailed_description: string; // Rich text
@@ -51,6 +53,13 @@ import { useDraftStore } from '../../../store/useDraftStore';
       discountCodes?: string[];
       ending_date?: string;
     }
+
+    interface SiteConfigData {
+      id: string;
+      categories: string[];
+      subCategories: Record<string, string[]>;
+  }
+
 
     // Fix — explicitly grab the default export and type it
     const RichTextEditor = dynamic(
@@ -88,10 +97,12 @@ const Page = () => {
         }
   });
    const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = methods
- 
+
   const router = useRouter();
- 
-  const { data, isLoading, isError } = useQuery<Record<string, string[]>>({
+
+  const maxImages = 8;
+
+  const { data, isLoading, isError } = useQuery<SiteConfigData>({
       queryKey: ["categories"],
       queryFn: async () => {
         try {
@@ -103,47 +114,59 @@ const Page = () => {
             }
             throw error;
           }
-      },              
+      },
         staleTime: 1000 * 60 * 5,
         retry: 2,
     });
 
-    const { data: discountCodes = [], isLoading: discountLoading } = useQuery<string[]>({
+    const { data: discountCodes = [], isLoading: discountLoading } = useQuery<DiscountCodeType[]>({
           queryKey: ["shop-discounts"],
           queryFn: async () => {
-        const res = await axiosInstance.get(`/product/api/get-discount-codes`);
+          const res = await axiosInstance.get(`/product/api/get-discount-codes`);
           return res?.data?.discount_codes || [];
       },
     });
 
     const categories = data?.categories || [];
     const subCategoriesData = data?.subCategories || {};
-  
+
     // FORM HOOK ------------------WATCH --------------ATTRIBUTE
     const selectedCategory = watch("category");
     const selectedSubCategory = watch("subCategory");
     const regularPrice = watch('regularPrice')
     const cash_On_Delivery = watch("cash_on_delivery");
     const formImages = watch('images');
-  
-    
+
+
     const subCategories = useMemo(() => {
-        return categories 
-          ? (subCategoriesData as any)[selectedSubCategory] || [] 
+        return categories
+          ? (subCategoriesData)[selectedSubCategory] || []
           : [];
       }, [selectedCategory, subCategoriesData]);
 
-    const onInvalid = (errors: any) => {
-      
+    const onInvalid = (errors: FieldErrors<ProductFormData>) => {
+      Object.keys(errors).forEach((field) => {
+         // Cast the string key strictly to match your form fields
+        const formField = field as keyof ProductFormData;
+        const errorObj = errors[formField];
+
+         if (errorObj && 'message' in errorObj && typeof errorObj.message === 'string') {
+          setError(formField, {
+            type: "manual",
+            message: errorObj.message,
+      });
+    }
+      });
+
       toast.error("Please fix the errors before submitting");
       // ⁉⁉ ⚠ ⚠ ⚠ Scroll to first error ‼⁉ ⚠ ⚠ ⚠
       const firstErrorField = Object.keys(errors)[0];
-      document.getElementsByName(firstErrorField)[0]?.scrollIntoView({ 
-        behavior: "smooth", 
-        block: "center" 
+      document.getElementsByName(firstErrorField)[0]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
       });
     };
-    
+
     const {
       images,
       openImageModal,
@@ -159,18 +182,18 @@ const Page = () => {
       openModal,
       closeModal,
       applyTransformation,
-      undoTransformation,      
-      redoTransformation,      
+      undoTransformation,
+      redoTransformation,
       resetTransformations,
       isTransformationActive,
       getActiveTransformations,
-      
+
       // Setters
       setImages,
       setOpenImageModal,
       setSelectedImage,
     } = useImageManagement({
-      maxImages: 8,
+      maxImages,
       formFieldName: "images"
     });
 
@@ -182,28 +205,27 @@ const Page = () => {
     });
 
    const onSubmit = async (data: ProductFormData) => {
-    
-    const cleanImages = images.filter(Boolean); 
+
+    const cleanImages = images.filter(Boolean);
      if (cleanImages.length === 0) {
       toast.error("Please upload at least one product image!");
       return;
     }
-
     // console.log("📦 Form Data:", data);
     // console.log("🖼️ Images:", data.images);
     // console.log("⚠️ Form Errors:", errors);
 
     const payload = {
       ...data,
-      images: cleanImages,               
+      images: cleanImages,
       cashOnDelivery: data.cash_on_delivery === "yes",
 
     customProperties: Array.isArray(data.customProperties)        // ✅ array → record
-      ? Object.fromEntries(data.customProperties.map((p: any) => [p.key, p.value]))
+      ? Object.fromEntries(data.customProperties.map((p) => [p.key, p.value]))
       : data.customProperties || {},
 
     customSpecifications: Array.isArray(data.customSpecifications) // ✅ array → record
-      ? Object.fromEntries(data.customSpecifications.map((s: any) => [s.key, s.value]))
+      ? Object.fromEntries(data.customSpecifications.map((s) => [s.key, s.value]))
       : data.customSpecifications || {},
   };
 
@@ -213,7 +235,8 @@ const Page = () => {
       success: 'Product created successfully! 🎉',
       error: (err) => err?.response?.data?.message || 'Failed to create product.',
     });
-    
+      const queryClient = useQueryClient();
+
       queryClient.invalidateQueries({ queryKey: ['products'] });
       router.push('/dashboard/all-products');
    } catch (error: any) {
@@ -237,12 +260,12 @@ const Page = () => {
 
  const { saveDraft, getDraft, deleteDraft } = useDraftStore();
   const [draftId, setDraftId] = useState<string | null>(null);
-  
+
     // Load draft on mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const draftIdFromUrl = urlParams.get('draft');
-    
+
     if (draftIdFromUrl) {
       const draft = getDraft(draftIdFromUrl);
       if (draft) {
@@ -254,26 +277,26 @@ const Page = () => {
   }, []);
 
 
-  
+
   // Generate unique ------------------ DRAFT KEY -----------------------
   const generateDraftKey = () => {
     return `product_draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
-  
+
 
   const handleSaveDraft = () => {
     const formData = methods.getValues();
     const key = draftId || generateDraftKey();
-    
+
     // Don't save empty drafts
     if (!formData.title && !formData.short_description) {
       toast.error('Add at least a title or description before saving draft');
       return;
     }
-    
+
     saveDraft(key, formData);
     setDraftId(key);
-    
+
     // Update URL with draft ID
     const url = new URL(window.location.href);
     url.searchParams.set('draft', key);
@@ -284,8 +307,8 @@ const Page = () => {
   const allDrafts = useDraftStore((state) => state.getAllDrafts());
 
   return (
-<FormProvider {...methods}>  
-  <form 
+<FormProvider {...methods}>
+  <form
     className="w-full mx-auto p-8 shadow-md rounded-lg text-white"
     onSubmit={handleSubmit(onSubmit, onInvalid)}>
 
@@ -299,29 +322,31 @@ const Page = () => {
     </div>
 
        {/* BreadCrumbs */}   {/* BreadCrumbs */} {/* BreadCrumbs */}
-       
+
     <main className="w-full flex gap-6 py-4 bg-black/90 ">
 
+      {/* Left side Image upload section */}
       {/* Left side Image upload section */}
       <section className="md:w-[35%]">
           {images?.length > 0 && (
             <ImagePlaceholder
-            setOpenImageModal={setOpenImageModal}
-            size="765 x 850"
-            small={false}
-            index={0}
-            images={images}
-            pictureUploadLoader={pictureUploadLoader}
-            onImageChange={handleImageChange}
-            setSelectedImage={setSelectedImage}
-            onRemove={handleRemoveImage}
+              setOpenImageModal={setOpenImageModal}
+              size="765 x 850"
+              small={false}
+              index={0}
+              images={images}
+              pictureUploadLoader={pictureUploadLoader}
+              onImageChange={handleImageChange}
+              setSelectedImage={setSelectedImage}
+              onRemove={handleRemoveImage}
+
             />
           )}
 
           <aside className="grid grid-cols-2 gap-3 mt-4">
           {images.slice(1).map((_, index) => (
             <ImagePlaceholder
-              key={index}
+              key={index + 1}
               small
               index={index + 1}
               images={images}
@@ -336,14 +361,14 @@ const Page = () => {
         </aside>
         </section>
 
-    {/* Right side - form inputs --------  --------   Right side - form inputs */} 
-    {/* Right side - form inputs --------  --------   Right side - form inputs */} 
+    {/* Right side - form inputs --------  --------   Right side - form inputs */}
+    {/* Right side - form inputs --------  --------   Right side - form inputs */}
 
     <section className='flex gap-6 md:w-[65%] '>
       <aside className='flex flex-col gap-2 md:w-[57%]'>
 
       {/* TITLE */}
-      <Input 
+      <Input
         label="Product Title"
         placeholder="Product title"
         {...register("title", { required: "Title is required",
@@ -394,7 +419,7 @@ const Page = () => {
             {errors.tags.message as string}
           </p>
         )}
-      </div>  
+      </div>
 
       {/* WARRENTY */}
       <div className="mt-2">
@@ -466,7 +491,7 @@ const Page = () => {
         <div className='mt-2'>
           <CustomSpecifications control={control} errors={errors}/>
         </div>
-        
+
         {/* CUSTOM _ PROPERTIES */}
         <div className='mt-2'>
           <CustomProperties control={control} errors={errors}/>
@@ -481,7 +506,7 @@ const Page = () => {
           {...register("cash_on_delivery", {
             required: "Cash on Delivery is required",
           })}
-          className="w-full border border-gray-700 outline-none bg-transparent p-2 rounded-md text-sm 
+          className="w-full border border-gray-700 outline-none bg-transparent p-2 rounded-md text-sm
             focus:border-blue-500 transition-all">
           <option value="yes" className="bg-gray-900">Yes</option>
           <option value="no" className="bg-gray-900">No</option>
@@ -499,8 +524,8 @@ const Page = () => {
             <input
               type="checkbox"
               id="prepayment_confirmed"
-              {...register("prepayment_confirmed", { 
-                required: "You must confirm prepayment if COD is disabled" 
+              {...register("prepayment_confirmed", {
+                required: "You must confirm prepayment if COD is disabled"
               })}
               className="w-4 h-4 accent-blue-600"
             />
@@ -515,7 +540,7 @@ const Page = () => {
         )}
       </div>
   </aside>
-    
+
   <aside className='flex-1 flex flex-col gap-4'>
       <div>
         <label className="block mb-1 font-semibold text-gray-200">
@@ -529,7 +554,7 @@ const Page = () => {
         <Controller
             name="category"
             control={control}
-            defaultValue="" 
+            defaultValue=""
             rules={{ required: "Category is required" }}
             render={({ field }) => (
               <select
@@ -567,7 +592,7 @@ const Page = () => {
           <Controller
               name="subCategory"
               control={control}
-              defaultValue="" 
+              defaultValue=""
               rules={{ required: "Category is required" }}
               render={({ field }) => (
                 <select
@@ -593,7 +618,7 @@ const Page = () => {
             </p>
           )}
         </div>
-      {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  
+      {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}  {/* RICH TEXT EDITOR  RICH TEXT EDITOR   */}
           <div>
           <label className="block font-semibold mb-1">
             Detailed Description * (Min words)
@@ -615,7 +640,7 @@ const Page = () => {
                   .split(/\s+/)
                   .filter(Boolean).length; // Cleanest way to filter out empty strings
 
-                return wordCount >= 70 || `Description must be at least 70 words! 
+                return wordCount >= 70 || `Description must be at least 70 words!
                   You need ${70 - wordCount} more words.`;
               }
             }}
@@ -646,11 +671,11 @@ const Page = () => {
             />
             {errors.video_url && (
               <p className="text-red-500 text-xs mt-1">
-                {errors.video_url.message as React.ReactNode} 
+                {errors.video_url.message as React.ReactNode}
               </p>
             )}
         </div>
-            
+
         <div className="mt-2">
           <Input
             label="Regular Price"
@@ -672,9 +697,9 @@ const Page = () => {
             placeholder="15"
             {...register("salePrice", {
               valueAsNumber: true,
-              min: { 
-                value: 1, 
-                message: "Sale Price must be at least 1" 
+              min: {
+                value: 1,
+                message: "Sale Price must be at least 1"
               },
               validate: (value) => {
                 if (value && isNaN(value)) return "Only numbers are allowed";
@@ -734,7 +759,7 @@ const Page = () => {
             <p>Loading discount codes...</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-          {discountCodes?.map((code: any) => {
+          {discountCodes?.map((code) => {
 
               const selectedDiscountCodes = watch("discountCodes") || [];
               const isSelected = selectedDiscountCodes.includes(code.id);
@@ -743,8 +768,8 @@ const Page = () => {
                   key={code.id}
                   type="button" // Prevents accidental form submission
                   className={`px-3 py-1 rounded-md text-sm font-semibold border transition ${
-                    isSelected 
-                      ? "bg-blue-600 text-white border-blue-700" 
+                    isSelected
+                      ? "bg-blue-600 text-white border-blue-700"
                       : "bg-gray-200 text-gray-800 border-gray-300"
                   }`}
                   onClick={() => {
@@ -766,40 +791,40 @@ const Page = () => {
       {openImageModal && (
         <section className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
           <aside className='bg-gray-800 p-6 rounded-lg w-full max-w-[500px] text-white shadow-2xl border border-gray-700'>
-            
+
             {/* Header with Undo/Reset buttons */}
             <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
             <h1 className="text-lg font-semibold">Enhance Product Image</h1>
             <div className="flex gap-2">
               {/* Undo button */}
-              <button 
+              <button
                 onClick={undoTransformation}  // ← Now works!
                 disabled={processing}
                 className="p-1 bg-yellow-500/20 hover:bg-yellow-500/30 rounded-md transition-colors disabled:opacity-50"
                 title="Undo last transformation">
                 <Undo2 size={18} />
               </button>
-              
+
               {/* Redo button (optional) */}
-              <button 
+              <button
                 onClick={redoTransformation}  // ← Add if you want redo
                 disabled={processing}
                 className="p-1 bg-blue-500/20 hover:bg-blue-500/30 rounded-md transition-colors disabled:opacity-50"
                 title="Redo last transformation">
                 <Redo2 size={18} />
               </button>
-              
+
               {/* Reset button */}
-              <button 
+              <button
                 onClick={resetTransformations}  // ← Now works!
                 disabled={processing}
                 className="p-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors disabled:opacity-50"
                 title="Reset to original">
                 <RotateCcw size={18} />
               </button>
-              
+
               {/* Close button */}
-              <button 
+              <button
                 onClick={closeModal}
                 className="p-1 bg-red-500 hover:bg-red-600 rounded-md transition-colors">
                 <X size={20} />
@@ -828,13 +853,13 @@ const Page = () => {
               <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">
                 AI Enhancements
               </h3>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 {enhancements.map((item) => {
                   // Check if this transformation is currently active
-                  const isActive = selectedImage.includes(`tr=`) && 
+                  const isActive = selectedImage.includes(`tr=`) &&
                     selectedImage.split('?tr=')[1]?.split(',').includes(item.effect);
-                  
+
                   return (
                     <button
                       key={item.effect}
@@ -856,7 +881,7 @@ const Page = () => {
                   );
                 })}
               </div>
-              
+
               {/* Active Transformations List */}
               {selectedImage.includes('?tr=') && (
                 <div className="mt-4 p-3 bg-zinc-900/50 rounded-md">
@@ -874,7 +899,7 @@ const Page = () => {
 
             {/* Close Button */}
             <div className="mt-4 flex justify-end">
-              <button 
+              <button
                 onClick={() => setOpenImageModal(false)}
                 className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md transition-colors"
               >
@@ -882,7 +907,7 @@ const Page = () => {
               </button>
             </div>
           </aside>
-        </section> 
+        </section>
       )}
 
       {/* Header with Drafts button */}
@@ -892,16 +917,14 @@ const Page = () => {
             <button
               type="button"
               onClick={() => setShowDraftsDialog(true)}
-              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-600 text-sm"
-            >
+              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-600 text-sm">
               📋 Load Draft
             </button>
             {isDirty && (
               <button
                 type="button"
                 onClick={handleSaveDraft}
-                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-              >
+                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                 💾 Save Draft
               </button>
             )}
@@ -920,7 +943,7 @@ const Page = () => {
                   ✕
                 </button>
               </div>
-              
+
               {Object.keys(allDrafts).length === 0 ? (
                 <p className="text-gray-400 text-center py-8">No drafts saved yet</p>
               ) : (
@@ -965,7 +988,7 @@ const Page = () => {
                   ))}
                 </div>
               )}
-              
+
               {Object.keys(allDrafts).length > 0 && (
                 <button
                   onClick={() => {
@@ -1020,7 +1043,7 @@ const Page = () => {
 
   </form>
   </FormProvider>
- 
+
   );
 }
 

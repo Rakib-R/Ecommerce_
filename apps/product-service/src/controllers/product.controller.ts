@@ -1,6 +1,6 @@
 
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "@packages/prisma";
+import { withRetry, prisma } from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "@packages/imagekit"
 
@@ -13,7 +13,7 @@ export const getCategories = async (
 ) => {
   try {
 
-    const config = await prisma.site_config.findFirst();
+    const config = await withRetry(() => prisma.site_config.findFirst()) ;
     if(!config) {
         return res.status(404).json({ message: "Categories are not found"})
     }
@@ -38,11 +38,11 @@ export const createDiscountCodes = async (
     const { 
       public_name, discountType, discountValue, discountCode } = req.body;
 
-    const isDiscountCodeExist = await prisma.discount_codes.findUnique({
+    const isDiscountCodeExist = await withRetry(() => prisma.discount_codes.findUnique({
         where: {
           discountCode: discountCode,
         },
-      });
+      })) ;
 
       if (isDiscountCodeExist) {
         return res.status(400).json({
@@ -57,7 +57,7 @@ export const createDiscountCodes = async (
         });
       }
 
-    const discount_code = await prisma.discount_codes.create({
+    const discount_code = await withRetry(() => prisma.discount_codes.create({
         data: {
           public_name,
           discountType,
@@ -68,8 +68,9 @@ export const createDiscountCodes = async (
               id: req.seller.id,
             },
           },
-        } satisfies Prisma.discount_codesCreateInput,
-      });
+        } 
+        // satisfies Prisma.discount_codesCreateInput,
+      })) ;
 
     res.status(201).json({
       success: true,
@@ -149,8 +150,10 @@ export const deleteDiscountCode = async (
       success: true,
       message: "Discount code deleted successfully",
     });
-  } catch (error) {
-    next(error);
+  } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('⭕ Discount Code deletion failed ⭕', errorMessage);
+      next(error); // sends error to your error middleware, no hanging
   }
 };
 
@@ -232,7 +235,7 @@ export const deleteProductImage = async (
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('⭕Image deletion failed ⭕', errorMessage);
+    console.error('⭕ Product Image deletion failed ⭕', errorMessage);
     next(error); // sends error to your error middleware, no hanging
   }
 };
@@ -365,7 +368,7 @@ export const createProduct = async (
             .filter((img) => img.fileId && img.file_url)
             .map((img) => ({
               file_id: img.fileId,
-              url:     img.file_url,
+              file_url:     img.file_url,
             })),
         },
         cashOnDelivery:  parsed.data.cash_on_delivery === "yes",
@@ -405,8 +408,8 @@ export const getShopProducts = async (req: Request, res: Response, next: NextFun
   try {
 
     const role = req.role;
-    const sellerId = role === "admin" ? (req as any)?.admin?.id  
-      : (req as any)?.seller?.id;     
+    const sellerId = role === "admin" ? req?.admin?.id  
+      : req?.seller?.id;     
 
     if (!sellerId) {
       return res.status(400).json({ message: "Seller ID not found!" });
@@ -474,8 +477,10 @@ export const deleteProduct = async (
     });
 
     res.status(200).json({ message: "Product deleted successfully.", deletedProduct });
-  } catch (error) {
-    next(error);
+  } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('⭕ Product deletion failed ⭕', errorMessage);
+      next(error); // sends error to your error middleware, no hanging
   }
 };
 
@@ -540,7 +545,6 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
       const type = req.query.type;
       const now = new Date();
 
-  //! --------------  PRINT DEBUGGING  --------------   PRINT DEBUGGING 
   //! --------------  PRINT DEBUGGING  -------------- //! --------------  PRINT DEBUGGING  -------------- --------------   
   const allProducts = await prisma.product.findMany({
       select: { id: true, title: true, starting_date: true, ending_date: true, status: true }
@@ -659,8 +663,8 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
   const top10Products = top10Product.status === 'fulfilled' ? top10Product.value : [];
 
   //! --------------  PRINT DEBUGGING  -------------- ----------- //! --------------  PRINT DEBUGGING  -------------- --------------   
-
   // console.log("Changed products after all the logic ",  'Products' ,productsPipeline, 'Total' , productsPipeline.length ,'📊' )
+  
   const response = {
       getproductsPipeline : productsAll,
       top10Pipeline : top10Products,
@@ -706,30 +710,30 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 
 
 //todo ------- WINSTON LOGGER
-import winston from 'winston';
-import { Prisma, PrismaClient } from '@packages/prisma';
-import { number } from "zod";
-const db = new PrismaClient();
-const checkPrices = async () => {
-  const allProducts = await db.product.findMany({
-    select: {
-      regularPrice: true,
-      salePrice: true,
-    },
-    take: 10
-  });
+// import winston from 'winston';
+// import { Prisma, PrismaClient } from '@packages/prisma';
+// import { number } from "zod";
+// const db = new PrismaClient();
+// const checkPrices = async () => {
+//   const allProducts = await db.product.findMany({
+//     select: {
+//       regularPrice: true,
+//       salePrice: true,
+//     },
+//     take: 10
+//   });
 
-// Get price range in database
-const minMax = await db.product.aggregate({
-  _min: {
-    regularPrice: true,
-  },
-  _max: {
-    regularPrice: true,
-  }
-});
+// // Get price range in database
+// const minMax = await db.product.aggregate({
+//   _min: {
+//     regularPrice: true,
+//   },
+//   _max: {
+//     regularPrice: true,
+//   }
+// });
 
-};
+// };
 
 
   export const getFilteredProducts = async (

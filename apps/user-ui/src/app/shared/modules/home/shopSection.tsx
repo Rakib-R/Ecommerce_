@@ -22,7 +22,7 @@ export const ShopSection = async () => {
 const shops = data.shops ?? [];
 
   return (
-    <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
+    <div className="m-auto grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
       {shops.map((shops: Shop) => (
         <ShopCard
           key={`${String(shops.id)}-shops`}

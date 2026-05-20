@@ -11,9 +11,8 @@ import Image from "next/image";
 import { useAuthState, useStore } from "../../store/authStore";
 import {useRouter} from "next/navigation";
 import { usePathname } from 'next/navigation';
-import { queryClient } from "@apps/utils/queryClient";
 import axiosInstance from "../../utils/axios";
-import { Adamina } from "next/font/google";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Header = () => {
   const { user, isLoading } = useUser();
@@ -25,6 +24,8 @@ const Header = () => {
   const topHeaderRef = useRef<HTMLDivElement>(null);
   const [topHeaderHeight, setTopHeaderHeight] = useState(0);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     if (topHeaderRef.current) {
       setTopHeaderHeight(topHeaderRef.current.offsetHeight);
@@ -34,16 +35,16 @@ const Header = () => {
 //! PATH NAME MODIFIER !
  useEffect(() => {
 
-  const displayPath = path === '/' 
-    ? 'Home' 
+  const displayPath = path === '/'
+    ? 'Home'
     : (() => {
         const lastSegment = path
           .replace(/^\//, '')
           .split('/')
           .pop();
-        
+
         if (!lastSegment) return 'Home';
-        
+
         return lastSegment
           .split('-')
           .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
@@ -51,9 +52,9 @@ const Header = () => {
       })();
 
     setPath(displayPath);
-  }, [path]); 
+  }, [path]);
 
-  
+
   const handleLogout = async () => {
       await axiosInstance.post(`/api/logout`);
       useAuthState.getState().logout();
@@ -84,10 +85,10 @@ const Header = () => {
                 <Search color="white" />
               </div>
             </section>
-            
-            
+
+
             {/* TH I R D C H I L D */}
-            
+
             <section className="col-span-4 flex justify-center items-center shrink-0 gap-4 ">
               <div className="flex items-center">
 
@@ -119,7 +120,7 @@ const Header = () => {
                     <sup className="absolute top-[-5px] right-[-3px] bg-red-700 size-4 rounded-full flex items-center justify-center">
                       <span className="text-xs">{cart?.length || 0}</span>
                     </sup>
-                  </Link> 
+                  </Link>
 
                  {!isLoading && user ? (
                   <Link href="/login" className="flex items-center gap-1 underline">
@@ -139,7 +140,7 @@ const Header = () => {
           <div className="border-b border-b-[#99999938]" />
         </main>
       </div>
-      
+
       {/* Pass the top header height to HeaderBottom */}
       <HeaderBottom topHeaderHeight={topHeaderHeight} />
     </div>

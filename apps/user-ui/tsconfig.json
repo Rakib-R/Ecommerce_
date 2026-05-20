@@ -1,6 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  
   "compilerOptions": {
     "jsx": "preserve",
     "strict": true,
@@ -29,16 +28,16 @@
   },
   "include": [
     "**/*.js",
-    "**/*.jsx", 
+    "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
+    ".next/types/**/*.ts",
     "next-env.d.ts",
     "next.config.js",
     "next.config.mjs",
-    ".next/types/**/*.ts",
-    "types.d.ts"
-],
-
+    "types.d.ts",
+    "../../dist/apps/user-ui/.next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "jest.config.ts",

@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import axiosInstance from '../../../utils/axiosInstance';
-import { queryClient } from 'apps/utils/queryClient';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import DeleteConfirmationModal from '../../../shared/components/modals/delete.confirmation.modal';
 
@@ -53,7 +52,7 @@ const fetchProducts = async () => {
 
 const deleteProduct = async (productId: string) => {
   await axiosInstance.delete(`/product/api/delete-product/${productId}`);
-} 
+}
 
 const restoreProduct = async (productId: string) => {
   await axiosInstance.put(`/product/api/restore-product/${productId}`);
@@ -66,6 +65,7 @@ const ProductList = () => {
   const [selectedProduct, setSelectedProduct] = useState<ShowProductSchema | null>(null);
   const [deletedProductIds, setDeletedProductIds] = useState<Set<string>>(new Set());
 
+  const queryClient = useQueryClient();
   const { data: products = [], isLoading, error } = useQuery({
     queryKey: ["shop-products"],
     queryFn: fetchProducts,
@@ -111,7 +111,7 @@ const ProductList = () => {
     setSelectedProduct(product);
     setShowDeleteModal(true);
   }, []);
-  
+
   const columns = useMemo(() => [
     {
       accessorKey: "image",
@@ -167,7 +167,7 @@ const ProductList = () => {
           {row.original.stock} left
         </span>
       ),
-    },  
+    },
     {
       accessorKey: "category",
       header: "Category",
@@ -215,8 +215,8 @@ const ProductList = () => {
                 e.stopPropagation();
                 openDeleteModal(row.original);
               }}>
-              {isDeleted ? 
-                <Trash2 size={18} className="text-green-500" /> : 
+              {isDeleted ?
+                <Trash2 size={18} className="text-green-500" /> :
                 <Trash size={18} className="text-red-500 hover:text-red-400" />
               }
             </button>
@@ -274,8 +274,8 @@ const ProductList = () => {
 
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 mb-4 text-sm text-gray-400">
-        <Link 
-          href="/dashboard" 
+        <Link
+          href="/dashboard"
           className="hover:text-white transition-colors">
           Dashboard
         </Link>
@@ -334,8 +334,8 @@ const ProductList = () => {
             </thead>
             <tbody>
               {table.getRowModel().rows.map((row) => (
-                <tr 
-                  key={row.id} 
+                <tr
+                  key={row.id}
                   className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="p-3">

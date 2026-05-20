@@ -8,7 +8,17 @@ import helmet from 'helmet';
 import { initializeSiteConfig } from './libs/initializeSiteConfig';
 const app = express();
 
-// ─── Security Headers ────────────────────────────────────────────────────────
+// ---------- VARIABLES  -----------------
+
+  const IS_PROD = process.env.NODE_ENV === 'production';
+  const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost';
+  const PRODUCT_SERVICE_URL = 'http://localhost:6099';
+  const AUTH_SERVICE_URL    = 'http://localhost:6001';
+  const API_GATEWAY_URL     =  'http://localhost:7777';
+
+  const api_gateway_port : string | number = 7777;
+
+  // ─── Security Headers ────────────────────────────────────────────────────────
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -21,9 +31,9 @@ app.use(
         objectSrc:  ["'none'"],
         connectSrc: [
           "'self'",
-          'http://localhost:7777',
-          'http://localhost:6001',
-          'http://localhost:6099',
+          API_GATEWAY_URL,
+          AUTH_SERVICE_URL,
+          PRODUCT_SERVICE_URL,
           'ws://localhost:*',
         ],
       },
@@ -31,6 +41,9 @@ app.use(
     crossOriginEmbedderPolicy: false, // required for Swagger UI
   })
 );
+
+
+
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 app.use(
@@ -58,6 +71,24 @@ const forwardCookies = (proxyReqOpts: any, srcReq: any) => {
   return proxyReqOpts;
 };
 
+// ~~ ~ WAIT FOR PRODUCT SERVICE────────────────────────────────────────────────────────
+async function waitForService(url: string, maxWait = 30000): Promise<void> {
+  const start = Date.now();
+  while (Date.now() - start < maxWait) {
+    try {
+      const res = await fetch(`${url}/product/ready`);
+      if (res.ok) {
+        console.log(`✅ Product service is ready`);
+        return;
+      }
+    } catch {
+      // Service not up yet — keep waiting
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  console.warn(`⚠️ Product service did not become ready in time — proxying anyway`);
+}
+
 // ─── General Middleware ──────────────────────────────────────────────────────
 app.use(morgan('dev'));
 app.use(cookieParser());
@@ -77,49 +108,61 @@ app.use(limiter);
 
 // ─── Health Check ────────────────────────────────────────────────────────────
 app.get('/gateway-health', (req, res) => {
-  res.json({ message: 'Gateway is healthy ✅' });
+  res.json({ message: 'API-Gateway is healthy ✅' });
 });
 
 // ─── Auth Service Proxy → http://localhost:6001 ─────────────────────────────
 // app.use(globalMiddleware);
 
+// Dynamically read environment variables
 app.use(
-  '/api', proxy('http://localhost:6001', {
-    proxyReqPathResolver: (req) =>
-      req.originalUrl.replace(/^\/api/, '/auth'),
-    
+  '/api', 
+  proxy(AUTH_SERVICE_URL, {
+    proxyReqPathResolver: (req) => req.originalUrl.replace(/^\/api/, '/auth'),
     proxyReqBodyDecorator: (bodyContent) => bodyContent,
-
     proxyReqOptDecorator: forwardCookies,
 
-   userResDecorator: (proxyRes, proxyResData, _req, res) => {
-    const cookies = proxyRes.headers['set-cookie'];
-    if (cookies) {
-      const rewritten = cookies.map((cookie: string) => {
-        let c = cookie
-          .replace(/SameSite=None/gi, 'SameSite=Lax')
-          .replace(/SameSite=Strict/gi, 'SameSite=Lax')
-          .replace(/;\s*Secure/gi, '')
-          .replace(/;\s*Domain=[^;]*/gi, '')
+    // Use HEADER decorator instead of RES decorator
+    userResHeaderDecorator: (headers, userReq, userRes, proxyReq, proxyRes) => {
+      const cookies = headers['set-cookie'];
+      
+      if (cookies) {
+        headers['set-cookie'] = cookies.map((cookie) => {
+          let c = cookie;
 
-      // If no Domain attribute at all, inject it
-      if (!/domain=/i.test(c)) {
-        c += '; Domain=localhost';
+          if (IS_PROD) {
+            // Production Cookie Rules: Ensure security
+            c = c.replace(/SameSite=None/gi, 'SameSite=Lax');
+            // Ensure Secure flag stays active in production
+            if (!/;?\s*Secure/i.test(c)) c += '; Secure';
+          } else {
+            // Local Development Rules: Strip security blocks
+            c = c
+              .replace(/SameSite=None/gi, 'SameSite=Lax')
+              .replace(/SameSite=Strict/gi, 'SameSite=Lax')
+              .replace(/;\s*Secure/gi, '');
+          }
+          // Strip any upstream domains
+          c = c.replace(/;\s*Domain=[^;]*/gi, '');
+          // Inject the correct domain dynamically (localhost or production domain)
+          if (!/domain=/i.test(c)) {
+            c += `; Domain=${COOKIE_DOMAIN}`;
+          }
+
+          return c;
+        });
       }
+      // Crucial: You must return the modified headers object
+      return headers;
+    },
 
-      return c;
-    });
-    res.setHeader('set-cookie', rewritten);
-  }
-  return proxyResData;
-},
-
-  proxyErrorHandler: (err, res) => {
+     proxyErrorHandler: (err, res) => {
     console.error('❌ Auth Service proxy error:', err.message);
     res.status(503).json({ error: 'Auth Service is down' });
     },
   })
 );
+
 
 // ─── Product Service Proxy → http://localhost:6099 ──────────────────────────
 // Gateway: /product/api/*  →  Product Service: /product/api/*  (no rewrite needed)
@@ -127,19 +170,22 @@ app.use('/product/api',
   (req, res, next) => {
   // Reject oversized requests before they hit the proxy
   const contentLength = parseInt(req.headers['content-length'] || '0');
-  const limitBytes = 10 * 1024 * 1024; // 10MB
+  const limitBytes = 10 * 1024 * 1024;
   
   if (contentLength > limitBytes) {
     return res.status(413).json({ error: 'Request entity too large' });
   }
     next();
 
-    },proxy('http://localhost:6099', {
+    },proxy(PRODUCT_SERVICE_URL, {
 
     proxyReqPathResolver: (req) => req.originalUrl,
-    
-     // ✅ Forward cookies — required for isAuthenticated middleware
-    proxyReqOptDecorator: forwardCookies,
+     //  Forward cookies — required for isAuthenticated middleware
+     proxyReqOptDecorator: (opts, srcReq) => {
+      forwardCookies(opts, srcReq);
+      opts.timeout = 10000; 
+      return opts;
+    },
 
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Product Service proxy error:', err.message);
@@ -148,12 +194,14 @@ app.use('/product/api',
   })
 );
 
-// ─── Start Server ────────────────────────────────────────────────────────────
-const port = process.env.PORT || 7777;
 
-const server = app.listen(port, () => {
+
+// ─── Start Server ────────────────────────────────────────────────────────────
+const port = process.env.PORT || api_gateway_port;
+
+const server = app.listen(port, async() => {
+
   console.log(`🚪 API Gateway running at http://localhost:${port}/gateway-health`);
-  console.log(`   Auth proxy:    /api/*         → http://localhost:6001/auth/*`);
   console.log(`   Product proxy: /product/api/* → http://localhost:6099/product/api/*`);
 
   try {
@@ -162,6 +210,10 @@ const server = app.listen(port, () => {
   } catch (error) {
     console.error('❌ Failed to initialize Site config:', error);
   }
+
+  await waitForService(PRODUCT_SERVICE_URL);
+
 });
+
 
 server.on('error', console.error);

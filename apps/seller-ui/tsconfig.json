@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-
     "ignoreDeprecations": "5.0",
     "jsx": "preserve",
     "strict": true,
@@ -26,20 +25,20 @@
         "name": "next"
       }
     ],
-
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
-      "**/*.js",
-      "**/*.jsx", 
-      "**/*.ts",
-      "**/*.tsx",
-      "next-env.d.ts",
-      "next.config.js",
-      "next.config.mjs",
-      ".next/types/**/*.ts",
-      "types.d.ts"
-  ],  
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "next.config.js",
+    "next.config.mjs",
+    "types.d.ts",
+    "../../dist/apps/seller-ui/.next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "jest.config.ts",
