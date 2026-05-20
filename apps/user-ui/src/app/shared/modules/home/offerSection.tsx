@@ -18,7 +18,7 @@ export const OfferSection = async () => {
   const offer = data.products;
 
   return (
-    <div className="m-auto grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 2xl:grid-cols-7 gap-6">
+    <div className="m-auto grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
       {offer.map((offer: ProductPayloadWithDetails) => (
         <ProductCard
           key={`${String(offer.id)}-offer`}

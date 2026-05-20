@@ -15,10 +15,10 @@ datasource db {
 model images {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   file_id      String
-  url          String
-  productId    String?    @db.ObjectId
-  userAvatarsId      String?    @db.ObjectId
-  sellerAvatarsId    String?    @db.ObjectId
+  file_url     String     
+  productId    String?        @db.ObjectId
+  userAvatarsId      String?   @db.ObjectId
+  sellerAvatarsId    String?   @db.ObjectId
   coverShopId  String?    @db.ObjectId
 
   coverShop   shops?        @relation(fields: [coverShopId], references: [id], onDelete: NoAction, onUpdate: NoAction)

@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyForgotPasswordOtp, verifyOtp } from "../utils/auth.helper";
 import { AppError, AuthError, ValidationError } from "@packages/error-handler";
-import {prisma} from "@packages/prisma";
+import {withRetry ,prisma} from "@packages/prisma";
 import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken"
 import { setCookie } from "../utils/cookies/setCookie";
@@ -17,9 +17,9 @@ export const userRegistration = async (
     validateRegistrationData(req.body, "buyer");
     const { name, email } = req.body;
 
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await withRetry(() => prisma.users.findUnique({
       where: { email},
-    });
+    })) ;
 
     if (existingUser) {
       // Use 'return next' to exit the function immediately
@@ -89,7 +89,7 @@ export const loginUser = async (
     const accessTokenExpiry = rememberMe ? '2d' : '15m'; // Longer if remember me
     const refreshTokenExpiry = rememberMe ? '15d' : '7d';
 
-    const user = await prisma.users.findUnique({ where: { email } });
+    const user = await withRetry(() => prisma.users.findUnique({ where: { email } })) ;
     if (!user) return next(new AuthError("User doesn't exist!"));
     const isMatch = await bcrypt.compare(password, user.password!);
 
@@ -646,7 +646,7 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
         avatar: avatarData ? {
               create: {
                 file_id: avatarData.file_id,
-                url: avatarData.file_url
+                file_url: avatarData.file_url
               }
             } : undefined,
           },

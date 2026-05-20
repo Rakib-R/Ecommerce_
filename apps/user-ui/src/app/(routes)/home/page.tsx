@@ -7,6 +7,7 @@ import { LatestSection } from '../../shared/modules/home/latestSection';
 import { OfferSection } from '../../shared/modules/home/offerSection';
 import { ShopSection } from '../../shared/modules/home/shopSection';
 import { getUser } from './user-content';
+import useUser from '../../..//app/hooks/useUser';
 
 import { GridSkeleton } from '../../utils/skeletons/Skeletons'
 import { SmallSkeleton } from '../../utils/skeletons/Skeletons'
@@ -17,12 +18,11 @@ const Home = async () => {
 
   return (
     <main className="ml-8 text-center font-semibold text-xl">
-        <p className='mt-8 text-center font-semibold text-xl'>WELCOME MUMBAI !</p>  
       <section>
         {user && (
-          <div className='text-2xl'>
+          <div className='flex mt-8 mr-auto text-2xl'>
             <p>Recommendation for you</p>
-            <hr className="mt-4 opacity-50 mb-8" />
+            <hr className="mt-2 opacity-50 mb-8" />
 
           </div>
         )}

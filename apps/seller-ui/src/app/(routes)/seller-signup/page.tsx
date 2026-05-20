@@ -124,6 +124,32 @@ const SignUp = () => {
   }, [successMessage]);
 
 
+  const onSubmit = (data: FormData) => {
+
+    // ✅ Guard against double fire
+    if (signupMutation.isPending) return;
+    const payload = { ...data, phone_number: `${dialCode}${data.phone_number}` };
+
+    // Save BEFORE the network call — if connection drops, form stays filled
+    saveStep1Values(payload);
+    setSellerData(payload);
+    signupMutation.mutate(payload);
+  };
+  
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^[0-9]$/.test(value) && value !== "") return;
+    
+    if (value && verifyOtpMutation.isError || AxiosError) {
+      verifyOtpMutation.reset();
+  }
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value && index < otp.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axiosInstance.post(
@@ -140,18 +166,7 @@ const SignUp = () => {
     },
   });
 
-  const onSubmit = (data: FormData) => {
 
-    // ✅ Guard against double fire
-    if (signupMutation.isPending) return;
-    const payload = { ...data, phone_number: `${dialCode}${data.phone_number}` };
-
-    // Save BEFORE the network call — if connection drops, form stays filled
-    saveStep1Values(payload);
-    setSellerData(payload);
-    signupMutation.mutate(payload);
-  };
-  
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
       if (!sellerData) return;
@@ -171,19 +186,7 @@ const SignUp = () => {
     },
   });
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^[0-9]$/.test(value) && value !== "") return;
-    
-    if (value && verifyOtpMutation.isError || AxiosError) {
-      verifyOtpMutation.reset();
-  }
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < otp.length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
+  
   
   const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
@@ -257,7 +260,7 @@ const resendOtp = () => {
     );
   }
 
-    // HANDLE   IMAGE      UPLOAD
+    // --- HANDLE IMAGE   UPLOAD
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
       const file = e.target.files?.[0];
@@ -291,7 +294,7 @@ const resendOtp = () => {
       {/* ── Stepper ── */}
      <div className="relative flex items-center justify-between w-[90%] md:w-[520px] mb-10">
 
-        {STEPS.map(({ step, label }: any, index: number) => {
+        {STEPS.map(({ step, label }, index: number) => {
           const active = step <= activeStep;
           const isLast = index === STEPS.length - 1;
 

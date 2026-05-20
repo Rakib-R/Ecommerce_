@@ -9,7 +9,7 @@ import Input from 'packages/components/input';
 import { ColorSelector } from 'packages/components/color-selector';
 import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
-import { queryClient } from 'apps/utils/queryClient';
+import { queryClient } from '@ecommerce/utils';
 import { SizeSelector } from 'packages/components/size-selector';
 import Image from 'next/image';
 import { AxiosError } from "axios";
@@ -17,17 +17,20 @@ import Link from 'next/link';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
+import { FieldErrors } from "react-hook-form"; 
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../configs/AI.enhancements';
 import { useRouter } from 'next/navigation';
 import { useImageManagement } from '../../../utils/useImageManagement';
 import { useDraftStore } from '../../../store/useDraftStore';
 
+import { DiscountCodeType } from "packages/utils/src/global"
+
   interface UploadedImage {
       fileId : string;
       file_url: string;
     }
-    interface ProductFormData {
+  export interface ProductFormData {
       title: string;
       short_description: string; // Short description
       detailed_description: string; // Rich text
@@ -51,6 +54,13 @@ import { useDraftStore } from '../../../store/useDraftStore';
       discountCodes?: string[];
       ending_date?: string;
     }
+    
+    interface SiteConfigData {
+      id: string;
+      categories: string[];
+      subCategories: Record<string, string[]>; 
+  }
+
 
     // Fix — explicitly grab the default export and type it
     const RichTextEditor = dynamic(
@@ -90,8 +100,10 @@ const Page = () => {
    const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = methods
  
   const router = useRouter();
- 
-  const { data, isLoading, isError } = useQuery<Record<string, string[]>>({
+  
+  const maxImages = 8;
+  
+  const { data, isLoading, isError } = useQuery<SiteConfigData>({
       queryKey: ["categories"],
       queryFn: async () => {
         try {
@@ -108,10 +120,10 @@ const Page = () => {
         retry: 2,
     });
 
-    const { data: discountCodes = [], isLoading: discountLoading } = useQuery<string[]>({
+    const { data: discountCodes = [], isLoading: discountLoading } = useQuery<DiscountCodeType[]>({
           queryKey: ["shop-discounts"],
           queryFn: async () => {
-        const res = await axiosInstance.get(`/product/api/get-discount-codes`);
+          const res = await axiosInstance.get(`/product/api/get-discount-codes`);
           return res?.data?.discount_codes || [];
       },
     });
@@ -129,16 +141,22 @@ const Page = () => {
     
     const subCategories = useMemo(() => {
         return categories 
-          ? (subCategoriesData as any)[selectedSubCategory] || [] 
+          ? (subCategoriesData)[selectedSubCategory] || [] 
           : [];
       }, [selectedCategory, subCategoriesData]);
 
-    const onInvalid = (errors: any) => {
+    const onInvalid = (errors: FieldErrors<ProductFormData>) => {
       Object.keys(errors).forEach((field) => {
-        setError(field as any, {
-          type: "manual",
-          message: errors[field]?.message,
-        });
+         // Cast the string key strictly to match your form fields
+        const formField = field as keyof ProductFormData;
+        const errorObj = errors[formField];
+
+         if (errorObj && 'message' in errorObj && typeof errorObj.message === 'string') {
+          setError(formField, {
+            type: "manual",
+            message: errorObj.message,
+      });
+    }
       });
 
       toast.error("Please fix the errors before submitting");
@@ -176,7 +194,7 @@ const Page = () => {
       setOpenImageModal,
       setSelectedImage,
     } = useImageManagement({
-      maxImages: 8,
+      maxImages,
       formFieldName: "images"
     });
 
@@ -194,7 +212,6 @@ const Page = () => {
       toast.error("Please upload at least one product image!");
       return;
     }
-
     // console.log("📦 Form Data:", data);
     // console.log("🖼️ Images:", data.images);
     // console.log("⚠️ Form Errors:", errors);
@@ -205,11 +222,11 @@ const Page = () => {
       cashOnDelivery: data.cash_on_delivery === "yes",
 
     customProperties: Array.isArray(data.customProperties)        // ✅ array → record
-      ? Object.fromEntries(data.customProperties.map((p: any) => [p.key, p.value]))
+      ? Object.fromEntries(data.customProperties.map((p) => [p.key, p.value]))
       : data.customProperties || {},
 
     customSpecifications: Array.isArray(data.customSpecifications) // ✅ array → record
-      ? Object.fromEntries(data.customSpecifications.map((s: any) => [s.key, s.value]))
+      ? Object.fromEntries(data.customSpecifications.map((s) => [s.key, s.value]))
       : data.customSpecifications || {},
   };
 
@@ -309,25 +326,27 @@ const Page = () => {
     <main className="w-full flex gap-6 py-4 bg-black/90 ">
 
       {/* Left side Image upload section */}
+      {/* Left side Image upload section */}
       <section className="md:w-[35%]">
           {images?.length > 0 && (
             <ImagePlaceholder
-            setOpenImageModal={setOpenImageModal}
-            size="765 x 850"
-            small={false}
-            index={0}
-            images={images}
-            pictureUploadLoader={pictureUploadLoader}
-            onImageChange={handleImageChange}
-            setSelectedImage={setSelectedImage}
-            onRemove={handleRemoveImage}
+              setOpenImageModal={setOpenImageModal}
+              size="765 x 850"
+              small={false}
+              index={0}
+              images={images}
+              pictureUploadLoader={pictureUploadLoader}
+              onImageChange={handleImageChange}
+              setSelectedImage={setSelectedImage}
+              onRemove={handleRemoveImage}
+
             />
           )}
 
           <aside className="grid grid-cols-2 gap-3 mt-4">
           {images.slice(1).map((_, index) => (
             <ImagePlaceholder
-              key={index}
+              key={index + 1}
               small
               index={index + 1}
               images={images}
@@ -740,7 +759,7 @@ const Page = () => {
             <p>Loading discount codes...</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-          {discountCodes?.map((code: any) => {
+          {discountCodes?.map((code) => {
 
               const selectedDiscountCodes = watch("discountCodes") || [];
               const isSelected = selectedDiscountCodes.includes(code.id);
@@ -898,16 +917,14 @@ const Page = () => {
             <button
               type="button"
               onClick={() => setShowDraftsDialog(true)}
-              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-600 text-sm"
-            >
+              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-600 text-sm">
               📋 Load Draft
             </button>
             {isDirty && (
               <button
                 type="button"
                 onClick={handleSaveDraft}
-                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-              >
+                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
                 💾 Save Draft
               </button>
             )}

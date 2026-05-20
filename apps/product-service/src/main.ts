@@ -5,10 +5,13 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import router from './routes/product.routes';
 import swaggerUi from 'swagger-ui-express';
+import { prisma } from '@packages/prisma';
 
 const app = express();
 
 const swaggerDocument = require('./swagger-output.json')
+
+const product_service_port: string | number = 6099
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -29,18 +32,42 @@ app.use(cors({
       callback(new Error('CORS blocked: Origin not allowed'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+  }));
 
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
   app.use(express.json({ limit: '10mb' })); 
   app.use(cookieParser());
-  const port = process.env.PORT || 6099;
+  const port = process.env.PORT || product_service_port;
 
-// ─── Health Check (Product Service) ─────────────────────────────────────────────
 
+  // ---------- B O O T S T R A P  -----------------In product-service main.ts
+let isReady = false;
+let server: ReturnType<typeof app.listen>;
+
+async function bootstrap() {
+  await prisma.$connect();
+  isReady = true;
+  console.log('✅ PRODUCT DB connected, service ready');
+
+  server = app.listen(port, () => {
+    console.log(`🎀 Product Service running http://localhost:${port}/product/health`);
+  });
+
+  return server;
+}
+
+// Readiness endpoint for the gateway to check
+app.get('/product/ready', (req, res) => {
+  if (isReady) {
+    res.status(200).json({ status: 'Product Service is ready' });
+  } else {
+    res.status(503).json({ status: 'Product Service not ready' });
+  }
+});
+// ------------ API DOCS  & SWAGGER
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/docs-json", (req, res) => {
@@ -49,7 +76,9 @@ app.get("/docs-json", (req, res) => {
 
 app.use('/product/api', router);  
 
-// Health Check Route
+
+// ─── Health Check (Product Service) ─────────────────────────────────────────────
+
 app.get('/product/health', (req, res) => {  
   res.send({ message: `🎗🎗Product Service running at http://localhost:${port}/product`,
   });
@@ -66,17 +95,20 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   next(err);
 });
 
-const server = app.listen(port, () => {
-  console.log(`.🎗 Product Service running http://localhost:${port}/product/health 🎀🎀🎁`);
-  console.log(`Swagger Docs at http://localhost:${port}/api/docs`);
-});
+bootstrap()
+  .then((srv) => {
+    srv.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${port} is already in use.`);
+      } else {
+        console.error('Server error:', err);
+      }
+      process.exit(1);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Bootstrap failed:', err);
+    process.exit(1);
+  });
 
 
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${port} is already in use. Kill the process or change PORT.`);
-  } else {
-    console.error('Server error:', err);
-  }
-  process.exit(1);
-});

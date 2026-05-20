@@ -23,7 +23,7 @@ router.post("/login-user",loginUser);
 router.post("/refresh-token-seller", refreshToken_Seller);
 router.post("/refresh-token-user", refreshToken_User);
 
-router.get("/logged-in-user", isAuthenticated, isBuyer, getUser);
+router.get("/logged-in-user", isBuyer, getUser, isAuthenticated);
 
 router.post("/forgot-password-buyer", userForgotPassword);
 router.post("/reset-user-password", resetUserPassword);

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+echo "🚀 Running e-commerce pre-commit safeguards..."
+
+# 1. Prevent committing directly to main/master branches
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ] || [ "$BRANCH" = "production" ]; then
+  echo "❌ Error: You cannot commit directly to the '$BRANCH' branch. Please use a Pull Request."
+  exit 1
+fi
+
+# 2. Block accidental leaks of secret environment variables
+# Note: Added an extra grep layer to avoid false alarms on Prisma @db definitions
+if git diff --cached | grep -E "STRIPE_SECRET|NEXTAUTH_SECRET|TINYBIRD_TOKEN|DATABASE_URL" | grep -E "^\+.*=" | grep -v "@db"; then
+  echo "❌ Error: Hardcoded secrets detected in your changes! Remove them before committing."
+  exit 1
+fi
+
+# 3. Block accidental staging of env files
+if git diff --cached --name-only | grep -E "^\.env(\..*)?$"; then
+  echo "❌ Error: Do not commit .env files! Add them to .gitignore."
+  exit 1
+fi
+
+# 4. Run the lint-staged pipeline (Formatting, Linting, Type-checking)
+pnpm exec lint-staged

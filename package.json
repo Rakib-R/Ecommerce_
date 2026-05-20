@@ -11,11 +11,13 @@
     "kafka": "pnpm exec nx serve kafka-service",
     "prisma:generate": "pnpm --filter @packages/prisma exec prisma generate --schema=prisma/schema.prisma",
     "start:prod": "pnpm exec nx run-many --target=serve --all --prod",
+    "lint": "next lint",
     "build:analyze_user": "cross-env ANALYZE=true pnpm exec nx build user-ui",
     "build:analyze_seller": "cross-env ANALYZE=true pnpm exec nx build seller-ui",
     "build": "pnpm exec nx run-many --target=build --all",
     "product-docs": "node apps/product-service/src/swagger.js",
-    "auth-docs": "node apps/auth-service/src/swagger.js"
+    "auth-docs": "node apps/auth-service/src/swagger.js",
+    "prepare": "husky"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0",
@@ -25,9 +27,13 @@
   },
   "pnpm": {
     "supportedArchitectures": {
-      "os": ["win32"],
-      "cpu": ["x64"]
-  },
+      "os": [
+        "win32"
+      ],
+      "cpu": [
+        "x64"
+      ]
+    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "@babel/core",

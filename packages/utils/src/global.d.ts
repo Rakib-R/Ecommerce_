@@ -65,3 +65,12 @@ export interface ShopType {
 
   };
 }
+
+export interface DiscountCodeType {
+  
+  id: string;
+  public_name: string;
+  discount_value: number;
+  discount_type: string;
+  sellerId  : string
+}

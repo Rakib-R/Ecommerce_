@@ -26,6 +26,7 @@ const ImagePlaceholder = ({
     onRemove,
     defaultImage = null,
     index,
+    
     pictureUploadLoader,
     images,
     setSelectedImage,
