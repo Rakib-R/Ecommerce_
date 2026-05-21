@@ -134,13 +134,7 @@ const Page = () => {
       }, [selectedCategory, subCategoriesData]);
 
     const onInvalid = (errors: any) => {
-      Object.keys(errors).forEach((field) => {
-        setError(field as any, {
-          type: "manual",
-          message: errors[field]?.message,
-        });
-      });
-
+      
       toast.error("Please fix the errors before submitting");
       // ⁉⁉ ⚠ ⚠ ⚠ Scroll to first error ‼⁉ ⚠ ⚠ ⚠
       const firstErrorField = Object.keys(errors)[0];
