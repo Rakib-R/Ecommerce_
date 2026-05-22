@@ -58,7 +58,7 @@ const Header = () => {
   const handleLogout = async () => {
       await axiosInstance.post(`/api/logout`);
       useAuthState.getState().logout();
-      queryClient.setQueryData(['user'], null);
+      // queryClient.setQueryData(['user'], null);
       router.push("/login");
   };
 

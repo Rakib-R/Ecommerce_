@@ -29,7 +29,15 @@ const router: Router = express.Router();
 
 router.get('/get-categories', getCategories);
 
+<<<<<<< HEAD
 router.post('/create-discount-code', createDiscountCodes);
+=======
+router.post("/create-product", isAuthenticated, createProduct);
+
+router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
+
+router.post("/create-discount-code", isAuthenticated, createDiscountCodes);
+>>>>>>> c4555c1 (Brand new axios Instance! and moved utils/queryClient from apps to packages)
 
 // router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
 router.get('/get-discount-codes', getDiscountCodes);
@@ -44,11 +52,15 @@ router.post('/upload-seller-image', uploadSellerImage);
 
 router.post('/upload-shop-image', uploadShopImage);
 
+<<<<<<< HEAD
 router.delete('/delete-product-image', deleteProductImage);
 
 router.post('/create-product', createProduct);
 
 router.get('/get-shop-products', getShopProducts);
+=======
+router.get('/get-shop-products', isAuthenticated, getShopProducts)
+>>>>>>> c4555c1 (Brand new axios Instance! and moved utils/queryClient from apps to packages)
 
 router.delete('/delete-product/:productId', deleteProduct);
 

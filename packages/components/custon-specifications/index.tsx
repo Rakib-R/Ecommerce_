@@ -1,10 +1,10 @@
 
 import React from "react";
 import { Controller, useFieldArray } from "react-hook-form";
-import Input from "../input";
+import { Input } from "../input";
 import { PlusCircle, Trash2 } from "lucide-react";
 
-const CustomSpecifications = ({ control, errors }: any) => {
+export const CustomSpecifications = ({ control, errors }: any) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "custom_specifications",
@@ -19,7 +19,7 @@ const CustomSpecifications = ({ control, errors }: any) => {
         <section className="flex flex-col mt-2 gap-2 ml-4">
             {fields?.map((item, index) => (
             <div key={item.id} className="flex gap-2 items-end text-gray-400">
-            
+
             {/* 1ST CONTROLLER */}
             <Controller
                 name={`custom_specifications.${index}.name`}
@@ -41,11 +41,11 @@ const CustomSpecifications = ({ control, errors }: any) => {
                 name={`custom_specifications.${index}.value`}
                 control={control}
                 rules={{ required: "Value is required" }}
-                render={({ field }) => ( 
+                render={({ field }) => (
                 <Input
                     label="Value"
                     placeholder="e.g., 1.5kg, Plastic"
-                    {...field} 
+                    {...field}
                     />  )} />
 
             <button
@@ -56,7 +56,7 @@ const CustomSpecifications = ({ control, errors }: any) => {
             </button>
         </div>
         ))}
-          
+
         <button
             type="button"
             className="flex items-center gap-2 text-blue-500 hover:text-blue-6600"
@@ -72,5 +72,3 @@ const CustomSpecifications = ({ control, errors }: any) => {
     </main>
   );
 };
-
-export default CustomSpecifications;

@@ -29,6 +29,7 @@
       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
       "@packages/kafka": ["packages/utils/kafka/index.ts"],
       "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
+      "@packages/components": ["packages/components"],
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
       "@packages/utils": ["packages/utils/src/index.ts"],

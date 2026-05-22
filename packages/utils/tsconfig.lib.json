@@ -1,9 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+     "jsx": "react-jsx",  
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"]
+   "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"     // ← or move providers INTO src/
+  ],
 }

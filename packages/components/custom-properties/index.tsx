@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Controller } from "react-hook-form";
-import Input from "../input";
+import { Input } from "../input";
 import { X, Plus, ListPlus } from "lucide-react";
 
 interface Property {
@@ -19,7 +19,7 @@ export const CustomProperties = ({ control, errors }: any) => {
         name="customProperties"
         control={control}
         render={({ field }) => {
-          
+
         // Helper to sync local state with React Hook Form
         const syncForm = (updatedList: Property[]) => {
           setProperties(updatedList);
@@ -55,7 +55,7 @@ export const CustomProperties = ({ control, errors }: any) => {
           return (
             <div className="flex flex-col w-full">
               <label className="block font-semibold text-gray-200">
-                Custom Properties 
+                Custom Properties
               </label>
 
               {/* Render Existing Groups */}
@@ -66,8 +66,8 @@ export const CustomProperties = ({ control, errors }: any) => {
                       <span className="font-bold text-blue-400 uppercase text-xs tracking-wider">
                         {prop.label}
                       </span>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => handleRemoveProperty(pIdx)}
                         className="text-gray-500 hover:text-red-500 transition-colors">
                         <X size={18} />
@@ -84,8 +84,8 @@ export const CustomProperties = ({ control, errors }: any) => {
                           onChange={(e) => setNewValue(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddValue(pIdx))}
                         />
-                        <button 
-                        type="button" 
+                        <button
+                        type="button"
                         onClick={() => handleAddValue(pIdx)}
                         className="justify-center mb-1 p-2 bg-blue-600 hover:bg-blue-700 text-white  rounded-md gap-2 transition-all"
                       >
@@ -98,10 +98,10 @@ export const CustomProperties = ({ control, errors }: any) => {
                       {prop.values.map((value, valueId) => (
                         <span key={valueId} className="flex items-center gap-1 px-3 py-1 bg-gray-800 text-sm border border-gray-600">
                           {value}
-                          <X 
-                            size={14} 
-                            className="cursor-pointer hover:text-red-400" 
-                            onClick={() => handleRemoveValue(pIdx, valueId)} 
+                          <X
+                            size={14}
+                            className="cursor-pointer hover:text-red-400"
+                            onClick={() => handleRemoveValue(pIdx, valueId)}
                           />
                         </span>
                       ))}
@@ -143,5 +143,3 @@ export const CustomProperties = ({ control, errors }: any) => {
     </main>
   );
 };
-
-export default CustomProperties;

@@ -3,11 +3,16 @@
 import {useQuery} from '@tanstack/react-query';
 import axiosInstance from "../utils/axiosInstance"
 import { useEffect, useState } from 'react';
+import { SellerType } from '../../types';
+
+interface ApiResponse {
+  seller: SellerType; 
+}
 
 // fetch user data from API
 const fetchSeller = async () => {
   try {
-    const response = await axiosInstance.get("/api/logged-in-seller");
+    const response = await axiosInstance.get<ApiResponse>("/api/logged-in-seller");
     return response.data.seller ?? null;  // ✅ never return undefined
   } catch (error: any) {
     if (error?.response?.status === 401) {
@@ -32,7 +37,13 @@ const useSeller = () => {
     enabled: mounted,
 });
 
-  return { seller, isLoading, isError, refetch };
-};
+  if (!mounted) {
+    return { seller: null, isLoading: true, isError: false, refetch: () => Promise.resolve(null as any) 
+     }
 
+   };
+
+    return { seller: seller ?? null, isLoading, isError, refetch };
+
+}
 export default useSeller

@@ -12,7 +12,7 @@ interface BaseProps {
 
     type Props = InputProps | TextareaProps;
 
-    const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement,Props>(
+    export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement,Props>(
         ({ label, type = "text", className, ...props }, ref) => {
 
     return (
@@ -42,5 +42,3 @@ interface BaseProps {
 });
 
 Input.displayName = "Input"
-
-export default Input;

@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useEffect } from 'react'
@@ -14,7 +15,7 @@ import { BellPlus, BellRing, CalendarPlus, CreditCard, Home, ListOrdered, LogOut
 import SidebarMenu from './sidebar.menu';
 import axiosInstance from '../../../utils/axiosInstance';
 import { useAuthState } from '../../../store/authStore';
-import { queryClient } from "@apps/utils";
+import { queryClient } from "@packages/utils";
 import { useRouter } from 'next/navigation';
 
 const SideBarWrapper = () => {

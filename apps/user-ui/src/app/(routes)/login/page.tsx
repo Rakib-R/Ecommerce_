@@ -10,7 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useAuthState } from '../../store/authStore'; // Import your store
 import axiosInstance from '../../utils/axios';
-import { queryClient } from '@apps/utils/queryClient';
+import { queryClient } from '@packages/utils';
 
 type FormData = {
   email: string;

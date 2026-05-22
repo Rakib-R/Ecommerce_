@@ -1,5 +1,5 @@
 
-import Providers from '@apps/utils/providers'
+import {Providers }from '@packages/utils'
 import { Poppins } from 'next/font/google';
 import { Shadows_Into_Light } from 'next/font/google';
 import '../seller-UI.css';
