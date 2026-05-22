@@ -29,7 +29,7 @@
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
       
-      "@packages/utils": ["packages/utils/src/index.ts"],
+      "@packages/utils": ["packages/utils/src/index.tsx"],
 
       "@seller-ui/*": ["apps/seller-ui/src/*"],
       "@user-ui/*": ["apps/user-ui/src/*"]

@@ -1,7 +1,8 @@
 
 
 import type { Metadata } from "next"; 
-import Providers from '@apps/utils/providers';
+import { Providers } from "@packages/utils"
+
 import { Poppins, Roboto } from "next/font/google";
 import './user-ui.css';
 

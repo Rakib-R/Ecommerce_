@@ -13,13 +13,13 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       if (event.persisted) {
         // Page restored from bfcache - refresh data
         queryClient.invalidateQueries();
-        router.refresh();
+        setTimeout(() => router.refresh(), 100);
       }
     };
 
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
-  }, [router]);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

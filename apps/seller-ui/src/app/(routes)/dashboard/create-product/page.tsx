@@ -9,7 +9,7 @@ import Input from 'packages/components/input';
 import { ColorSelector } from 'packages/components/color-selector';
 import CustomSpecifications from 'packages/components/custon-specifications';
 import CustomProperties from 'packages/components/custom-properties';
-import { queryClient } from '@ecommerce/utils';
+import { queryClient } from '@packages/utils';
 import { SizeSelector } from 'packages/components/size-selector';
 import Image from 'next/image';
 import { AxiosError } from "axios";
@@ -17,14 +17,17 @@ import Link from 'next/link';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../../utils/axiosInstance';
-import { FieldErrors } from "react-hook-form"; 
 import toast from 'react-hot-toast';
 import { enhancements } from '../../../configs/AI.enhancements';
-import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+import { FieldErrors } from "react-hook-form"; 
+import { FieldValues } from 'react-hook-form';
+import { DiscountCodeType } from "packages/utils/src/global"
+
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useImageManagement } from '../../../utils/useImageManagement';
 import { useDraftStore } from '../../../store/useDraftStore';
-
-import { DiscountCodeType } from "packages/utils/src/global"
 
   interface UploadedImage {
       fileId : string;
@@ -61,7 +64,6 @@ import { DiscountCodeType } from "packages/utils/src/global"
       subCategories: Record<string, string[]>; 
   }
 
-
     // Fix — explicitly grab the default export and type it
     const RichTextEditor = dynamic(
       () => import('packages/components/rich-text-editor').then(mod => mod.default),
@@ -73,6 +75,13 @@ import { DiscountCodeType } from "packages/utils/src/global"
 
 
 const Page = () => {
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+
+    const maxImages = 8;
+    
 
   const methods = useForm<ProductFormData>({ reValidateMode: "onChange" ,defaultValues: {
           title: "",
@@ -98,11 +107,39 @@ const Page = () => {
         }
   });
    const { register,  control,  watch, setError ,setValue,  handleSubmit,formState: { errors, isDirty }} = methods
+  
+    const {
+      images,
+      openImageModal,
+      processing,
+      activeEffect,
+      loadingIndexes,       // ✅ replaces pictureUploadLoader
+      selectedImage,
+      selectedImageIndex,
+
+      // Actions
+      handleImageChange,
+      handleRemoveImage,
+      openModal,            // ✅ pass this to ImagePlaceholder as onOpenModal
+      closeModal,
+      applyTransformation,
+      undoTransformation,
+      redoTransformation,
+      resetTransformations,
+      isTransformationActive,
+      getActiveTransformations,
+
+      // Setters (for modal and selected image)
+      setImages,
+      setOpenImageModal,
+      setSelectedImage,
+      setSelectedImageIndex,
+      } = useImageManagement({
+        maxImages,
+        formFieldName: "images"
+      });
+
  
-  const router = useRouter();
-  
-  const maxImages = 8;
-  
   const { data, isLoading, isError } = useQuery<SiteConfigData>({
       queryKey: ["categories"],
       queryFn: async () => {
@@ -134,9 +171,8 @@ const Page = () => {
     // FORM HOOK ------------------WATCH --------------ATTRIBUTE
     const selectedCategory = watch("category");
     const selectedSubCategory = watch("subCategory");
-    const regularPrice = watch('regularPrice')
+    const regularPrice = watch('regularPrice');
     const cash_On_Delivery = watch("cash_on_delivery");
-    const formImages = watch('images');
   
     
     const subCategories = useMemo(() => {
@@ -168,36 +204,7 @@ const Page = () => {
       });
     };
     
-    const {
-      images,
-      openImageModal,
-      processing,
-      pictureUploadLoader,
-      selectedImage,
-      activeEffect,
-      selectedImageIndex,
-
-      // Actions
-      handleImageChange,
-      handleRemoveImage,
-      openModal,
-      closeModal,
-      applyTransformation,
-      undoTransformation,      
-      redoTransformation,      
-      resetTransformations,
-      isTransformationActive,
-      getActiveTransformations,
-      
-      // Setters
-      setImages,
-      setOpenImageModal,
-      setSelectedImage,
-    } = useImageManagement({
-      maxImages,
-      formFieldName: "images"
-    });
-
+   
   const { mutateAsync: createProduct, isPending } = useMutation({
       mutationFn: async (payload: ProductFormData) => {
         const res = await axiosInstance.post('/product/api/create-product', payload);
@@ -239,43 +246,36 @@ const Page = () => {
     
       queryClient.invalidateQueries({ queryKey: ['products'] });
       router.push('/dashboard/all-products');
-   } catch (error: any) {
-      if (error.response?.data?.field) {
-      setError(error.response.data.field as keyof ProductFormData, {
-        type: "server",
-        message: error.response.data.message,
-      });
-    }
+   } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.field) {
+          setError(error.response.data.field as keyof ProductFormData, {
+            type: 'server',
+            message: error.response.data.message || 'An error occurred',
+          });
+        }
+      } else {
+        // Optional: Handle non-axios errors (e.g., standard runtime crashes)
+        console.error(error);
+  }
   }
 };
 
-  // ✅ Force sync images to form when they change
-  useEffect(() => {
-    const validImages = images.filter(img => img !== null);
-    if (validImages.length > 0 || formImages?.length > 0) {
-      setValue('images', validImages, { shouldDirty: true });
-    }
-  }, [images]);
-
-
- const { saveDraft, getDraft, deleteDraft } = useDraftStore();
+  const { saveDraft, getDraft, deleteDraft } = useDraftStore();
   const [draftId, setDraftId] = useState<string | null>(null);
   
-    // Load draft on mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const draftIdFromUrl = urlParams.get('draft');
-    
-    if (draftIdFromUrl) {
-      const draft = getDraft(draftIdFromUrl);
-      if (draft) {
-        methods.reset(draft);
-        setDraftId(draftIdFromUrl);
-        toast.success('Draft loaded successfully');
-      }
-    }
-  }, []);
 
+useEffect(() => {
+  const draftIdFromUrl = searchParams.get('draft');
+  if (!draftIdFromUrl) return;
+
+  const draft = getDraft(draftIdFromUrl);
+  if (draft) {
+    methods.reset(draft);
+    setDraftId(draftIdFromUrl);
+    toast.success('Draft loaded successfully');
+  }
+}, [searchParams]);
 
   
   // Generate unique ------------------ DRAFT KEY -----------------------
@@ -285,7 +285,7 @@ const Page = () => {
   
 
   const handleSaveDraft = () => {
-    const formData = methods.getValues();
+    const formData : FieldValues = methods.getValues();
     const key = draftId || generateDraftKey();
     
     // Don't save empty drafts
@@ -293,18 +293,19 @@ const Page = () => {
       toast.error('Add at least a title or description before saving draft');
       return;
     }
-    
     saveDraft(key, formData);
     setDraftId(key);
     
     // Update URL with draft ID
-    const url = new URL(window.location.href);
-    url.searchParams.set('draft', key);
-    window.history.pushState({}, '', url.toString());
+    const currentParams = new URLSearchParams(searchParams.toString());
+    currentParams.set('draft', key);
+
+    // Pushes the updated URL to history without a full page reload
+    router.push(`${pathname}?${currentParams.toString()}`);
   };
 
   const [showDraftsDialog, setShowDraftsDialog] = useState(false);
-  const allDrafts = useDraftStore((state) => state.getAllDrafts());
+  const allDrafts = useDraftStore((state) => state.drafts);
 
   return (
 <FormProvider {...methods}>  
@@ -335,7 +336,8 @@ const Page = () => {
               small={false}
               index={0}
               images={images}
-              pictureUploadLoader={pictureUploadLoader}
+              loadingIndexes={loadingIndexes}
+              onOpenModal={openModal}  
               onImageChange={handleImageChange}
               setSelectedImage={setSelectedImage}
               onRemove={handleRemoveImage}
@@ -350,7 +352,7 @@ const Page = () => {
               small
               index={index + 1}
               images={images}
-              pictureUploadLoader={pictureUploadLoader}
+              loadingIndexes={loadingIndexes}
               setOpenImageModal={setOpenImageModal}
               setSelectedImage={setSelectedImage}
               size="765 x 850"
@@ -948,7 +950,7 @@ const Page = () => {
                 <p className="text-gray-400 text-center py-8">No drafts saved yet</p>
               ) : (
                 <div className="space-y-3">
-                  {Object.entries(allDrafts).map(([key, draft]: [string, any]) => (
+                  {Object.entries(allDrafts).map(([key, draft]: [string, FieldValues]) => (
                     <div key={key} className="border border-gray-700 rounded-lg p-4 hover:bg-gray-700/50">
                       <div className="flex justify-between items-start">
                         <div>
@@ -1018,9 +1020,9 @@ const Page = () => {
           )}
             <button
                 type="submit"
-                disabled={isPending || pictureUploadLoader} // ✅ block submit while image uploading
+                disabled={isPending} // ✅ block submit while image uploading
                 className="px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                {pictureUploadLoader ? (
+                {loadingIndexes ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Uploading image...

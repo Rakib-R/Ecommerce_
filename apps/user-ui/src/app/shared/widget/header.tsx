@@ -11,7 +11,6 @@ import Image from "next/image";
 import { useAuthState, useStore } from "../../store/authStore";
 import {useRouter} from "next/navigation";
 import { usePathname } from 'next/navigation';
-import { queryClient } from "@apps/utils/queryClient";
 import axiosInstance from "../../utils/axios";
 import { Adamina } from "next/font/google";
 
@@ -57,7 +56,7 @@ const Header = () => {
   const handleLogout = async () => {
       await axiosInstance.post(`/api/logout`);
       useAuthState.getState().logout();
-      queryClient.setQueryData(['user'], null);
+      // queryClient.setQueryData(['user'], null);
       router.push("/login");
   };
 

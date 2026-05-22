@@ -1,13 +1,17 @@
-
-//!!!!!!  THIS IS ONE FROM   !!!!!!!!!!!!!!
-
 import axios from "axios";
 import { useAuthState } from "../store/authStore";
-import { queryClient } from '../../../../utils/queryClient';
+import { queryClient } from '@packages/utils';
 
+// 1. Primary instance for general app traffic
 const axiosInstance = axios.create({
    baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
-   withCredentials: true,  // sends cookies automatically
+   withCredentials: true, 
+});
+
+// 2. ISOLATED instance used strictly for token renewals
+const refreshClient = axios.create({
+   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
+   withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -27,76 +31,118 @@ const onRefreshFailure = () => {
   refreshSubscribers = [];
 };
 
-
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    // Only handle 401 Unauthorized errors, ignore everything else early
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // Standard public auth routes to skip intercepting entirely
     const skipRefreshRoutes = [
-      '/api/seller-registration', '/api/register-user',
+      '/api/home', '/api/seller-registration', '/api/register-user',
       '/api/login',
-      '/api/logged-in-seller',
       '/api/signup',
       '/api/seller-login',
       '/api/seller-signup', '/api/admin',
       '/api/forgot-password-user', '/api/forgot-password-seller',
     ];
 
-      const isAuthRoute = skipRefreshRoutes.some(r => 
+    const isAuthRoute = skipRefreshRoutes.some(r => 
         originalRequest.url?.includes(r)
     );
 
     if (isAuthRoute) {
-      return Promise.reject(error); // ← return immediately, no refresh
+      return Promise.reject(error); 
     }
 
-  // Only handle 401s && 403s, Skip everything else
-    if (error.response?.status !== 401 ) {
-      return Promise.reject(error);
-    }
-
-    // Don't retry the refresh endpoint itself — would cause infinite loop
-    if (originalRequest.url?.includes('/api/refreshToken_Seller')) {
+    // Don't retry the refresh endpoint itself to prevent infinite loops
+    if (originalRequest.url?.includes('/api/refreshToken_User')) {
       useAuthState.getState().handleLogout();
       queryClient.setQueryData(['seller'], null);
       return Promise.reject(error);
     }
 
+    // 3. Token Refresh Execution Process
     if (!originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) =>
-        subscribeTokenRefresh((success) => {
-          if (success) resolve(axiosInstance(originalRequest));
-          else reject(new Error('Token refresh failed'));
-        })
-      )}
+          subscribeTokenRefresh((success) => {
+            if (success) {
+              resolve(axiosInstance(originalRequest));
+            } else {
+              // If background refresh failed while this request was waiting in queue
+              if (originalRequest.url?.includes('/api/logged-in-seller')) {
+                resolve({
+                  data: { seller: null },
+                  status: 200,
+                  statusText: 'FORCEFULL RESOLVING',
+                  headers: error.response?.headers,
+                  config: originalRequest
+                });
+              } else {
+                reject(new Error('Token refresh failed'));
+              }
+            }
+          })
+        );
+      }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        await axiosInstance.post(`/api/refreshToken_Seller`);
+        // Use the clean, isolated refreshClient here
+        await refreshClient.post(`/api/refreshToken_User`);
+        
         isRefreshing = false;
         onRefreshSuccess();
 
-        // Invalidate Seller query to refetch with new token
+        // Sync local React Query state
         queryClient.invalidateQueries({ queryKey: ['seller'] });
+        
+        // Re-run original request with fresh cookies
         return axiosInstance(originalRequest);
       }  
       catch (err: any) {
         isRefreshing = false;
         onRefreshFailure(); 
-        if (err.response?.status === 401 || err.response?.status === 400) {
-            useAuthState.getState().handleLogout();
+        
+        // CRITICAL FIX: If the session checking route caused this, don't force logout state.
+        // Just return the clean fallback null payload.
+        if (originalRequest.url?.includes('/api/logged-in-seller')) {
+          queryClient.setQueryData(['seller'], null);
+          return Promise.resolve({
+             data: { seller: null },
+             status: 200,
+             statusText: 'FORCEFULL RESOLVING',
+             headers: error.response?.headers,
+             config: originalRequest
+          });
         }
 
-        // Clear Seller data on refresh failure
+        // If a regular application endpoint (like /api/products) hits a dead refresh token, force logout.
+        useAuthState.getState().handleLogout();
         queryClient.setQueryData(['seller'], null);
-          return Promise.reject(err);
-        }
+        
+        return Promise.reject(err);
+      }
     }
     
+    // Fallback if a request fails a second time even after a retry attempt
+    if (originalRequest.url?.includes('/api/logged-in-seller')) {
+      return Promise.resolve({
+         data: { seller: null },
+         status: 200,
+         statusText: 'FORCEFULL RESOLVING',
+         headers: error.response?.headers,
+         config: originalRequest
+      });
+    }
+
     return Promise.reject(error);
   }
 );

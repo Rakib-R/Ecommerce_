@@ -3,7 +3,6 @@
 import * as jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "@packages/prisma";
-import "@packages/utils"
 
 export const isAuthenticated = async (
   req: Request,

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import axiosInstance from '../../../utils/axiosInstance';
-import { queryClient } from 'apps/utils/queryClient';
+import { queryClient } from '@packages/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import DeleteConfirmationModal from '../../../shared/components/modals/delete.confirmation.modal';

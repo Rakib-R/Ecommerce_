@@ -10,6 +10,7 @@ export interface SellerType {
   id: string;
   name: string;
   email: string;
+  shop : ShopType;
   avatar?: imageType;
   points: number;
   createdAt: string;

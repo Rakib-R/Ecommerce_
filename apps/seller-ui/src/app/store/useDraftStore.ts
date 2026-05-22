@@ -2,10 +2,12 @@
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { FieldValues } from 'react-hook-form';
+
 
 interface DraftState {
-  drafts: Record<string, any>;
-  saveDraft: (key: string, data: any) => void;
+  drafts: Record<string, FieldValues>;
+  saveDraft: (key: string, data: FieldValues) => void;
   getDraft: (key: string) => any;
   deleteDraft: (key: string) => void;
   getAllDrafts: () => Record<string, any>;
@@ -17,7 +19,7 @@ export const useDraftStore = create<DraftState>()(
     (set, get) => ({
       drafts: {},
 
-      saveDraft: (key: string, data: any) => {
+      saveDraft: (key: string, data: FieldValues) => {
         set((state) => ({
           drafts: {
             ...state.drafts,

@@ -368,7 +368,7 @@ export const createProduct = async (
             .filter((img) => img.fileId && img.file_url)
             .map((img) => ({
               file_id: img.fileId,
-              file_url:     img.file_url,
+              file_url:img.file_url,
             })),
         },
         cashOnDelivery:  parsed.data.cash_on_delivery === "yes",

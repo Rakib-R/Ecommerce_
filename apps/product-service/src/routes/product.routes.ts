@@ -32,6 +32,10 @@ const router: Router = express.Router();
 
 router.get("/get-categories", getCategories);
 
+router.post("/create-product", isAuthenticated, createProduct);
+
+router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
+
 router.post("/create-discount-code", isAuthenticated, createDiscountCodes);
 
 router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
@@ -43,10 +47,6 @@ router.post("/upload-product-image", isAuthenticated, uploadProductImage);
 router.post("/upload-seller-image", uploadSellerImage);
 
 router.post("/upload-shop-image", uploadShopImage);
-
-router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
-
-router.post("/create-product", isAuthenticated, createProduct);
 
 router.get('/get-shop-products', isAuthenticated, getShopProducts)
 

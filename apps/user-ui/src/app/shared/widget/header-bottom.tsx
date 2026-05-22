@@ -6,12 +6,11 @@ import React, { useState, useEffect } from 'react';
 import { navItems } from '../../configs/constants';
 import Image from 'next/image';
 import Cart from "../../../../assests/svgs/cart.png"
-import useUser from "@user-ui/app/hooks/useUser"
+import useUser from "../../hooks/useUser"
 import { useAuthState, useStore } from '../../store/authStore';
 import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
-import { queryClient } from '@apps/utils/queryClient';
 import { useRouter } from 'next/navigation';
-import axiosInstance from '@user-ui/app/utils/axios';
+import axiosInstance from '../../utils/axios';
 
 interface HeaderBottomProps {
   topHeaderHeight?: number;
@@ -21,15 +20,15 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
   const [show, setShow] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const { user, isLoading} = useUser();
-  const wishlist = useStore((state: any) => state.wishlist);
-  const cart = useStore((state: any) => state.cart);
+  const wishlist = useStore((state) => state.wishlist);
+  const cart = useStore((state) => state.cart);
   
   const router = useRouter();
 
   const handleLogout = async () => {
     await axiosInstance.post("/api/logout");
     useAuthState.getState().logout();
-    queryClient.setQueryData(['user'], null);
+    // queryClient.setQueryData(['user'], null);
     router.push("/login");
   };
 
@@ -119,7 +118,7 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0"  sizes="(max-width: 512px) 100vw, 33vw"
                       loading="lazy"/>
                     <p className="font-medium text-black">
-                      <span className='text-md'>Hello, {user.role === 'admin' ? 'Admin' : ''}</span>
+                      <span className='text-md'>Hello, {user.role}</span>
                       <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
                       </Link>)}

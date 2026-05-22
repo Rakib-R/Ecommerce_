@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+     "module": "esnext",           // ← change from commonjs to esnext
+    "moduleResolution": "bundler", 
+     "jsx": "react-jsx",  
+    "declaration": true,
     "composite": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
