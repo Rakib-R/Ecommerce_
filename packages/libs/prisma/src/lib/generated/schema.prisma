@@ -23,18 +23,21 @@ model images {
   sellerAvatar sellers? @relation(fields: [sellerAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userAvatar   users?   @relation(fields: [userAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   products     product? @relation(fields: [productId], references: [id])
-
-  @@index([productId])
-  @@index([userAvatarsId])
-  @@index([sellerAvatarsId])
-  @@index([coverShopId])
 }
 
 model users {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  email    String @unique
-  password String
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String  @unique
+  password      String
+  emailVerified Boolean @default(false)
+
+  // 📸 Better Auth field mapped to your actual database column "avatar"
+  image    String?   @map("avatar")
+  // 👥 Integrated Roles System for App Logic
+  role     String    @default("user")
+  sessions Session[] // 🔴 FIX 2: Fixed model name casing to uppercase
+  accounts Account[]
 
   address     address[]
   following   shop_followed[]
@@ -45,6 +48,8 @@ model users {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("user")
 }
 
 model sellers {
@@ -56,8 +61,15 @@ model sellers {
   password     String
   stripeId     String?
 
-  avatar images[]
+  // Better Auth connection handles
+  sessions Session[]
+  accounts Account[]
+  // 👥 Integrated Roles System for App Logic
+  role     String    @default("seller")
+  // 📸 Better Auth field mapped to your actual database column "avatar"
+  image    String?   @map("avatar")
 
+  avatar  images[]
   shop    shops?
   product product[]
 
@@ -67,6 +79,60 @@ model sellers {
   stripeOnboarded Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@map("seller")
+}
+
+model Verification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String @db.ObjectId
+  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sellerId String?  @db.ObjectId
+  seller   sellers? @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  accountId  String
+  providerId String
+
+  userId   String   @db.ObjectId
+  user     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sellerId String?  @db.ObjectId
+  seller   sellers? @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
 }
 
 model shops {
@@ -237,11 +303,9 @@ model product {
   deleteAt      DateTime?
   updatedAt     DateTime  @updatedAt
 
-  // ✅ Index for filtering
-  @@index([shopId])
-  @@index([sellerId])
+  // ✅ Essential Single Index for plain fields
   @@index([category])
-  // ✅ Compound indexes for common queries
+  // ✅ Optimized  Compound indexes for common queries
   @@index([shopId, status]) // Shop + status filter
   @@index([category, status]) // Category + status
   @@index([createdAt, status])

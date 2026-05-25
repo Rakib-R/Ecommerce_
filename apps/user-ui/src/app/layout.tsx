@@ -7,6 +7,8 @@ import { Poppins, Roboto } from "next/font/google";
 import './user-ui.css';
 
 import ClientLayout from './shared/widget/headerProvider';
+// --REACT SCAN---------------
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: 'Ecommerce_',
@@ -35,14 +37,20 @@ export default async function RootLayout({
 
   return (
     <html data-scroll-behavior="smooth" lang="en">
-  
+      <head>
+        <Script
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={`${poppins.variable} ${roboto.variable}`}>
         <Providers>
-        
-        <ClientLayout> 
-          {children}
-        </ClientLayout>
-        
+          
+          <ClientLayout> 
+            {children}
+          </ClientLayout>
+          
         </Providers>
       </body>
     </html>

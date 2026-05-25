@@ -4,12 +4,11 @@ import { withRetry, prisma } from "@packages/prisma";
 import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "@packages/imagekit"
 
-
 // GET product categories
 export const getCategories = async (
   req: Request,
   res: Response,
-  next: NextFunction
+
 ) => {
   try {
 
@@ -21,7 +20,6 @@ export const getCategories = async (
         categories: config.categories,
         subCategories: config.subCategories
     })
-
   } catch (error) {
     console.error('getCategories error:', error);
     return res.status(500).json({ error: 'Internal server & getCategories error' }); 
@@ -159,23 +157,37 @@ export const deleteDiscountCode = async (
 
 
 // Upload product image
+
 export const uploadProductImage = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { fileName } = req.body; 
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
     const response = await imagekit.upload({
-      file : fileName,
-      fileName: `product-${Date.now()}.jpg`,
-      folder: "/products"
+      file: file.buffer,
+      fileName: `product-${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`,
+      folder: "/products",
     });
-    
-    res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
+
+    res.status(200).json({
+      success: true,
+      data: response,
+      file_url: response.url,
+      fileId: response.fileId,
+    });
   } catch (error) {
     next(error);
-    }
+  }
 };
 
 // Upload Seller Avatar
@@ -1095,7 +1107,7 @@ export const getFilteredShops = async (
     });
 
     // Fetch the corresponding shop details
-    const shopIds = topShopsData.map((item : any) => item.shopId);
+    const shopIds = topShopsData.map((item ) => item.shopId);
     
     const shops = await prisma.shops.findMany({
       where: {

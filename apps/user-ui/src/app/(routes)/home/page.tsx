@@ -7,7 +7,6 @@ import { LatestSection } from '../../shared/modules/home/latestSection';
 import { OfferSection } from '../../shared/modules/home/offerSection';
 import { ShopSection } from '../../shared/modules/home/shopSection';
 import { getUser } from './user-content';
-import useUser from '../../..//app/hooks/useUser';
 
 import { GridSkeleton } from '../../utils/skeletons/Skeletons'
 import { SmallSkeleton } from '../../utils/skeletons/Skeletons'

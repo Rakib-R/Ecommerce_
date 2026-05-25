@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { categories } from '../../configs/categories';
 import ShopCard from '../../shared/components/cards/shop-card'
 import {countries} from '../../configs/countries'
+import { shop } from '../../../types';
 
 interface countryProps {
   name : string;
@@ -22,7 +23,7 @@ const Page = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string>('');
   const [page, setPage] = useState(1);
-  const [shops, setShops] = useState<any[]>([]);
+  const [shops, setShops] = useState<shop[]>([]);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -105,7 +106,7 @@ useEffect(() => {
                 <h3 className="font-Poppins font-medium">Categories</h3>
            
                   <ul className="space-y-2 mt-3">
-                    {categories?.map((category: any) => (
+                    {categories?.map((category) => (
                       <li key={category.label} className="flex items-center justify-between pb-2">
                         <label className="flex items-center gap-3 text-sm font-medium cursor-pointer">
                           <input
@@ -155,8 +156,8 @@ useEffect(() => {
                 {isShopLoading ? (
                   <p>Loading products...</p>
                 ) : shops.length > 0 ? (
-                  shops.map((shop: any, index: number) => (
-                      <ShopCard key={shop.id || shop._id || index} shop={shop}/>
+                  shops.map((shop, index: number) => (
+                      <ShopCard key={shop.id } shop={shop}/>
                   ))
                 ) : (
                   <p>No Shops found</p>

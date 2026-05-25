@@ -8,7 +8,8 @@ export interface OrderType{
 
 }
 
-type shop = ShopType['shop'];
+export type shop = ShopType['shop'];
+
 export interface ShopType {
   shop: {
     id: string;

@@ -125,6 +125,9 @@ exports.Prisma.UsersScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -137,7 +140,47 @@ exports.Prisma.SellersScalarFieldEnum = {
   country: 'country',
   password: 'password',
   stripeId: 'stripeId',
+  role: 'role',
+  image: 'image',
   stripeOnboarded: 'stripeOnboarded',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  expiresAt: 'expiresAt',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  userId: 'userId',
+  sellerId: 'sellerId'
+};
+
+exports.Prisma.AccountScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  providerId: 'providerId',
+  userId: 'userId',
+  sellerId: 'sellerId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  idToken: 'idToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
+  scope: 'scope',
+  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -365,6 +408,9 @@ exports.Prisma.ModelName = {
   images: 'images',
   users: 'users',
   sellers: 'sellers',
+  Verification: 'Verification',
+  Session: 'Session',
+  Account: 'Account',
   shops: 'shops',
   shop_followed: 'shop_followed',
   address: 'address',

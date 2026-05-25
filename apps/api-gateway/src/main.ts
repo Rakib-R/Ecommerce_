@@ -1,3 +1,4 @@
+
 import express from 'express';
 import morgan from 'morgan';
 import proxy from 'express-http-proxy';
@@ -123,38 +124,7 @@ app.use(
     proxyReqOptDecorator: forwardCookies,
 
     // Use HEADER decorator instead of RES decorator
-    userResHeaderDecorator: (headers, userReq, userRes, proxyReq, proxyRes) => {
-      const cookies = headers['set-cookie'];
-      
-      if (cookies) {
-        headers['set-cookie'] = cookies.map((cookie) => {
-          let c = cookie;
-
-          if (IS_PROD) {
-            // Production Cookie Rules: Ensure security
-            c = c.replace(/SameSite=None/gi, 'SameSite=Lax');
-            // Ensure Secure flag stays active in production
-            if (!/;?\s*Secure/i.test(c)) c += '; Secure';
-          } else {
-            // Local Development Rules: Strip security blocks
-            c = c
-              .replace(/SameSite=None/gi, 'SameSite=Lax')
-              .replace(/SameSite=Strict/gi, 'SameSite=Lax')
-              .replace(/;\s*Secure/gi, '');
-          }
-          // Strip any upstream domains
-          c = c.replace(/;\s*Domain=[^;]*/gi, '');
-          // Inject the correct domain dynamically (localhost or production domain)
-          if (!/domain=/i.test(c)) {
-            c += `; Domain=${COOKIE_DOMAIN}`;
-          }
-
-          return c;
-        });
-      }
-      // Crucial: You must return the modified headers object
-      return headers;
-    },
+    
 
      proxyErrorHandler: (err, res) => {
     console.error('❌ Auth Service proxy error:', err.message);
@@ -195,14 +165,12 @@ app.use('/product/api',
 );
 
 
-
 // ─── Start Server ────────────────────────────────────────────────────────────
 const port = process.env.PORT || api_gateway_port;
 
 const server = app.listen(port, async() => {
 
   console.log(`🚪 API Gateway running at http://localhost:${port}/gateway-health`);
-  console.log(`   Product proxy: /product/api/* → http://localhost:6099/product/api/*`);
 
   try {
     initializeSiteConfig();

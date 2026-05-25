@@ -5,9 +5,8 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true ,
-    
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
@@ -18,26 +17,22 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-
       "@apps/utils": ["apps/utils/index.ts"],
-      "@apps/utils/*": ["apps/utils/*"],
+      "@packages/auth": ["packages/auth/src/auth/index.ts"],
 
       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
-      "@packages/middleware": ["packages/middleware/src/index.ts"],
+      "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
       "@packages/kafka": ["packages/utils/kafka/index.ts"],
+      "@packages/middleware": ["packages/middleware/src/index.ts"],
       "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
-      "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
-      
       "@packages/utils": ["packages/utils/src/index.tsx"],
 
       "@seller-ui/*": ["apps/seller-ui/src/*"],
-      "@user-ui/*": ["apps/user-ui/src/*"]
+      "@user-ui/*": ["apps/user-ui/src/*"],
+      "@packages/auth-types": ["packages/auth-types/src/lib/auth-types.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"],
-
-  "include": [
-    "packages/utils/src/global.d.ts" // 👈 Add this relative path
-  ]
+  "include": ["packages/utils/src/global.d.ts"]
 }

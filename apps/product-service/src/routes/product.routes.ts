@@ -1,6 +1,12 @@
 
 
 import express, { Router } from "express";
+import multer from "multer";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+
 import {
   createDiscountCodes,
   createProduct,
@@ -42,7 +48,7 @@ router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
 
 router.post("/delete-discount-code/:id", isAuthenticated, deleteDiscountCode);
 
-router.post("/upload-product-image", isAuthenticated, uploadProductImage);
+router.post("/upload-product-image", isAuthenticated, uploadProductImage, upload.single("image"), uploadProductImage );
 
 router.post("/upload-seller-image", uploadSellerImage);
 

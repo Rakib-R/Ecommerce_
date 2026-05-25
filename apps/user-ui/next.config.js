@@ -7,7 +7,7 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
 
-  reactStrictMode: false,
+  reactStrictMode: true,
   nx: {
     svgr: false,
   },
@@ -17,7 +17,6 @@ const nextConfig = {
   // ✅ ADD THIS SECTION to suppress hydration warnings
   /** @param {any} error */
   onError: (error) => {
-    // Suppress Codeium extension hydration warnings
     if (error.message && error.message.includes('cz-shortcut-listen')) {
       return;
     }
@@ -52,6 +51,12 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
+    
+    config.ignoreWarnings = [
+      { module: /node_modules\/@prisma\/client/ },
+      /Failed to parse source map/
+    ];
+    
     if (!isServer) {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,

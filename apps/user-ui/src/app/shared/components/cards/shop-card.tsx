@@ -9,11 +9,11 @@ import { imageType } from '../../../../types';
 
 const ShopCard = ({ shop }: ShopType) => {
 
-  const avatarSrc =
+  const avatarSrc : imageType['file_url'] =
         shop.seller?.avatar?.[0]?.file_url ||
-       "https://ik.imagekit.io/hasanRakib/Person/avater.webp?updatedAt=1775922329704";
+       "https://ik.imagekit.io/hasanRakib/persons/avater.webp";
   
-  const coverSrc =
+  const coverSrc : imageType['file_url'] =
     shop.coverShop?.[0]?.file_url || "https://ik.imagekit.io/hasanRakib/shops/shop_placeholder_Main.svg";
 
     console.log('SHop COVer =>', shop.coverShop, shop.coverShop[0])
