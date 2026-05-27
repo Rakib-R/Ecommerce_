@@ -1,6 +1,7 @@
 import { UAParser } from "ua-parser-js";
 import { NextRequest, NextResponse } from "next/server";
 
+
 export async function GET(request: NextRequest) {
   try {
     const userAgent = request.headers.get("user-agent") || "";

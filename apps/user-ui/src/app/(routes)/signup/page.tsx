@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import GoogleButton from "../../shared/components/google-button";
+
 import {
   Eye,
   EyeOff,
@@ -17,12 +18,16 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import axiosInstance from "../../utils/axios";
+// import axiosInstance from "../../utils/axios";
+
+import { authClient } from "../../configs/auth-client";
+type SignUpResponse = Awaited<ReturnType<typeof authClient.signUp.email>>;
 
 type FormData = {
   name: string;
   password: string;
   email: string;
+  role: "user" | "seller";
 };
 
 const FieldError = ({ message }: { message?: string }) => {
@@ -34,15 +39,19 @@ const FieldError = ({ message }: { message?: string }) => {
   );
 };
 
+const OTP_LENGTH = 6;
+
 const SignUp = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [canResend, setCanResend] = useState(false);
   const [timer, setTimer] = useState(60);
   const [showOtp, setShowOtp] = useState(false);
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [userData, setUserData] = useState<FormData | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+const [signUpResult, setSignUpResult] = useState<SignUpResponse | null>(null);
 
   const {
     register,
@@ -53,6 +62,7 @@ const SignUp = () => {
   // Timer countdown
   useEffect(() => {
     let interval: NodeJS.Timeout;
+
     if (!canResend && timer > 0) {
       interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
     } else if (timer === 0) {
@@ -61,25 +71,69 @@ const SignUp = () => {
     return () => clearInterval(interval);
   }, [canResend, timer]);
 
+   const onSubmit = (data: FormData) => {
+    setUserData(data);
+    signupMutation.mutate(data);
+  };
+
   const signupMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await axiosInstance.post(`/api/user-registration`, data);
-      return response.data;
-    },
-    onSuccess: () => {
-      setShowOtp(true);
-      setCanResend(false);
-      setTimer(60);
-      toast.success("OTP sent to your email!", {
-        style: {
-          background: "#18181b",
-          color: "#fff",
-          borderRadius: "12px",
-          fontWeight: "600",
-        },
-        iconTheme: { primary: "#22c55e", secondary: "#fff" },
-      });
-    },
+  mutationFn: async (data: FormData) => {
+     
+  const signUpResult = await authClient.signUp.email (
+  {
+    ...data,
+    role: data.role,
+  },
+      {
+      onRequest: () => {
+        setSignUpResult(null);
+      },
+      onError: (ctx) => {
+        throw new Error(ctx.error.message || "Registration failed. Please try again.");
+      },
+      }
+    );
+
+    if (!signUpResult || signUpResult.error) {
+       throw new Error(signUpResult?.error?.message || "Endpoint returned a 404 or connection error");
+    }
+
+  const otpResult = await authClient.emailOtp.sendVerificationOtp({
+      email: data.email,
+      type: "email-verification",
+    });
+
+    if (otpResult.error) {
+      throw new Error(
+        otpResult.error.message ||
+          "Account created, but OTP could not be sent. Please resend it."
+      );
+     }
+
+    if (signUpResult?.data) {
+      setSignUpResult(signUpResult);
+  }
+    return signUpResult.data;
+  },
+
+  //tODO TANSTACK! 
+  onSuccess: () => {
+    // Phase 3: Transition the UI over to the OTP screen once everything resolves cleanly
+    setShowOtp(true);
+    setCanResend(false);
+    setTimer(60);
+    setOtp(Array(OTP_LENGTH).fill(""));
+    toast.success("OTP sent to your email!", {
+      style: {
+        background: "#18181b",
+        color: "#fff",
+        borderRadius: "12px",
+        fontWeight: "600",
+      },
+      iconTheme: { primary: "#22c55e", secondary: "#fff" },
+    });
+  },
+  //tODO TANSTACK! 
     onError: (error: AxiosError) => {
       const msg =
         (error.response?.data as { message?: string })?.message ||
@@ -90,56 +144,70 @@ const SignUp = () => {
         },
         iconTheme: { primary: "#ef4444", secondary: "#fff" },
       });
-    },
-  });
+    }
+})
 
-  const onSubmit = (data: FormData) => {
-    setUserData(data);
-    signupMutation.mutate(data);
-  };
 
   const verifyOtpMutation = useMutation({
-    mutationFn: async () => {
-      if (!userData) return;
-      const response = await axiosInstance.post(`/api/verify-user`, {
-        ...userData,
-        otp: otp.join(""),
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success("Account verified! Redirecting to login...", {
-        duration: 3000,
-        style: {
-          background: "#18181b",
-          color: "#fff",
-          borderRadius: "12px",
-          fontWeight: "600",
-        },
-        iconTheme: { primary: "#22c55e", secondary: "#fff" },
-      });
-      setTimeout(() => router.push("/"), 1000);
-    },
-    onError: (error: AxiosError) => {
-      const msg =
-        (error.response?.data as { message?: string })?.message ||
-        "Invalid OTP. Please try again.";
-      toast.error(msg, {
-        style: {
-          background: "#18181b",
-          color: "#fff",
-          borderRadius: "12px",
-          fontWeight: "600",
-        },
-        iconTheme: { primary: "#ef4444", secondary: "#fff" },
-      });
-      // Shake the OTP inputs
-      setOtp(["", "", "", ""]);
-      inputRefs.current[0]?.focus();
-    },
-  });
+
+  mutationFn: async () => {
+    if (!userData) {
+      throw new Error("Missing signup data.");
+    }
+    const code = otp.join("");
+
+    if (code.length !== OTP_LENGTH) {
+      throw new Error(`Please enter all ${OTP_LENGTH} digits.`);
+    }
+
+    const result = await authClient.emailOtp.verifyEmail({
+      email: userData.email,
+      otp: code,
+    });
+
+    if (result.error) {
+      throw new Error(result.error.message || "Invalid OTP.");
+    }
+    return result.data;
+  },
+
+  onSuccess: () => {
+    toast.success("Account verified! Redirecting to login...", {
+      duration: 3000,
+      style: {
+        background: "#18181b",
+        color: "#fff",
+        borderRadius: "12px",
+        fontWeight: "600",
+      },
+      iconTheme: { primary: "#22c55e", secondary: "#fff" },
+    });
+
+    setTimeout(() => router.push("/login"), 1000);
+  },
+
+  onError: (error: AxiosError) => {
+    toast.error(error.message || "Invalid OTP. Please try again.", {
+      style: {
+        background: "#18181b",
+        color: "#fff",
+        borderRadius: "12px",
+        fontWeight: "600",
+      },
+      iconTheme: { primary: "#ef4444", secondary: "#fff" },
+    });
+
+    setOtp(Array(OTP_LENGTH).fill(""));
+    inputRefs.current[0]?.focus();
+  },
+});
+
 
   const handleOtpChange = (index: number, value: string) => {
+
+    if (verifyOtpMutation.isError) {
+    verifyOtpMutation.reset();
+  }
     if (!/^[0-9]$/.test(value) && value !== "") return;
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -153,6 +221,11 @@ const SignUp = () => {
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
   ) => {
+
+    if (verifyOtpMutation.isError) {
+      verifyOtpMutation.reset();
+  }
+
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -161,7 +234,7 @@ const SignUp = () => {
       if (isComplete) {
         verifyOtpMutation.mutate();
       } else {
-        toast.error("Please fill all 4 digits.", {
+        toast.error("Please fill all 6 digits.", {
           style: {
             background: "#18181b",
             color: "#fff",
@@ -173,11 +246,23 @@ const SignUp = () => {
     }
   };
 
-  const resendOtp = () => {
+const resendOtp = async () => {
     if (!canResend || !userData) return;
-    signupMutation.mutate(userData);
+
+    const result = await authClient.emailOtp.sendVerificationOtp({
+      email: userData.email,
+      type: "email-verification",
+    });
+
+    if (result.error) {
+      toast.error(result.error.message || "Failed to resend OTP.");
+      return;
+    }
+
+    setOtp(Array(OTP_LENGTH).fill(""));
     setCanResend(false);
     setTimer(60);
+    toast.success("OTP resent to your email!");
   };
 
   return (
@@ -192,7 +277,7 @@ const SignUp = () => {
       <div className="flex justify-center px-4">
         <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">
 
-          {/* ── STEP 1: SIGN UP FORM ── */}
+          {/* todo ── STEP 1: SIGN UP FORM ── */}
           {!showOtp ? (
             <>
               <h3 className="text-2xl font-bold text-center mb-2 text-gray-800">
@@ -202,8 +287,7 @@ const SignUp = () => {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-blue-600 font-bold hover:underline"
-                >
+                  className="text-blue-600 font-bold hover:underline">
                   Login
                 </Link>
               </p>
@@ -237,7 +321,7 @@ const SignUp = () => {
                           message?: string;
                         }>
                       )?.response?.data?.message ||
-                        "Something went wrong during signup . Please try again!"}
+                        "Something went wrong during signup!"}
                     </p>
                   </div>
                 </div>
@@ -245,8 +329,7 @@ const SignUp = () => {
 
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="space-y-7 px-2 md:px-6"
-              >
+                className="space-y-7 px-2 md:px-6">
                 {/* Name */}
                 <div className="relative pb-2">
                   <label className="block text-sm font-semibold mb-1 text-gray-700">
@@ -352,7 +435,7 @@ const SignUp = () => {
                   Check your inbox
                 </h3>
                 <p className="text-sm text-gray-500">
-                  We sent a 4-digit code to{" "}
+                  We sent a 6-digit code to{" "}
                   <span className="font-bold text-black">
                     {userData?.email}
                   </span>

@@ -115,24 +115,34 @@ app.get('/gateway-health', (req, res) => {
 // ─── Auth Service Proxy → http://localhost:6001 ─────────────────────────────
 // app.use(globalMiddleware);
 
-// Dynamically read environment variables
 app.use(
-  '/api', 
+  "/api/auth",
   proxy(AUTH_SERVICE_URL, {
-    proxyReqPathResolver: (req) => req.originalUrl.replace(/^\/api/, '/auth'),
-    proxyReqBodyDecorator: (bodyContent) => bodyContent,
+    proxyReqPathResolver: (req) => req.originalUrl,
     proxyReqOptDecorator: forwardCookies,
-
-    // Use HEADER decorator instead of RES decorator
-    
-
-     proxyErrorHandler: (err, res) => {
-    console.error('❌ Auth Service proxy error:', err.message);
-    res.status(503).json({ error: 'Auth Service is down' });
+    proxyErrorHandler: (err, res) => {
+      console.error("Better Auth proxy error:", err.message);
+      res.status(503).json({ error: "Auth Service is down" });
     },
   })
 );
 
+// Existing custom auth routes:
+// Gateway /api/* -> Auth service /auth/*
+app.use(
+  "/api",
+  proxy(AUTH_SERVICE_URL, {
+    proxyReqPathResolver: (req) => {
+      return req.originalUrl.replace(/^\/api/, "/auth");
+    },
+    proxyReqBodyDecorator: (bodyContent) => bodyContent,
+    proxyReqOptDecorator: forwardCookies,
+    proxyErrorHandler: (err, res) => {
+      console.error("Auth Service proxy error:", err.message);
+      res.status(503).json({ error: "Auth Service is down" });
+    },
+  })
+);
 
 // ─── Product Service Proxy → http://localhost:6099 ──────────────────────────
 // Gateway: /product/api/*  →  Product Service: /product/api/*  (no rewrite needed)

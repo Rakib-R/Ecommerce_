@@ -14,7 +14,6 @@ import Image from 'next/image';
 import { useSellerRegistrationStore } from '../../store/useSellerRegistrationStore';
 import { AnimatePresence, motion } from "framer-motion";
 import axiosInstance from '../../utils/axiosInstance';
-import { convertFileToBase64 } from '../../utils/convertFile2Base64';
 
 
 type FormData = {
@@ -266,22 +265,33 @@ const resendOtp = () => {
       const file = e.target.files?.[0];
       if (!file) return;
       
-      try{
-        const base64 = await convertFileToBase64(file)
-        setAvatarPreview( base64 as string)
+     try {
+  // 1. Keep the local preview using URL.createObjectURL (faster than Base64)
+     if (avatarPreview && avatarPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarPreview);
+      }
 
-        const response = await axiosInstance.post("/product/api/upload-seller-image", { 
-          file: base64 
-        });
-         setAvatarData({
-          file_id: response.data.file_id,
-          file_url: response.data.file_url
-        });
-      }
-      catch(error){  
-          console.error('Upload failed:', error);
-          toast.error('Failed to upload image');
-      }
+      const newPreviewUrl = URL.createObjectURL(file);
+      setAvatarPreview(newPreviewUrl);
+
+      const formData = new FormData();
+      formData.append("file", file); // 'file' matches your backend field name
+
+      const response = await axiosInstance.post("/product/api/upload-seller-image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setAvatarData({
+        file_id: response.data.file_id,
+        file_url: response.data.file_url
+      });
+    } catch (error) {  
+      console.error('Upload failed:', error);
+      toast.error('Failed to upload image');
+    }
+
     };
     //   // FOR PROGRESS ANIMATION 
 //   function getProgressPercent(activeStep: number, totalSteps: number): number {

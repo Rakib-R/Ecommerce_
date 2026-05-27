@@ -5,20 +5,20 @@ import multer from "multer";
 
 const upload = multer({
   storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 import {
   createDiscountCodes,
   createProduct,
+
   deleteDiscountCode,
   deleteProduct,
   deleteProductImage,
   getAllProducts,
   getCategories,
   getDiscountCodes,
-
   getEffectivePrice,
-
   // getFilteredEvents,
   getFilteredOffer,
   getFilteredProducts,
@@ -26,11 +26,14 @@ import {
   getProductDetails,
   getShopProducts,
   getTopShops,
+
   restoreProduct,
   searchProducts,
+
   uploadProductImage,
   uploadSellerImage,
   uploadShopImage
+
 } from "../controllers/product.controller";
 import { isAuthenticated } from "@packages/middleware";
 
@@ -48,11 +51,11 @@ router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
 
 router.post("/delete-discount-code/:id", isAuthenticated, deleteDiscountCode);
 
-router.post("/upload-product-image", isAuthenticated, uploadProductImage, upload.single("image"), uploadProductImage );
+router.post("/upload-product-image", isAuthenticated, upload.single("image"), uploadProductImage );
 
-router.post("/upload-seller-image", uploadSellerImage);
+router.post("/upload-seller-image", upload.single("image"), uploadSellerImage);
 
-router.post("/upload-shop-image", uploadShopImage);
+router.post("/upload-shop-image", upload.single("image"), uploadShopImage);
 
 router.get('/get-shop-products', isAuthenticated, getShopProducts)
 

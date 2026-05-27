@@ -12,8 +12,8 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: 587,
-    secure: false,                //!SHOULD BE FALSE IN DEV MODE AND SAMESITE = RELAX
-    auth: {                         //! NONE ONLY WORKS WITH SECURE ==true
+    secure: false,
+    auth: {                       
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
 // Use the templates you required above
 const renderEmailTemplate = async (
     templateName: string,
-    data: Record<string, any>
+    data: Record<string, string>
 ): Promise<string> => {
     const templateString = EMAIL_TEMPLATES[templateName];
     
@@ -38,12 +38,14 @@ const renderEmailTemplate = async (
     return ejs.render(templateString, data);
 };
 
-export const sendEmail = async (
-    email: string, 
-    subject: string, 
-    templateName: string, 
-    data: any
-) => {
+export const sendEmail = async ({
+    email, 
+    subject, 
+    templateName, 
+    data
+} : { 
+    email : string, subject : string, templateName : string, data: Record<string, string>
+}) => {
     const html = await renderEmailTemplate(templateName, data);
     
     const mailOptions = {

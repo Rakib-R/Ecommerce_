@@ -12,7 +12,7 @@ export const getCategories = async (
 ) => {
   try {
 
-    const config = await withRetry(() => prisma.site_config.findFirst()) ;
+  const config = await withRetry(() => prisma.site_config.findFirst()) ;
     if(!config) {
         return res.status(404).json({ message: "Categories are not found"})
     }
@@ -197,13 +197,16 @@ export const uploadSellerImage = async (
   next: NextFunction
 ) => {
   try {
-    const { file } = req.body; 
-    const response = await imagekit.upload({
-      file : file,
-      fileName: `seller-${Date.now()}.jpg`,
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+   const response = await imagekit.upload({
+      file: req.file.buffer,
+      fileName: `seller-${Date.now()}-${req.file.originalname.replace(/\s+/g, "-")}`,
       folder: "/persons"
     });
-    
+
     res.status(200).json({ data: response , file_url: response.url, fileId: response.fileId});
   } catch (error) {
     next(error);
@@ -217,9 +220,17 @@ export const uploadShopImage = async (
   next: NextFunction
 ) => {
   try {
-    const { file } = req.body; 
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
     const response = await imagekit.upload({
-      file : file,
+      file : file.buffer,
       fileName: `shop-${Date.now()}.jpg`,
       folder: "/shops"
     });
@@ -309,7 +320,7 @@ export const createProduct = async (
     const requiredFields = { title, slug, detailed_description,short_description, category,subCategory,starting_date,
                               cash_on_delivery, tags, images, regularPrice, stock };
 
-    //todo. Filter the object keys
+    //todo. Filter the object keys  The "Magic" Line (Property Shorthand)
     const missingFields = Object.entries(requiredFields)
       .filter(([_, value]) => !value || (Array.isArray(value) && value.length === 0))
       .map(([key]) => key);

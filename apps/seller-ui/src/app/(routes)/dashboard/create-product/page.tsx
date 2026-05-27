@@ -196,7 +196,6 @@ const Page = () => {
       });
 
       toast.error("Please fix the errors before submitting");
-      // ⁉⁉ ⚠ ⚠ ⚠ Scroll to first error ‼⁉ ⚠ ⚠ ⚠
       const firstErrorField = Object.keys(errors)[0];
       document.getElementsByName(firstErrorField)[0]?.scrollIntoView({ 
         behavior: "smooth", 

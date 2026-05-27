@@ -2,6 +2,7 @@
 
   import React from "react";
   import SideBarWrapper from "../../shared/components/sidebar/sideBarWrapper";
+  import { Toaster } from "react-hot-toast";
 
   const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
@@ -17,6 +18,8 @@
         <main className="flex-1 bg-black text-white">
             {children}
         </main>
+        
+        <Toaster position="top-right" />
       </div>
     );
   };

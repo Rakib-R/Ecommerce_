@@ -1,19 +1,22 @@
 
-
 import { createAuthClient } from "better-auth/react";
-import { jwtClient } from "better-auth/client/plugins"
-import type { Auth } from "@packages/auth-types"; 
+import { emailOTPClient, jwtClient , inferAdditionalFields} from "better-auth/client/plugins";
 
-export const authClient = createAuthClient<Auth>({    
+// import type { auth } from "@packages/auth-types"; 
+import type { auth } from "@apps/auth-service";
+export const authClient = createAuthClient({    
     
-    plugins: [  jwtClient() ],
+    baseURL: "http://localhost:7777/api/auth", 
+    plugins: [
+        inferAdditionalFields<typeof auth>(),
+        jwtClient(),
+        emailOTPClient(),
+     ],
     // The Gateway routes `/api` straight to your backend auth engine.
-    baseURL: "http://localhost:7777/api",
 
     fetchOptions: {
     credentials: "include"
     }
 });
 
-// Destructure the useful hooks for your frontend views
 export const { useSession, signIn, signOut } = authClient;

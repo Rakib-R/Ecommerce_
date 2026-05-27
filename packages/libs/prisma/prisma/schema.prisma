@@ -28,24 +28,41 @@ model images {
 
 }
 
+model user {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  name          String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  role          String    @default("user") 
+  sessions      Session[]
+  accounts      Account[]
+
+  // 🛡️ All Security / Admin Props Go Here (Highlighted in your screenshot)
+  banned               Boolean?   @default(false)
+  banReason            String?
+  banExpires           DateTime?
+  twoFactorEnabled     Boolean?
+  twoFactorSecret      String?
+  twoFactorBackupCodes String?
+
+  // Relations to your custom tables
+  userProfile   users?
+  sellerProfile sellers?
+}
+
 model users {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String   @unique
-  password    String
-  emailVerified Boolean   @default(false)
-
-  // 📸 Better Auth field mapped to your actual database column "avatar"
+  emailVerified Boolean  @default(false)
   image        String? @map("avatar")
 
-  // 👥 Integrated Roles System for App Logic
-  role         String    @default("user") 
-  sessions    Session[]        // 🔴 FIX 2: Fixed model name casing to uppercase
-  accounts    Account[] 
-
-  twoFactorEnabled     Boolean?   // Maps to the plugin
-  twoFactorSecret      String?    // Maps to the plugin
-  twoFactorBackupCodes String?  
+  authId       String   @unique @db.ObjectId
+  auth         user     @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   address     address[]
   following   shop_followed[]
@@ -57,39 +74,34 @@ model users {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-   @@map("user")     
+  @@map("users")     
 }
 
 model sellers {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   email        String    @unique
+  image        String?   @map("avatar")
+  emailVerified Boolean   @default(false)
+
   phone_number String
   country      String
-  password     String
   stripeId     String?
 
-   // 📸 Better Auth field mapped to your actual database column "avatar"
-  image            String?           @map("avatar")
-
-// 👥 Integrated Roles System for App Logic
-  role             String            @default("seller")
-  sessions         Session[] 
-  accounts         Account[]
-
+  authId       String    @unique @db.ObjectId
+  auth         user      @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   avatar      images[]
   shop         shops?
   product      product[]
-
   productDiscounts productDiscount[]
-  discount_codes discount_codes[]
+  discount_codes   discount_codes[]
+  stripeOnboarded  Boolean  @default(false) 
 
-  stripeOnboarded Boolean  @default(false) 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-   @@map("seller")   
+  @@map("sellers")   
 }
 
 model Verification {
@@ -113,10 +125,7 @@ model Session {
   userAgent String?
 
   userId    String   @db.ObjectId
-  user      users     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  sellerId  String?  @db.ObjectId
-  seller    sellers? @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("session")
 }
@@ -127,9 +136,7 @@ model Account {
   providerId            String
 
   userId                String    @db.ObjectId
-  user                  users      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sellerId              String?   @db.ObjectId
-  seller                sellers?  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   accessToken           String?
   refreshToken          String?
@@ -239,7 +246,7 @@ model productDiscount {
   seller         sellers        @relation(fields: [sellerId], references: [id])
   product        product        @relation(fields: [productId], references: [id])
   discountCode   discount_codes @relation(fields: [discountCodeId], references: [id])
-
+  
   @@unique([productId, discountCodeId])
 }
 

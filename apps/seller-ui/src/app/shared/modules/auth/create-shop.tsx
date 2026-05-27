@@ -5,7 +5,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { SHOP_CATEGORIES as shopCategories } from "../../../utils/categories";
 import { useSellerRegistrationStore } from "../../../store/useSellerRegistrationStore";
 import axiosInstance from "../../../utils/axiosInstance";
-import { convertFileToBase64 } from "../../../utils/convertFile2Base64";
 import toast from "react-hot-toast";
 
 interface ShopFormValues {
@@ -98,21 +97,31 @@ const [avatarData, setAvatarData] = useState<{ file_id: string; file_url: string
       ? "border-red-500 ring-1 ring-red-100"
       : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`;
 
-       const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-         const file = e.target.files?.[0];
-         if (!file) return;
-         try{
-           const base64 = await convertFileToBase64(file)
-           setAvatarPreview( base64 as string)
-   
-         const response =  await axiosInstance.post("/product/api/upload-shop-image", { 
-             file: base64 
-           });
-           
-            setAvatarData({
-              file_id: response.data.file_id,
-              file_url: response.data.file_url
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+        if (!file) return;
+        try{
+
+          if (avatarPreview && avatarPreview.startsWith('blob:')) {
+              URL.revokeObjectURL(avatarPreview);
+            }
+          // 2. Create and set the new preview URL
+          const newPreviewUrl = URL.createObjectURL(file);
+          setAvatarPreview(newPreviewUrl);
+          
+          const formData = new FormData();
+          formData.append("file", file); 
+
+          const response = await axiosInstance.post("/product/api/upload-seller-image", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
             });
+            
+          setAvatarData({
+            file_id: response.data.file_id,
+            file_url: response.data.file_url
+          });
          }
          catch(error){  
              console.error('Upload failed:', error);
@@ -203,6 +212,7 @@ const [avatarData, setAvatarData] = useState<{ file_id: string; file_url: string
               Bio{" "}
               <span className="font-normal text-gray-400 text-xs">(max 100 words)</span>
             </label>
+
             <textarea
               rows={3}
               placeholder="Describe your shop in a few words…"
@@ -210,6 +220,7 @@ const [avatarData, setAvatarData] = useState<{ file_id: string; file_url: string
                 ${errors.bio
                   ? "border-red-500 ring-1 ring-red-100"
                   : "border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100"}`}
+                  
               {...register("bio", {
                 required: "Shop bio is required",
                 validate: (value) =>

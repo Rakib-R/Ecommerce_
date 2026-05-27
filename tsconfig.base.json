@@ -17,8 +17,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@apps/utils": ["apps/utils/index.ts"],
-      "@packages/auth": ["packages/auth/src/auth/index.ts"],
+
+      "@apps/auth-service" : ["apps/auth-service/src/auth/index.ts"],
+      "@auth-service/*" : ["apps/auth-service/*"],
 
       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
       "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
@@ -28,8 +29,6 @@
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/utils": ["packages/utils/src/index.tsx"],
 
-      "@seller-ui/*": ["apps/seller-ui/src/*"],
-      "@user-ui/*": ["apps/user-ui/src/*"],
       "@packages/auth-types": ["packages/auth-types/src/lib/auth-types.ts"]
     }
   },

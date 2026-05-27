@@ -4,9 +4,11 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { errorMiddleware } from '@packages/error-handler';
-import router from './routes/auth.router';
+// import router from './routes/auth.router';
 import swaggerDocument from './swagger-output.json';
 
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./auth";
 
 const app = express();
 
@@ -40,6 +42,9 @@ app.use(
   })
 );
 
+// ────── BETTER AUTH ────────────────────────
+app.all("/api/auth/*", toNodeHandler(auth));
+
 // ─── General Middleware ──────────────────────────────────────────────────────
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json({ limit: '10mb' })); 
@@ -71,7 +76,7 @@ app.get('/auth/docs-json', (req, res) => {
 });
 
 // ─── Auth Routes ─────────────────────────────────────────────────────────────
-app.use('/auth', router);
+// app.use('/auth', router);
 
 // ─── Global Error Handler (always last) ──────────────────────────────────────
 app.use(errorMiddleware);

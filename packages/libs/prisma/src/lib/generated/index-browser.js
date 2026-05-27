@@ -120,14 +120,30 @@ exports.Prisma.ImagesScalarFieldEnum = {
   coverShopId: 'coverShopId'
 };
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  role: 'role',
+  banned: 'banned',
+  banReason: 'banReason',
+  banExpires: 'banExpires',
+  twoFactorEnabled: 'twoFactorEnabled',
+  twoFactorSecret: 'twoFactorSecret',
+  twoFactorBackupCodes: 'twoFactorBackupCodes'
+};
+
 exports.Prisma.UsersScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
-  password: 'password',
   emailVerified: 'emailVerified',
   image: 'image',
-  role: 'role',
+  authId: 'authId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -136,12 +152,12 @@ exports.Prisma.SellersScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  image: 'image',
+  emailVerified: 'emailVerified',
   phone_number: 'phone_number',
   country: 'country',
-  password: 'password',
   stripeId: 'stripeId',
-  role: 'role',
-  image: 'image',
+  authId: 'authId',
   stripeOnboarded: 'stripeOnboarded',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -164,8 +180,7 @@ exports.Prisma.SessionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
-  userId: 'userId',
-  sellerId: 'sellerId'
+  userId: 'userId'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -173,7 +188,6 @@ exports.Prisma.AccountScalarFieldEnum = {
   accountId: 'accountId',
   providerId: 'providerId',
   userId: 'userId',
-  sellerId: 'sellerId',
   accessToken: 'accessToken',
   refreshToken: 'refreshToken',
   idToken: 'idToken',
@@ -406,6 +420,7 @@ exports.OrderStatus = exports.$Enums.OrderStatus = {
 
 exports.Prisma.ModelName = {
   images: 'images',
+  user: 'user',
   users: 'users',
   sellers: 'sellers',
   Verification: 'Verification',

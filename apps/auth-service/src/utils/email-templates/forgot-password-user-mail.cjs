@@ -1,6 +1,6 @@
 
 module.exports = {
-  'forgot-password-buyer': `
+  'forgot-password-user-mail': `
 <!DOCTYPE html>
 <html>
 <head>
