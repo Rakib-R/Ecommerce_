@@ -2,7 +2,7 @@
 'use client';
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryClient } from "apps/utils/queryClient";
+import { queryClient } from "@packages/utils";
 import { ChevronRight, Plus, Trash, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";

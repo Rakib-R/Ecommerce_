@@ -13,6 +13,7 @@ import useDeviceTracking from '../../hooks/useDeviceTracking'
 import type { CartItem } from '../../store/authStore'
 import { UserType } from '../../../types';
 
+
 const CartPage = () => {
   const { user } = useUser()
   const location = useLocationTracking()

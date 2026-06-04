@@ -12,7 +12,7 @@ const app = express();
 // ---------- VARIABLES  -----------------
 
   const IS_PROD = process.env.NODE_ENV === 'production';
-  const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost';
+  // const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost';
   const PRODUCT_SERVICE_URL = 'http://localhost:6099';
   const AUTH_SERVICE_URL    = 'http://localhost:6001';
   const API_GATEWAY_URL     =  'http://localhost:7777';
@@ -25,8 +25,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc:  ["'self'", "'unsafe-inline'"],
-        styleSrc:   ["'self'", "'unsafe-inline'"],
+        scriptSrc:  ["'self'", `'sha256-<hash>'`],
+        styleSrc:   ["'self'", `'sha256-<hash>'`],
         imgSrc:     ["'self'", 'data:', 'blob:'],
         fontSrc:    ["'self'"],
         objectSrc:  ["'none'"],
@@ -35,15 +35,14 @@ app.use(
           API_GATEWAY_URL,
           AUTH_SERVICE_URL,
           PRODUCT_SERVICE_URL,
-          'ws://localhost:*',
+          ...(!IS_PROD ? ['ws://localhost:*'] : []),
         ],
       },
     },
-    crossOriginEmbedderPolicy: false, // required for Swagger UI
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy:  !IS_PROD, // required for Swagger UI
   })
 );
-
-
 
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
@@ -120,8 +119,11 @@ app.use(
   proxy(AUTH_SERVICE_URL, {
     proxyReqPathResolver: (req) => req.originalUrl,
     proxyReqOptDecorator: forwardCookies,
-    proxyErrorHandler: (err, res) => {
+    proxyErrorHandler: (err, res, next) => {
       console.error("Better Auth proxy error:", err.message);
+      if (res.headersSent) {
+        return next(err);
+      }
       res.status(503).json({ error: "Auth Service is down" });
     },
   })
@@ -137,8 +139,11 @@ app.use(
     },
     proxyReqBodyDecorator: (bodyContent) => bodyContent,
     proxyReqOptDecorator: forwardCookies,
-    proxyErrorHandler: (err, res) => {
+    proxyErrorHandler: (err, res, next) => {
       console.error("Auth Service proxy error:", err.message);
+      if (res.headersSent) {
+        return next(err);
+      }
       res.status(503).json({ error: "Auth Service is down" });
     },
   })
@@ -169,6 +174,9 @@ app.use('/product/api',
 
     proxyErrorHandler: (err, res, next) => {
       console.error('❌ Product Service proxy error:', err.message);
+      if (res.headersSent) {
+        return next(err);
+      }
       res.status(503).json({ error: 'Product Service is down or misconfigured' });
     },
   })

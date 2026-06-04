@@ -3,7 +3,7 @@
 import type { Metadata } from "next"; 
 import { Providers } from "@packages/utils"
 
-import { Poppins, Roboto } from "next/font/google";
+import { Adamina, Poppins, Roboto } from "next/font/google";
 import './user-ui.css';
 
 import ClientLayout from './shared/widget/headerProvider';
@@ -27,7 +27,11 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-
+const adamina = Adamina({
+  weight: ['400'],
+  subsets: ['latin'],
+  variable: '--font-adamina',
+});
 
 export default async function RootLayout({
   children,
@@ -44,7 +48,7 @@ export default async function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className={`${poppins.variable} ${roboto.variable}`}>
+      <body className={`${poppins.variable} ${roboto.variable} ${adamina.variable}`}>
         <Providers>
           
           <ClientLayout> 

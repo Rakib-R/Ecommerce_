@@ -13,9 +13,7 @@ export const LatestSection = async () => {
     console.error('Response status:', res.status, res.statusText);
     return <div className="font-sans text-2xl tracking-widest">Failed to load products</div>;
   }
-    
-  // const res = await axiosInstance.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/product/api/get-all-products?page=1&limit=10&`);
-  // const data = res.data
+
 
   const data = await res.json();
   const latest = data.top10Pipeline;

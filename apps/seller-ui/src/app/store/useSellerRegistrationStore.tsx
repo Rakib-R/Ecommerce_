@@ -43,7 +43,7 @@ interface SellerRegistrationState {
 }
 
 const defaultState = {
-  activeStep: 1,
+  activeStep: 2,
   sellerId: null,
   step1Values: {},
   step2Values: {},

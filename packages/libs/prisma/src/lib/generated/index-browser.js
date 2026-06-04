@@ -125,6 +125,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   name: 'name',
   emailVerified: 'emailVerified',
+  isAgreedToTerms: 'isAgreedToTerms',
   image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -157,6 +158,7 @@ exports.Prisma.SellersScalarFieldEnum = {
   phone_number: 'phone_number',
   country: 'country',
   stripeId: 'stripeId',
+  agreedToTermsAt: 'agreedToTermsAt',
   authId: 'authId',
   stripeOnboarded: 'stripeOnboarded',
   createdAt: 'createdAt',
@@ -197,6 +199,13 @@ exports.Prisma.AccountScalarFieldEnum = {
   password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JwksScalarFieldEnum = {
+  id: 'id',
+  publicKey: 'publicKey',
+  privateKey: 'privateKey',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ShopsScalarFieldEnum = {
@@ -426,6 +435,7 @@ exports.Prisma.ModelName = {
   Verification: 'Verification',
   Session: 'Session',
   Account: 'Account',
+  Jwks: 'Jwks',
   shops: 'shops',
   shop_followed: 'shop_followed',
   address: 'address',

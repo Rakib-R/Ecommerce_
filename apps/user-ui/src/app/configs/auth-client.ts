@@ -2,7 +2,6 @@
 import { createAuthClient } from "better-auth/react";
 import { emailOTPClient, jwtClient , inferAdditionalFields} from "better-auth/client/plugins";
 
-// import type { auth } from "@packages/auth-types"; 
 import type { auth } from "@apps/auth-service";
 export const authClient = createAuthClient({    
     
@@ -12,7 +11,6 @@ export const authClient = createAuthClient({
         jwtClient(),
         emailOTPClient(),
      ],
-    // The Gateway routes `/api` straight to your backend auth engine.
 
     fetchOptions: {
     credentials: "include"

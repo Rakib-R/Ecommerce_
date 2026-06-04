@@ -10,7 +10,12 @@ import useUser from "../../hooks/useUser"
 import { useAuthState, useStore } from '../../store/authStore';
 import ProfileIcon from "../../../../assests/svgs/profile-icon.svg";
 import { useRouter } from 'next/navigation';
-import axiosInstance from '../../utils/axios';
+
+import { authClient } from '../../configs/auth-client';
+
+import toast from 'react-hot-toast';
+import { LogOut, Loader2 } from "lucide-react";
+
 
 interface HeaderBottomProps {
   topHeaderHeight?: number;
@@ -22,19 +27,36 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
   const { user, isLoading} = useUser();
   const wishlist = useStore((state) => state.wishlist);
   const cart = useStore((state) => state.cart);
-  
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
   const router = useRouter();
 
   const handleLogout = async () => {
-    await axiosInstance.post("/api/logout");
-    useAuthState.getState().logout();
-    // queryClient.setQueryData(['user'], null);
+      setIsLoggingOut(true);
+    try {
+      
+      await authClient.signOut();
+
+      toast.success("Logged out successfully", {
+        style: { background: "#18181b", color: "#fff", borderRadius: "12px" },
+      });
+      router.replace("/login");
+      router.refresh();
+
+    } catch (error) {
+      console.error("Sign out failed:", error);
+      toast.error("Failed to log out cleanly.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+    useAuthState.getState().handleLogout();
+
     router.push("/login");
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      // Check if we've scrolled past the top header
+ 
       if (window.scrollY > topHeaderHeight) {
         setIsSticky(true);
       } else {
@@ -118,8 +140,8 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     <Image src={ProfileIcon.src} alt="Profile" width={20} height={20} className="brightness-0"  sizes="(max-width: 512px) 100vw, 33vw"
                       loading="lazy"/>
                     <p className="font-medium text-black">
-                      <span className='text-md'>Hello, {user.role}</span>
-                      <span className="text-xl font-serif">{user.name?.split(" ")[0]}</span>
+                      <span className='text-md'>Hello,{' '}</span>
+                      <span className="font-adamina text-xl font-serif">{user.name?.split(" ")[0]}</span>
                     </p>
                       </Link>)}
                 </div>
@@ -139,18 +161,18 @@ const HeaderBottom = ({ topHeaderHeight = 0 }: HeaderBottomProps) => {
                     </sup>
                   </Link> 
 
-                 {!isLoading && user ? (
-                  <Link href="/login" className="flex items-center gap-1 underline">
-                    <span className="text-md text-xl"
-                      onClick={handleLogout}>{isLoading ? '...' : 'Log Out'}</span>
-                  </Link>
-                ) : (
-                  <Link href="/login" className="flex items-center gap-1">
-                    <span className="font-medium text-black">
-                      <span className="text-xl">{isLoading ? '...' : 'Sign In'}</span>
-                    </span>
-                  </Link>
-                )}
+                    <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="flex items-center gap-2 px-4 py-2 text-lg text-red-600 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50">
+                    {isLoggingOut ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <LogOut size={16} />
+                    )}
+                    <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+                  </button>
+
                 </aside>
                 </>
               )}

@@ -26,13 +26,14 @@ model images {
 }
 
 model user {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  email         String   @unique
-  name          String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  email           String   @unique
+  name            String
+  emailVerified   Boolean  @default(false)
+  isAgreedToTerms Boolean  @default(false)
+  image           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   role     String    @default("user")
   sessions Session[]
@@ -81,12 +82,12 @@ model sellers {
   image         String? @map("avatar")
   emailVerified Boolean @default(false)
 
-  phone_number String
-  country      String
-  stripeId     String?
-
-  authId String @unique @db.ObjectId
-  auth   user   @relation(fields: [authId], references: [id], onDelete: Cascade)
+  phone_number    String
+  country         String
+  stripeId        String?
+  agreedToTermsAt DateTime?
+  authId          String    @unique @db.ObjectId
+  auth            user      @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   avatar           images[]
   shop             shops?
@@ -146,6 +147,15 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@map("account")
+}
+
+model Jwks {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  publicKey  String
+  privateKey String
+  createdAt  DateTime @default(now())
+
+  @@map("jwks")
 }
 
 model shops {

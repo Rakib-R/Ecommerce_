@@ -8,8 +8,9 @@ import { jwt } from "better-auth/plugins";
 import { APIError } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins";
 import { twoFactor } from "better-auth/plugins/two-factor"; 
+import { sellerSignUpSchema, signUpSchema } from "../schema/signUpSchema";
 
-
+import { dash } from "@better-auth/infra";
 import type { AppUserInput } from "./types";
 import { sendEmail } from "../utils/sendMail";
 import { hashPassword, verifyPassword } from "../utils/hashPassword";
@@ -40,7 +41,9 @@ const authOptions = {
 
     emailAndPassword: { 
         enabled: true,
-        autoSignIn: false,
+        requireEmailVerification: false,
+        autoSignIn: true,
+     
         password : {
             hash : hashPassword,
             verify: verifyPassword
@@ -50,24 +53,33 @@ const authOptions = {
     plugins: [
         jwt(),
         twoFactor(),
+        // isDevelopment ? [dash({ apiKey: process.env.BETTER_AUTH_API_KEY })] : ([] as const),
+        dash(),
+        
          emailOTP({
               changeEmail: {
                 enabled: true,
                 verifyCurrentEmail: true, 
             },
-
+            
             sendVerificationOnSignUp: false, 
-
-           async sendVerificationOTP({ email, otp, type }) {
+           async sendVerificationOTP({ email, otp, type }, ctx) {
             try {
                 let subject = "";
                 let templateName = "";
+                let name = "User";
 
-                const targetUser = await prisma.users.findUnique({
-                        where: { email: email },
-                        select: { name: true} // Only pull the name to maximize speed
-                    });
-                const name = targetUser?.name ;
+           const body = ctx?.request?.body as any;
+                    if (body?.name) {
+                        name = body.name;
+                    } else {
+                        // Safe fallback check if user profile was written or for actions down the road
+                        const targetUser = await prisma.user.findUnique({
+                            where: { email: email },
+                            select: { name: true }
+                        });
+                        if (targetUser?.name) name = targetUser.name;
+                }
 
                 switch (type) {
                     case "sign-in":
@@ -94,14 +106,13 @@ const authOptions = {
                         throw new Error("Unknown OTP type");
                 }
 
-                const result = await sendEmail({
+               await sendEmail({
                     email,
                     subject,
                     templateName,
                     data: { name, otp },
                 });
 
-                console.log("✅ EMAIL SENT:", result);
             } catch (err) {
                 console.error("❌ EMAIL ERROR:", err);
                 throw err;
@@ -109,6 +120,7 @@ const authOptions = {
         }
     }
 ),
+
 ],
     session: {
         modelName: "session", 
@@ -116,36 +128,63 @@ const authOptions = {
         updateAge: 60 * 60 * 24      
     },
     user: {
-        modelName: "users", 
         fields: { image: "image" },
         additionalFields: {
-            role: { type: "string", 
-                required: false, defaultValue: "user", input: true }
+            isAgreedToTerms: {
+                type: "boolean",
+                required: true,
+                input: true,
+         },
+            role: { 
+                type: "string", 
+                required: true, defaultValue: "user", 
+                input: true 
+            },
+           phone_number: { type: "string", required: false, input: true },
+           country: { type: "string", required: false, input: true }
         }
     },
     
     databaseHooks: {
-        
             user: {
             create: {
-                before: async (user) => {
-                const userWithExtras = user as AppUserInput;
-                if (userWithExtras.isAgreedToTerms === false) {
-                    throw new APIError("BAD_REQUEST", {
-                    message: "User must agree to the TOS before signing up.",
+                before: async  (user, ctx) => {
+                const body = ctx.context.body as any || {};
+              
+                if (ctx.path === "/sign-up/email") {
+                //todo 1. Better Auth automatically handles the "Email already exists" check.
+
+                if (body.role === "seller") {
+                    const parsedSeller = sellerSignUpSchema.safeParse(body);
+                    if (!parsedSeller.success) {
+                    throw new APIError("BAD_REQUEST", { 
+                        message: parsedSeller.error.issues[0].message 
                     });
+                     }
+                      
+                    } 
+
+                else{
+                    const parsed = signUpSchema.safeParse(ctx.context.body);
+                    if (!parsed.success) {
+                        throw new APIError("BAD_REQUEST", { message: parsed.error.issues[0].message });
+                    }
                 }
+            }
+                
+            const userWithExtras = user as AppUserInput;
                 return {
                     data: {
                     ...user,
                     role: userWithExtras.role ?? "user",
                     },
                 };
-                },
+            },
 
-                after: async (user, ctx) => {
+            after: async (user, ctx) => {
+
                 if (!user || !user.id) return;
-                const { phone_number, country } = ctx.body || {};
+                const { phone_number, country, avatar  } = ctx.context?.body|| {};
 
                 if (user.role === "seller") {
                     await prisma.sellers.create({
@@ -157,6 +196,7 @@ const authOptions = {
                         country: country || "",
                     },
                     });
+
                 } else {
                     await prisma.users.create({
                     data: {
@@ -167,12 +207,12 @@ const authOptions = {
                     });
                 }
                 },
-            }, // ✅ Cleanly closes 'create'
+            },
 
             // 🔵 2. The Core Update Block
             update: {
                 after: async (user) => {
-                // Check if Better-Auth just verified the user's email
+                
                 if (user.emailVerified) {
                     if (user.role === "seller") {
                     // Sync 'emailVerified' to your custom decoupled sellers table
@@ -188,11 +228,10 @@ const authOptions = {
                     });
                     }
                 }
-                }, // ✅ Cleanly closes 'after' inside update
-            }, // ✅ Cleanly closes 'update'
-         }, // ✅ Cleanly closes 'user'
+                },
+            },
+         }, 
 
-    
 },
     account: { modelName: "account" },
     verification: { modelName: "verification" },

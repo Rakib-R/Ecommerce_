@@ -44,12 +44,12 @@ const Page = () => {
 
     const handleLogout = async () => {
       await axiosInstance.post(`/api/logout`);
-      useAuthState.getState().logout();
+      useAuthState.getState().handleLogout();
       queryClient.setQueryData(['user'], null);
-      router.push("/login");
+      router.replace("/login");
+      // router.refresh()
   };
 
-  console.log('USER -> ', user)
   return (
     <main className="bg-gray-50 p-6">
       <div className="md:max-w-8xl mx-auto">
@@ -167,7 +167,7 @@ const Page = () => {
                     </p>
                     <p>
                         <span className="font-semibold">Joined:</span>{" "}
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {(user.createdAt)?.toLocaleDateString()}
                     </p> 
                     <p>
                         <span className="font-semibold">Earned Points:</span>{" "}

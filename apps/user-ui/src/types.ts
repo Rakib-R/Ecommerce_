@@ -36,9 +36,10 @@ export interface UserType {
   role: 'user';
   name: string;
   email: string;
+  emailVerified: boolean;
   avatar?: imageType;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface UserProfileType extends UserType {

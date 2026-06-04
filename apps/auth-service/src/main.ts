@@ -1,10 +1,10 @@
+
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { errorMiddleware } from '@packages/error-handler';
-// import router from './routes/auth.router';
 import swaggerDocument from './swagger-output.json';
 
 import { toNodeHandler } from "better-auth/node";

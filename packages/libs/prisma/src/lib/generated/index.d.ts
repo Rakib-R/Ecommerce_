@@ -49,6 +49,11 @@ export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
  */
 export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
 /**
+ * Model Jwks
+ * 
+ */
+export type Jwks = $Result.DefaultSelection<Prisma.$JwksPayload>
+/**
  * Model shops
  * 
  */
@@ -357,6 +362,16 @@ export class PrismaClient<
     * ```
     */
   get account(): Prisma.AccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jwks`: Exposes CRUD operations for the **Jwks** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Jwks
+    * const jwks = await prisma.jwks.findMany()
+    * ```
+    */
+  get jwks(): Prisma.JwksDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.shops`: Exposes CRUD operations for the **shops** model.
@@ -924,6 +939,7 @@ export namespace Prisma {
     Verification: 'Verification',
     Session: 'Session',
     Account: 'Account',
+    Jwks: 'Jwks',
     shops: 'shops',
     shop_followed: 'shop_followed',
     address: 'address',
@@ -954,7 +970,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "images" | "user" | "users" | "sellers" | "verification" | "session" | "account" | "shops" | "shop_followed" | "address" | "shopReviews" | "site_config" | "productDiscount" | "discount_codes" | "product" | "order" | "orderItem" | "userAnalytics" | "productAnalytics"
+      modelProps: "images" | "user" | "users" | "sellers" | "verification" | "session" | "account" | "jwks" | "shops" | "shop_followed" | "address" | "shopReviews" | "site_config" | "productDiscount" | "discount_codes" | "product" | "order" | "orderItem" | "userAnalytics" | "productAnalytics"
       txIsolationLevel: never
     }
     model: {
@@ -1473,6 +1489,80 @@ export namespace Prisma {
           count: {
             args: Prisma.AccountCountArgs<ExtArgs>
             result: $Utils.Optional<AccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      Jwks: {
+        payload: Prisma.$JwksPayload<ExtArgs>
+        fields: Prisma.JwksFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JwksFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JwksFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          findFirst: {
+            args: Prisma.JwksFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JwksFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          findMany: {
+            args: Prisma.JwksFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>[]
+          }
+          create: {
+            args: Prisma.JwksCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          createMany: {
+            args: Prisma.JwksCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.JwksDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          update: {
+            args: Prisma.JwksUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          deleteMany: {
+            args: Prisma.JwksDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JwksUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.JwksUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JwksPayload>
+          }
+          aggregate: {
+            args: Prisma.JwksAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJwks>
+          }
+          groupBy: {
+            args: Prisma.JwksGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JwksGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.JwksFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.JwksAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.JwksCountArgs<ExtArgs>
+            result: $Utils.Optional<JwksCountAggregateOutputType> | number
           }
         }
       }
@@ -2442,6 +2532,7 @@ export namespace Prisma {
     verification?: VerificationOmit
     session?: SessionOmit
     account?: AccountOmit
+    jwks?: JwksOmit
     shops?: shopsOmit
     shop_followed?: shop_followedOmit
     address?: addressOmit
@@ -4003,6 +4094,7 @@ export namespace Prisma {
     email: string | null
     name: string | null
     emailVerified: boolean | null
+    isAgreedToTerms: boolean | null
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4020,6 +4112,7 @@ export namespace Prisma {
     email: string | null
     name: string | null
     emailVerified: boolean | null
+    isAgreedToTerms: boolean | null
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4037,6 +4130,7 @@ export namespace Prisma {
     email: number
     name: number
     emailVerified: number
+    isAgreedToTerms: number
     image: number
     createdAt: number
     updatedAt: number
@@ -4056,6 +4150,7 @@ export namespace Prisma {
     email?: true
     name?: true
     emailVerified?: true
+    isAgreedToTerms?: true
     image?: true
     createdAt?: true
     updatedAt?: true
@@ -4073,6 +4168,7 @@ export namespace Prisma {
     email?: true
     name?: true
     emailVerified?: true
+    isAgreedToTerms?: true
     image?: true
     createdAt?: true
     updatedAt?: true
@@ -4090,6 +4186,7 @@ export namespace Prisma {
     email?: true
     name?: true
     emailVerified?: true
+    isAgreedToTerms?: true
     image?: true
     createdAt?: true
     updatedAt?: true
@@ -4180,6 +4277,7 @@ export namespace Prisma {
     email: string
     name: string
     emailVerified: boolean
+    isAgreedToTerms: boolean
     image: string | null
     createdAt: Date
     updatedAt: Date
@@ -4214,6 +4312,7 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4238,6 +4337,7 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4250,7 +4350,7 @@ export namespace Prisma {
     twoFactorBackupCodes?: boolean
   }
 
-  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "role" | "banned" | "banReason" | "banExpires" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorBackupCodes", ExtArgs["result"]["user"]>
+  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "emailVerified" | "isAgreedToTerms" | "image" | "createdAt" | "updatedAt" | "role" | "banned" | "banReason" | "banExpires" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorBackupCodes", ExtArgs["result"]["user"]>
   export type userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | user$sessionsArgs<ExtArgs>
     accounts?: boolean | user$accountsArgs<ExtArgs>
@@ -4272,6 +4372,7 @@ export namespace Prisma {
       email: string
       name: string
       emailVerified: boolean
+      isAgreedToTerms: boolean
       image: string | null
       createdAt: Date
       updatedAt: Date
@@ -4682,6 +4783,7 @@ export namespace Prisma {
     readonly email: FieldRef<"user", 'String'>
     readonly name: FieldRef<"user", 'String'>
     readonly emailVerified: FieldRef<"user", 'Boolean'>
+    readonly isAgreedToTerms: FieldRef<"user", 'Boolean'>
     readonly image: FieldRef<"user", 'String'>
     readonly createdAt: FieldRef<"user", 'DateTime'>
     readonly updatedAt: FieldRef<"user", 'DateTime'>
@@ -6362,6 +6464,7 @@ export namespace Prisma {
     phone_number: string | null
     country: string | null
     stripeId: string | null
+    agreedToTermsAt: Date | null
     authId: string | null
     stripeOnboarded: boolean | null
     createdAt: Date | null
@@ -6377,6 +6480,7 @@ export namespace Prisma {
     phone_number: string | null
     country: string | null
     stripeId: string | null
+    agreedToTermsAt: Date | null
     authId: string | null
     stripeOnboarded: boolean | null
     createdAt: Date | null
@@ -6392,6 +6496,7 @@ export namespace Prisma {
     phone_number: number
     country: number
     stripeId: number
+    agreedToTermsAt: number
     authId: number
     stripeOnboarded: number
     createdAt: number
@@ -6409,6 +6514,7 @@ export namespace Prisma {
     phone_number?: true
     country?: true
     stripeId?: true
+    agreedToTermsAt?: true
     authId?: true
     stripeOnboarded?: true
     createdAt?: true
@@ -6424,6 +6530,7 @@ export namespace Prisma {
     phone_number?: true
     country?: true
     stripeId?: true
+    agreedToTermsAt?: true
     authId?: true
     stripeOnboarded?: true
     createdAt?: true
@@ -6439,6 +6546,7 @@ export namespace Prisma {
     phone_number?: true
     country?: true
     stripeId?: true
+    agreedToTermsAt?: true
     authId?: true
     stripeOnboarded?: true
     createdAt?: true
@@ -6527,6 +6635,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId: string | null
+    agreedToTermsAt: Date | null
     authId: string
     stripeOnboarded: boolean
     createdAt: Date
@@ -6559,6 +6668,7 @@ export namespace Prisma {
     phone_number?: boolean
     country?: boolean
     stripeId?: boolean
+    agreedToTermsAt?: boolean
     authId?: boolean
     stripeOnboarded?: boolean
     createdAt?: boolean
@@ -6583,13 +6693,14 @@ export namespace Prisma {
     phone_number?: boolean
     country?: boolean
     stripeId?: boolean
+    agreedToTermsAt?: boolean
     authId?: boolean
     stripeOnboarded?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type sellersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "image" | "emailVerified" | "phone_number" | "country" | "stripeId" | "authId" | "stripeOnboarded" | "createdAt" | "updatedAt", ExtArgs["result"]["sellers"]>
+  export type sellersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "image" | "emailVerified" | "phone_number" | "country" | "stripeId" | "agreedToTermsAt" | "authId" | "stripeOnboarded" | "createdAt" | "updatedAt", ExtArgs["result"]["sellers"]>
   export type sellersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auth?: boolean | userDefaultArgs<ExtArgs>
     avatar?: boolean | sellers$avatarArgs<ExtArgs>
@@ -6619,6 +6730,7 @@ export namespace Prisma {
       phone_number: string
       country: string
       stripeId: string | null
+      agreedToTermsAt: Date | null
       authId: string
       stripeOnboarded: boolean
       createdAt: Date
@@ -7029,6 +7141,7 @@ export namespace Prisma {
     readonly phone_number: FieldRef<"sellers", 'String'>
     readonly country: FieldRef<"sellers", 'String'>
     readonly stripeId: FieldRef<"sellers", 'String'>
+    readonly agreedToTermsAt: FieldRef<"sellers", 'DateTime'>
     readonly authId: FieldRef<"sellers", 'String'>
     readonly stripeOnboarded: FieldRef<"sellers", 'Boolean'>
     readonly createdAt: FieldRef<"sellers", 'DateTime'>
@@ -10555,6 +10668,927 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: AccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Jwks
+   */
+
+  export type AggregateJwks = {
+    _count: JwksCountAggregateOutputType | null
+    _min: JwksMinAggregateOutputType | null
+    _max: JwksMaxAggregateOutputType | null
+  }
+
+  export type JwksMinAggregateOutputType = {
+    id: string | null
+    publicKey: string | null
+    privateKey: string | null
+    createdAt: Date | null
+  }
+
+  export type JwksMaxAggregateOutputType = {
+    id: string | null
+    publicKey: string | null
+    privateKey: string | null
+    createdAt: Date | null
+  }
+
+  export type JwksCountAggregateOutputType = {
+    id: number
+    publicKey: number
+    privateKey: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type JwksMinAggregateInputType = {
+    id?: true
+    publicKey?: true
+    privateKey?: true
+    createdAt?: true
+  }
+
+  export type JwksMaxAggregateInputType = {
+    id?: true
+    publicKey?: true
+    privateKey?: true
+    createdAt?: true
+  }
+
+  export type JwksCountAggregateInputType = {
+    id?: true
+    publicKey?: true
+    privateKey?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type JwksAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Jwks to aggregate.
+     */
+    where?: JwksWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jwks to fetch.
+     */
+    orderBy?: JwksOrderByWithRelationInput | JwksOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JwksWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jwks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jwks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Jwks
+    **/
+    _count?: true | JwksCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JwksMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JwksMaxAggregateInputType
+  }
+
+  export type GetJwksAggregateType<T extends JwksAggregateArgs> = {
+        [P in keyof T & keyof AggregateJwks]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJwks[P]>
+      : GetScalarType<T[P], AggregateJwks[P]>
+  }
+
+
+
+
+  export type JwksGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JwksWhereInput
+    orderBy?: JwksOrderByWithAggregationInput | JwksOrderByWithAggregationInput[]
+    by: JwksScalarFieldEnum[] | JwksScalarFieldEnum
+    having?: JwksScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JwksCountAggregateInputType | true
+    _min?: JwksMinAggregateInputType
+    _max?: JwksMaxAggregateInputType
+  }
+
+  export type JwksGroupByOutputType = {
+    id: string
+    publicKey: string
+    privateKey: string
+    createdAt: Date
+    _count: JwksCountAggregateOutputType | null
+    _min: JwksMinAggregateOutputType | null
+    _max: JwksMaxAggregateOutputType | null
+  }
+
+  type GetJwksGroupByPayload<T extends JwksGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JwksGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JwksGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JwksGroupByOutputType[P]>
+            : GetScalarType<T[P], JwksGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JwksSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    publicKey?: boolean
+    privateKey?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["jwks"]>
+
+
+
+  export type JwksSelectScalar = {
+    id?: boolean
+    publicKey?: boolean
+    privateKey?: boolean
+    createdAt?: boolean
+  }
+
+  export type JwksOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicKey" | "privateKey" | "createdAt", ExtArgs["result"]["jwks"]>
+
+  export type $JwksPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Jwks"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      publicKey: string
+      privateKey: string
+      createdAt: Date
+    }, ExtArgs["result"]["jwks"]>
+    composites: {}
+  }
+
+  type JwksGetPayload<S extends boolean | null | undefined | JwksDefaultArgs> = $Result.GetResult<Prisma.$JwksPayload, S>
+
+  type JwksCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JwksFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JwksCountAggregateInputType | true
+    }
+
+  export interface JwksDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Jwks'], meta: { name: 'Jwks' } }
+    /**
+     * Find zero or one Jwks that matches the filter.
+     * @param {JwksFindUniqueArgs} args - Arguments to find a Jwks
+     * @example
+     * // Get one Jwks
+     * const jwks = await prisma.jwks.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JwksFindUniqueArgs>(args: SelectSubset<T, JwksFindUniqueArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Jwks that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JwksFindUniqueOrThrowArgs} args - Arguments to find a Jwks
+     * @example
+     * // Get one Jwks
+     * const jwks = await prisma.jwks.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JwksFindUniqueOrThrowArgs>(args: SelectSubset<T, JwksFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Jwks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksFindFirstArgs} args - Arguments to find a Jwks
+     * @example
+     * // Get one Jwks
+     * const jwks = await prisma.jwks.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JwksFindFirstArgs>(args?: SelectSubset<T, JwksFindFirstArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Jwks that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksFindFirstOrThrowArgs} args - Arguments to find a Jwks
+     * @example
+     * // Get one Jwks
+     * const jwks = await prisma.jwks.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JwksFindFirstOrThrowArgs>(args?: SelectSubset<T, JwksFindFirstOrThrowArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Jwks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Jwks
+     * const jwks = await prisma.jwks.findMany()
+     * 
+     * // Get first 10 Jwks
+     * const jwks = await prisma.jwks.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jwksWithIdOnly = await prisma.jwks.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JwksFindManyArgs>(args?: SelectSubset<T, JwksFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Jwks.
+     * @param {JwksCreateArgs} args - Arguments to create a Jwks.
+     * @example
+     * // Create one Jwks
+     * const Jwks = await prisma.jwks.create({
+     *   data: {
+     *     // ... data to create a Jwks
+     *   }
+     * })
+     * 
+     */
+    create<T extends JwksCreateArgs>(args: SelectSubset<T, JwksCreateArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Jwks.
+     * @param {JwksCreateManyArgs} args - Arguments to create many Jwks.
+     * @example
+     * // Create many Jwks
+     * const jwks = await prisma.jwks.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JwksCreateManyArgs>(args?: SelectSubset<T, JwksCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Jwks.
+     * @param {JwksDeleteArgs} args - Arguments to delete one Jwks.
+     * @example
+     * // Delete one Jwks
+     * const Jwks = await prisma.jwks.delete({
+     *   where: {
+     *     // ... filter to delete one Jwks
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JwksDeleteArgs>(args: SelectSubset<T, JwksDeleteArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Jwks.
+     * @param {JwksUpdateArgs} args - Arguments to update one Jwks.
+     * @example
+     * // Update one Jwks
+     * const jwks = await prisma.jwks.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JwksUpdateArgs>(args: SelectSubset<T, JwksUpdateArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Jwks.
+     * @param {JwksDeleteManyArgs} args - Arguments to filter Jwks to delete.
+     * @example
+     * // Delete a few Jwks
+     * const { count } = await prisma.jwks.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JwksDeleteManyArgs>(args?: SelectSubset<T, JwksDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Jwks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Jwks
+     * const jwks = await prisma.jwks.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JwksUpdateManyArgs>(args: SelectSubset<T, JwksUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Jwks.
+     * @param {JwksUpsertArgs} args - Arguments to update or create a Jwks.
+     * @example
+     * // Update or create a Jwks
+     * const jwks = await prisma.jwks.upsert({
+     *   create: {
+     *     // ... data to create a Jwks
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Jwks we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JwksUpsertArgs>(args: SelectSubset<T, JwksUpsertArgs<ExtArgs>>): Prisma__JwksClient<$Result.GetResult<Prisma.$JwksPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Jwks that matches the filter.
+     * @param {JwksFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const jwks = await prisma.jwks.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: JwksFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Jwks.
+     * @param {JwksAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const jwks = await prisma.jwks.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: JwksAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Jwks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksCountArgs} args - Arguments to filter Jwks to count.
+     * @example
+     * // Count the number of Jwks
+     * const count = await prisma.jwks.count({
+     *   where: {
+     *     // ... the filter for the Jwks we want to count
+     *   }
+     * })
+    **/
+    count<T extends JwksCountArgs>(
+      args?: Subset<T, JwksCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JwksCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Jwks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JwksAggregateArgs>(args: Subset<T, JwksAggregateArgs>): Prisma.PrismaPromise<GetJwksAggregateType<T>>
+
+    /**
+     * Group by Jwks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JwksGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JwksGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JwksGroupByArgs['orderBy'] }
+        : { orderBy?: JwksGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JwksGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJwksGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Jwks model
+   */
+  readonly fields: JwksFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Jwks.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JwksClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Jwks model
+   */ 
+  interface JwksFieldRefs {
+    readonly id: FieldRef<"Jwks", 'String'>
+    readonly publicKey: FieldRef<"Jwks", 'String'>
+    readonly privateKey: FieldRef<"Jwks", 'String'>
+    readonly createdAt: FieldRef<"Jwks", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Jwks findUnique
+   */
+  export type JwksFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter, which Jwks to fetch.
+     */
+    where: JwksWhereUniqueInput
+  }
+
+  /**
+   * Jwks findUniqueOrThrow
+   */
+  export type JwksFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter, which Jwks to fetch.
+     */
+    where: JwksWhereUniqueInput
+  }
+
+  /**
+   * Jwks findFirst
+   */
+  export type JwksFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter, which Jwks to fetch.
+     */
+    where?: JwksWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jwks to fetch.
+     */
+    orderBy?: JwksOrderByWithRelationInput | JwksOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Jwks.
+     */
+    cursor?: JwksWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jwks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jwks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Jwks.
+     */
+    distinct?: JwksScalarFieldEnum | JwksScalarFieldEnum[]
+  }
+
+  /**
+   * Jwks findFirstOrThrow
+   */
+  export type JwksFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter, which Jwks to fetch.
+     */
+    where?: JwksWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jwks to fetch.
+     */
+    orderBy?: JwksOrderByWithRelationInput | JwksOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Jwks.
+     */
+    cursor?: JwksWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jwks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jwks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Jwks.
+     */
+    distinct?: JwksScalarFieldEnum | JwksScalarFieldEnum[]
+  }
+
+  /**
+   * Jwks findMany
+   */
+  export type JwksFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter, which Jwks to fetch.
+     */
+    where?: JwksWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jwks to fetch.
+     */
+    orderBy?: JwksOrderByWithRelationInput | JwksOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Jwks.
+     */
+    cursor?: JwksWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jwks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jwks.
+     */
+    skip?: number
+    distinct?: JwksScalarFieldEnum | JwksScalarFieldEnum[]
+  }
+
+  /**
+   * Jwks create
+   */
+  export type JwksCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Jwks.
+     */
+    data: XOR<JwksCreateInput, JwksUncheckedCreateInput>
+  }
+
+  /**
+   * Jwks createMany
+   */
+  export type JwksCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Jwks.
+     */
+    data: JwksCreateManyInput | JwksCreateManyInput[]
+  }
+
+  /**
+   * Jwks update
+   */
+  export type JwksUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Jwks.
+     */
+    data: XOR<JwksUpdateInput, JwksUncheckedUpdateInput>
+    /**
+     * Choose, which Jwks to update.
+     */
+    where: JwksWhereUniqueInput
+  }
+
+  /**
+   * Jwks updateMany
+   */
+  export type JwksUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Jwks.
+     */
+    data: XOR<JwksUpdateManyMutationInput, JwksUncheckedUpdateManyInput>
+    /**
+     * Filter which Jwks to update
+     */
+    where?: JwksWhereInput
+    /**
+     * Limit how many Jwks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Jwks upsert
+   */
+  export type JwksUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Jwks to update in case it exists.
+     */
+    where: JwksWhereUniqueInput
+    /**
+     * In case the Jwks found by the `where` argument doesn't exist, create a new Jwks with this data.
+     */
+    create: XOR<JwksCreateInput, JwksUncheckedCreateInput>
+    /**
+     * In case the Jwks was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JwksUpdateInput, JwksUncheckedUpdateInput>
+  }
+
+  /**
+   * Jwks delete
+   */
+  export type JwksDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
+    /**
+     * Filter which Jwks to delete.
+     */
+    where: JwksWhereUniqueInput
+  }
+
+  /**
+   * Jwks deleteMany
+   */
+  export type JwksDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Jwks to delete
+     */
+    where?: JwksWhereInput
+    /**
+     * Limit how many Jwks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Jwks findRaw
+   */
+  export type JwksFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Jwks aggregateRaw
+   */
+  export type JwksAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Jwks without action
+   */
+  export type JwksDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Jwks
+     */
+    select?: JwksSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Jwks
+     */
+    omit?: JwksOmit<ExtArgs> | null
   }
 
 
@@ -23765,6 +24799,7 @@ export namespace Prisma {
     email: 'email',
     name: 'name',
     emailVerified: 'emailVerified',
+    isAgreedToTerms: 'isAgreedToTerms',
     image: 'image',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -23803,6 +24838,7 @@ export namespace Prisma {
     phone_number: 'phone_number',
     country: 'country',
     stripeId: 'stripeId',
+    agreedToTermsAt: 'agreedToTermsAt',
     authId: 'authId',
     stripeOnboarded: 'stripeOnboarded',
     createdAt: 'createdAt',
@@ -23855,6 +24891,16 @@ export namespace Prisma {
   };
 
   export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+
+
+  export const JwksScalarFieldEnum: {
+    id: 'id',
+    publicKey: 'publicKey',
+    privateKey: 'privateKey',
+    createdAt: 'createdAt'
+  };
+
+  export type JwksScalarFieldEnum = (typeof JwksScalarFieldEnum)[keyof typeof JwksScalarFieldEnum]
 
 
   export const ShopsScalarFieldEnum: {
@@ -24323,6 +25369,7 @@ export namespace Prisma {
     email?: StringFilter<"user"> | string
     name?: StringFilter<"user"> | string
     emailVerified?: BoolFilter<"user"> | boolean
+    isAgreedToTerms?: BoolFilter<"user"> | boolean
     image?: StringNullableFilter<"user"> | string | null
     createdAt?: DateTimeFilter<"user"> | Date | string
     updatedAt?: DateTimeFilter<"user"> | Date | string
@@ -24344,6 +25391,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     emailVerified?: SortOrder
+    isAgreedToTerms?: SortOrder
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24368,6 +25416,7 @@ export namespace Prisma {
     NOT?: userWhereInput | userWhereInput[]
     name?: StringFilter<"user"> | string
     emailVerified?: BoolFilter<"user"> | boolean
+    isAgreedToTerms?: BoolFilter<"user"> | boolean
     image?: StringNullableFilter<"user"> | string | null
     createdAt?: DateTimeFilter<"user"> | Date | string
     updatedAt?: DateTimeFilter<"user"> | Date | string
@@ -24389,6 +25438,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     emailVerified?: SortOrder
+    isAgreedToTerms?: SortOrder
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24412,6 +25462,7 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"user"> | string
     name?: StringWithAggregatesFilter<"user"> | string
     emailVerified?: BoolWithAggregatesFilter<"user"> | boolean
+    isAgreedToTerms?: BoolWithAggregatesFilter<"user"> | boolean
     image?: StringNullableWithAggregatesFilter<"user"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"user"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"user"> | Date | string
@@ -24524,6 +25575,7 @@ export namespace Prisma {
     phone_number?: StringFilter<"sellers"> | string
     country?: StringFilter<"sellers"> | string
     stripeId?: StringNullableFilter<"sellers"> | string | null
+    agreedToTermsAt?: DateTimeNullableFilter<"sellers"> | Date | string | null
     authId?: StringFilter<"sellers"> | string
     stripeOnboarded?: BoolFilter<"sellers"> | boolean
     createdAt?: DateTimeFilter<"sellers"> | Date | string
@@ -24545,6 +25597,7 @@ export namespace Prisma {
     phone_number?: SortOrder
     country?: SortOrder
     stripeId?: SortOrder
+    agreedToTermsAt?: SortOrder
     authId?: SortOrder
     stripeOnboarded?: SortOrder
     createdAt?: SortOrder
@@ -24570,6 +25623,7 @@ export namespace Prisma {
     phone_number?: StringFilter<"sellers"> | string
     country?: StringFilter<"sellers"> | string
     stripeId?: StringNullableFilter<"sellers"> | string | null
+    agreedToTermsAt?: DateTimeNullableFilter<"sellers"> | Date | string | null
     stripeOnboarded?: BoolFilter<"sellers"> | boolean
     createdAt?: DateTimeFilter<"sellers"> | Date | string
     updatedAt?: DateTimeFilter<"sellers"> | Date | string
@@ -24590,6 +25644,7 @@ export namespace Prisma {
     phone_number?: SortOrder
     country?: SortOrder
     stripeId?: SortOrder
+    agreedToTermsAt?: SortOrder
     authId?: SortOrder
     stripeOnboarded?: SortOrder
     createdAt?: SortOrder
@@ -24611,6 +25666,7 @@ export namespace Prisma {
     phone_number?: StringWithAggregatesFilter<"sellers"> | string
     country?: StringWithAggregatesFilter<"sellers"> | string
     stripeId?: StringNullableWithAggregatesFilter<"sellers"> | string | null
+    agreedToTermsAt?: DateTimeNullableWithAggregatesFilter<"sellers"> | Date | string | null
     authId?: StringWithAggregatesFilter<"sellers"> | string
     stripeOnboarded?: BoolWithAggregatesFilter<"sellers"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"sellers"> | Date | string
@@ -24837,6 +25893,53 @@ export namespace Prisma {
     password?: StringNullableWithAggregatesFilter<"Account"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
+  }
+
+  export type JwksWhereInput = {
+    AND?: JwksWhereInput | JwksWhereInput[]
+    OR?: JwksWhereInput[]
+    NOT?: JwksWhereInput | JwksWhereInput[]
+    id?: StringFilter<"Jwks"> | string
+    publicKey?: StringFilter<"Jwks"> | string
+    privateKey?: StringFilter<"Jwks"> | string
+    createdAt?: DateTimeFilter<"Jwks"> | Date | string
+  }
+
+  export type JwksOrderByWithRelationInput = {
+    id?: SortOrder
+    publicKey?: SortOrder
+    privateKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JwksWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: JwksWhereInput | JwksWhereInput[]
+    OR?: JwksWhereInput[]
+    NOT?: JwksWhereInput | JwksWhereInput[]
+    publicKey?: StringFilter<"Jwks"> | string
+    privateKey?: StringFilter<"Jwks"> | string
+    createdAt?: DateTimeFilter<"Jwks"> | Date | string
+  }, "id">
+
+  export type JwksOrderByWithAggregationInput = {
+    id?: SortOrder
+    publicKey?: SortOrder
+    privateKey?: SortOrder
+    createdAt?: SortOrder
+    _count?: JwksCountOrderByAggregateInput
+    _max?: JwksMaxOrderByAggregateInput
+    _min?: JwksMinOrderByAggregateInput
+  }
+
+  export type JwksScalarWhereWithAggregatesInput = {
+    AND?: JwksScalarWhereWithAggregatesInput | JwksScalarWhereWithAggregatesInput[]
+    OR?: JwksScalarWhereWithAggregatesInput[]
+    NOT?: JwksScalarWhereWithAggregatesInput | JwksScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Jwks"> | string
+    publicKey?: StringWithAggregatesFilter<"Jwks"> | string
+    privateKey?: StringWithAggregatesFilter<"Jwks"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Jwks"> | Date | string
   }
 
   export type shopsWhereInput = {
@@ -26010,7 +27113,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26031,7 +27135,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26052,6 +27157,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26072,6 +27178,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26092,7 +27199,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26109,6 +27217,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26125,6 +27234,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26242,6 +27352,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26262,6 +27373,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -26281,6 +27393,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26300,6 +27413,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26320,6 +27434,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -26334,6 +27449,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26347,6 +27463,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26589,6 +27706,51 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JwksCreateInput = {
+    id?: string
+    publicKey: string
+    privateKey: string
+    createdAt?: Date | string
+  }
+
+  export type JwksUncheckedCreateInput = {
+    id?: string
+    publicKey: string
+    privateKey: string
+    createdAt?: Date | string
+  }
+
+  export type JwksUpdateInput = {
+    publicKey?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JwksUncheckedUpdateInput = {
+    publicKey?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JwksCreateManyInput = {
+    id?: string
+    publicKey: string
+    privateKey: string
+    createdAt?: Date | string
+  }
+
+  export type JwksUpdateManyMutationInput = {
+    publicKey?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JwksUncheckedUpdateManyInput = {
+    publicKey?: StringFieldUpdateOperationsInput | string
+    privateKey?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type shopsCreateInput = {
@@ -27940,6 +29102,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     emailVerified?: SortOrder
+    isAgreedToTerms?: SortOrder
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -27957,6 +29120,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     emailVerified?: SortOrder
+    isAgreedToTerms?: SortOrder
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -27974,6 +29138,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     emailVerified?: SortOrder
+    isAgreedToTerms?: SortOrder
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28164,6 +29329,7 @@ export namespace Prisma {
     phone_number?: SortOrder
     country?: SortOrder
     stripeId?: SortOrder
+    agreedToTermsAt?: SortOrder
     authId?: SortOrder
     stripeOnboarded?: SortOrder
     createdAt?: SortOrder
@@ -28179,6 +29345,7 @@ export namespace Prisma {
     phone_number?: SortOrder
     country?: SortOrder
     stripeId?: SortOrder
+    agreedToTermsAt?: SortOrder
     authId?: SortOrder
     stripeOnboarded?: SortOrder
     createdAt?: SortOrder
@@ -28194,6 +29361,7 @@ export namespace Prisma {
     phone_number?: SortOrder
     country?: SortOrder
     stripeId?: SortOrder
+    agreedToTermsAt?: SortOrder
     authId?: SortOrder
     stripeOnboarded?: SortOrder
     createdAt?: SortOrder
@@ -28306,6 +29474,27 @@ export namespace Prisma {
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type JwksCountOrderByAggregateInput = {
+    id?: SortOrder
+    publicKey?: SortOrder
+    privateKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JwksMaxOrderByAggregateInput = {
+    id?: SortOrder
+    publicKey?: SortOrder
+    privateKey?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JwksMinOrderByAggregateInput = {
+    id?: SortOrder
+    publicKey?: SortOrder
+    privateKey?: SortOrder
+    createdAt?: SortOrder
   }
   export type JsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -31298,6 +32487,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31317,6 +32507,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -31522,6 +32713,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31540,6 +32732,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31792,6 +32985,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31811,6 +33005,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31951,6 +33146,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31969,6 +33165,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31983,7 +33180,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32003,7 +33201,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32233,6 +33432,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32252,6 +33452,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32469,7 +33670,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32489,7 +33691,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32740,6 +33943,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32759,6 +33963,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32957,7 +34162,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32977,7 +34183,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33013,6 +34220,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33032,6 +34240,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33051,7 +34260,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33071,7 +34281,8 @@ export namespace Prisma {
     id?: string
     email: string
     name: string
-    emailVerified: boolean
+    emailVerified?: boolean
+    isAgreedToTerms?: boolean
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33107,6 +34318,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33126,6 +34338,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isAgreedToTerms?: BoolFieldUpdateOperationsInput | boolean
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33204,6 +34417,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33223,6 +34437,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -33471,6 +34686,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33489,6 +34705,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34018,6 +35235,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34037,6 +35255,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -34181,6 +35400,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34199,6 +35419,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34336,6 +35557,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34355,6 +35577,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -34412,6 +35635,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34430,6 +35654,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34568,6 +35793,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     stripeOnboarded?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34587,6 +35813,7 @@ export namespace Prisma {
     phone_number: string
     country: string
     stripeId?: string | null
+    agreedToTermsAt?: Date | string | null
     authId: string
     stripeOnboarded?: boolean
     createdAt?: Date | string
@@ -34777,6 +36004,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34795,6 +36023,7 @@ export namespace Prisma {
     phone_number?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     stripeId?: NullableStringFieldUpdateOperationsInput | string | null
+    agreedToTermsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authId?: StringFieldUpdateOperationsInput | string
     stripeOnboarded?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

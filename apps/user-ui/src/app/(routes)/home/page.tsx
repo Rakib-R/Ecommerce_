@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Suspense } from 'react';
-import { ProductSection } from '../../../app/shared/modules/home/productSection';
+import { ProductSection } from '../../shared/modules/home/productSection';
 import { LatestSection } from '../../shared/modules/home/latestSection';
 import { OfferSection } from '../../shared/modules/home/offerSection';
 import { ShopSection } from '../../shared/modules/home/shopSection';

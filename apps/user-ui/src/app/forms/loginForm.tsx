@@ -2,21 +2,18 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react'; // Added useEffect
 import { useForm } from "react-hook-form";
+import GoogleButton from "../shared/components/google-button";
+
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
-import axiosInstance from '../../utils/axiosInstance';
-import { useAuthState } from '../../store/authStore';
-import { queryClient } from '@packages/utils';
-import GoogleButton from "../../shared/components/google-button";
+import { useAuthState } from '../store/authStore';
 
-
-import { GoogleOneTapActionOptions } from 'better-auth/client/plugins';
 import { toast } from "react-hot-toast";   
-import { authClient } from '../../configs/auth-client';
-import { GlobalSellerType } from 'packages/utils/src/global';
+import { authClient } from '../configs/auth-client';
+import { UserType } from '../../types';
+
 
 type FormData = {
   email: string;
@@ -31,96 +28,103 @@ const FieldError = ({ message }: { message?: string }) => {
     </span>
   );
 };
-  
+
 const Login = () => {
-  
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
+
   const router = useRouter();
-
+  const { setUser } = useAuthState()
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
-  const { setSeller } = useAuthState();
-
-  // Pre-fill email if remembered
-  useEffect(() => {
-    const rememberedEmail = localStorage.getItem('rememberedSellerEmail');
-      if (rememberedEmail && rememberedEmail !== "undefined") {
-      setValue('email', rememberedEmail);
-      setRememberMe(true);
-    } else {
-      // If it's bad data, just reset the field to empty
-      setValue('email', ""); 
-    }
-  }, [setValue]);
 
   const onSubmit = async (data: FormData) => {
-    
     loginMutation.mutate(data);
     setServerError(null);
   };
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      const { data: session, error } = await authClient.signIn.email({
+        email: data.email,
+        password: data.password,
+        rememberMe: !rememberMe,
+      });
 
-      const response = await axiosInstance.post('/api/login-seller', 
-        data,
-        { 
-          withCredentials: true,
-          headers: rememberMe ? { 'X-Remember-Me': 'true' } : {}
-        }
-      );
-      queryClient.setQueryData(['seller'], response.data.user);
-      return response.data;
-    },
+      if (!session || error) {
+        setServerError(error?.message || "Invalid email or password.");
+        return;
+      }
+
+     const typedUser: UserType = {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        emailVerified: session.user.emailVerified,
+        createdAt: session.user.createdAt,
+        updatedAt: session.user.updatedAt,
+        avatar: session.user.image 
+    ? {
+        file_id: `${session.user.name}_avatar`,
+        file_url: session.user.image
+      } : undefined,
+        
+        role: (session.user.role as UserType['role']) || 'user',
+      };
+        return {
+          user: typedUser,
+          session: session || null,
+          isAuthenticated: !!session,
+        };
+      },
+
     onSuccess: (data) => {
       setServerError(null);
-      setSeller(data.user);
-      // Store email if remember me is checked
+      setUser(data?.user as unknown as UserType);
+
+      toast.success("Welcome back!", {
+        style: { background: "#18181b", color: "#fff", borderRadius: "12px" },
+      });
+
       if (rememberMe) {
-        localStorage.setItem('rememberedSellerEmail', data.email);
+        localStorage.setItem('rememberedEmail', data?.user?.email || "");
       } else {
-        localStorage.removeItem('rememberedSellerEmail');
+        localStorage.removeItem('rememberedEmail');
       }
-      
-      router.push("/dashboard");
+      router.replace("/home");
+ 
     },
-    onError: (error: AxiosError) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        "Invalid credentials!";
-      setServerError(errorMessage);
-    },
+    onError: (error) => {
+
+      const authError = error as { status?: number; message?: string };
+        if (authError?.status === 401) {
+            setServerError("Authentication failed: Incorrect email or password.");
+        } else {
+            setServerError(authError?.message || "An unexpected error occurred.");
+        }
+    }
   });
 
   return (
-    <main className="py-10 h-screen bg-[#f1f1f1]">
-      <h1 className="text-4xl mb-8 font-Poppins font-semibold text-black text-center">
-        Ecommerce
-      </h1>
-    
-    {/* EMERGENCY - Admin Demo */}
-    <div className="fixed top-32 left-4 w-1/4 h-16 text-lg font-mono z-50 bg-amber-500 text-black px-3 py-1.5 rounded-lg shadow-lg animate-bounce">
-      🔐 Demo Access: <span className="font-bold">admin@email.com</span> / <span className="font-bold">admin</span>
-    </div>
 
-      <div className="flex justify-center px-4">
-        <section className="md:w-[480px] w-full p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
+      <main className="flex justify-center px-4">
+        <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">
           <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
-            Seller Login To ECommerce
+            Login to Ecommerce
           </h3>
 
-           <button className="flex items-center justify-center gap-3 py-2.5 w-full bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-xl transition-all group mb-2">
+          <button className="flex items-center justify-center gap-3 py-2.5 w-full bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-xl transition-all group mb-2">
             <GoogleButton className="w-6 h-6" />
             <span className="text-gray-700 font-medium group-hover:text-red-600">
               Continue with Google
             </span>
           </button>
-          
+
+
           <p className="text-center text-sm text-gray-500 mb-6 mt-4">
             Don't have an account?{" "}
-            <Link href="/seller-signup" className="text-blue-600 font-bold hover:underline">
-              Sign up as Seller
+            <Link href="/signup" className="text-blue-600 font-bold hover:underline">
+              Sign up
             </Link>
           </p>
 
@@ -148,18 +152,24 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
-                autoComplete="current-password"
-                placeholder="seller@example.com"
-                className={`w-full p-2.5 border text-black! rounded-lg outline-none transition-all ${
+                placeholder="support@rakib.com"
+                autoComplete="email"
+                className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
                   errors.email ? 'border-red-500 ring-1 ring-red-100 bg-red-50' : 'border-gray-300 focus:border-black focus:ring-2 focus:ring-gray-100'
                 }`}
                 {...register("email", {
                   required: "Email is required",
-                  validate: (value) => 
-                    value === "admin@email.com" || 
-                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 
-                    "Invalid email address"
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
+                  },
+                  onChange: (e) => e.target.value,
                 })}
+                 onInput={(e) =>                     // ← catches autofill injection
+                  setValue("email", (e.target as HTMLInputElement).value, { 
+                    shouldValidate: false 
+                  })
+                }
               />
               <FieldError message={errors.email?.message} />
             </div>
@@ -170,16 +180,18 @@ const Login = () => {
                 <input
                   type={passwordVisible ? "text" : "password"}
                   placeholder="••••••••"
-                  className={`w-full p-2.5 text-black! border rounded-lg outline-none transition-all ${
+                  autoComplete="current-password"
+                  className={`w-full p-2.5 border rounded-lg outline-none transition-all ${
                     errors.password ? 'border-red-500 ring-1 ring-red-100 bg-red-50' : 'border-gray-300 focus:border-black focus:ring-2 focus:ring-gray-100'
                   }`}
                   {...register("password", {
                     required: "Password is required",
-                    validate: (value) => 
-                      value === "admin" || 
-                      value.length >= 6 || 
-                      "Password must be at least 6 characters",
                   })}
+                   onInput={(e) =>
+                  setValue("password", (e.target as HTMLInputElement).value, {
+                    shouldValidate: false
+                  })
+                }
                 />
                 <button
                   type="button"
@@ -197,11 +209,11 @@ const Login = () => {
                   type="checkbox"
                   className="mr-2 w-4 h-4 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={() => setRememberMe(!rememberMe)}
                 />
                 <span className="group-hover:text-black transition-colors">Remember me</span>
               </label>
-              <Link href="/forgot-password" className="font-semibold text-blue-600 hover:underline">
+              <Link href="/forgot-password" intrinsic-size="14" className="font-semibold text-blue-600 hover:underline">
                 Forgot Password?
               </Link>
             </div>
@@ -211,12 +223,11 @@ const Login = () => {
               disabled={loginMutation.isPending}
               className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-zinc-800 disabled:bg-zinc-400 transition-all flex justify-center items-center gap-2 shadow-lg shadow-gray-200"
             >
-              {loginMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : "Login"}
+              {loginMutation.isPending ? <Loader2 className="animate-spin" /> : "Login"}
             </button>
           </form>
         </section>
-      </div>
-    </main>
+      </main>
   );
 };
 

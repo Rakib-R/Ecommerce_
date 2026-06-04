@@ -8,7 +8,6 @@ import { ProductPayload, UserType } from '../../types';
 interface AuthState {
   user: UserType | null;
   setUser: (user: UserType | null) => void;
-  logout: () => void;
   tempEmail: string | null;
   setTempEmail: (email: string | null) => void;
   clearTempEmail: () => void;
@@ -268,11 +267,6 @@ export const useAuthState = create<AuthState>()(
     (set) => ({
       user: null,
       setUser: (user) => set({ user }),
-      logout: () => {
-        set({ user: null, tempEmail: null });
-        // Also clear cart on logout
-        useStore.getState().clearCart();
-      },
       
       tempEmail: null,
       setTempEmail: (email) => set({ tempEmail: email }),
@@ -282,14 +276,6 @@ export const useAuthState = create<AuthState>()(
         set({ user: null, tempEmail: null });
         useStore.getState().clearCart();
         
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth-storage');
-          localStorage.removeItem('store-storage');
-          
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
-          }
-        }
       },
     }),
     {

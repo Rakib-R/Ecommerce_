@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@arcjet/next": "1.4.0",
     "@prisma/client": "6.5.0",
     "better-auth": "1.6.11"
   }

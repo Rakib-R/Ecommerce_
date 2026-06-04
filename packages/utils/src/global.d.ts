@@ -1,5 +1,20 @@
 export {};
 
+export type UserRole = 'admin' | 'seller' | 'user';
+
+export type GlobalSellerType = {
+  id: string;
+  name: string;
+  role: 'seller';
+  shop?: { id: string; name: string } | null;
+};
+
+export type GlobalUserType = {
+  id: string;
+  role: 'user';
+  email: string;
+};
+
 declare global {
   namespace Express {
     interface Request {
@@ -18,18 +33,9 @@ declare global {
         role: "admin";
       };
 
-      seller?: {
-        id: string;
-        name: string;
-        role: "seller";
-        shop?: { id: string; name: string } | null; 
-      };
+      seller?: GlobalSellerType;
 
-      user?: {
-        id: string;
-        role: "user";
-        name?: string;
-      };
+      user?: GlobalUserType;
     }
   }
 }
