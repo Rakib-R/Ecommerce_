@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import GoogleButton from "../shared/components/google-button";
 
@@ -12,10 +12,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  CheckCircle2,
   Loader2,
-  MailCheck,
-  RefreshCw,
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -44,15 +41,8 @@ const OTP_LENGTH = 6;
 
 const SignUp = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [canResend, setCanResend] = useState(false);
-  const [timer, setTimer] = useState(60);
-  const [showOtp, setShowOtp] = useState(false);
-  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [userData, setUserData] = useState<FormData | null>(null);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
-
-// const [signUpResult, setSignUpResult] = useState<SignUpResponse | null>(null);
 
   const {
     register,
@@ -60,17 +50,6 @@ const SignUp = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  // Timer countdown
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-
-  //   if (!canResend && timer > 0) {
-  //     interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-  //   } else if (timer === 0) {
-  //     setCanResend(true);
-  //   }
-  //   return () => clearInterval(interval);
-  // }, [canResend, timer]);
 
    const onSubmit = (data: FormData) => {
     setUserData(data);
@@ -80,159 +59,41 @@ const SignUp = () => {
   const signupMutation = useMutation({
 
   mutationFn: async (data: FormData) => {
-    // 1. Create the account first
-    // const res = await fetch('/api/checkEmail', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ email: data.email }),
-    //   headers: { 'Content-Type': 'application/json' }
-    // })
-
-
-  const signUpResult = await authClient.signUp.email({
-      name: data.name,
+    // 1. Perform the signup first
+    const signUpResult = await authClient.signUp.email({
       email: data.email,
       password: data.password,
+      name: data.name,
       role: "user",
-      isAgreedToTerms : true
+      isAgreedToTerms: true
     });
 
     if (signUpResult.error) {
-      throw new Error(signUpResult.error.message || "Registration failed.")
+      throw new Error(signUpResult.error.message || "Registration failed.");
     }
 
-  const otpResult = await authClient.emailOtp.sendVerificationOtp({
+    const emailResult = await authClient.sendVerificationEmail({
       email: data.email,
-      type: "email-verification",
+      callbackURL: "/home"
     });
 
-    if (otpResult.error) {
-      toast.error(
-        otpResult.error.message ||
-          "Account created, but OTP could not be sent. Please resend it."
-      );
-     }
+    if (emailResult.error) {
+      // Don't throw an error here; the account IS created, they just need a resend option
+      toast.error("Account created, but confirmation email failed to send. Please request a resend.");
+    }
   },
-
-  //tODO TANSTACK! 
+  
   onSuccess: () => {
-    setShowOtp(true);
-    setCanResend(false);
-    setTimer(60);
-    setOtp(Array(OTP_LENGTH).fill(""));
-    toast.success("OTP sent to your email!", {
-      style: {
-        background: "#18181b",
-        color: "#fff",
-        borderRadius: "12px",
-        fontWeight: "600",
-      },
-      iconTheme: { primary: "#22c55e", secondary: "#fff" },
-    });
+    toast.success("Welcome! Account created. Check your email later to verify your vendor status.");
+    router.push("/home"); 
   },
 
-  onError: (error) => {
-    toast.error(error instanceof Error ? error.message : "Registration failed.");
-  },
-
+  onError: (error: any) => {
+    toast.error(error.message || "An unexpected error occurred.");
+  }
 })
 
-  const verifyOtpMutation = useMutation({
 
-    mutationFn: async () => {
-      if (!userData) {
-        throw new Error("Missing signup data.");
-      }
-      const code = otp.join("");
-
-      if (code.length !== OTP_LENGTH) {
-        throw new Error(`Please enter all ${OTP_LENGTH} digits.`);
-      }
-      const result = await authClient.emailOtp.verifyEmail({
-        email: userData.email,
-        otp: code,
-      });
-
-    if (result.error) {
-      throw new Error(result.error.message || "Invalid OTP.");
-    }
-    return result.data;
-  },
-
-  onSuccess: () => {
-    toast.success("Account verified! Redirecting to login...");
-
-    setTimeout(() => router.replace("/login"), 1000);
-  },
-
-  onError: (error) => {
-    toast.error(error.message || "Invalid OTP. Please try again.");
-    setOtp(Array(OTP_LENGTH).fill(""));
-    inputRefs.current[0]?.focus();
-  },
-});
-
-
-  const handleOtpChange = (index: number, value: string) => {
-
-    if (verifyOtpMutation.isError) {
-    verifyOtpMutation.reset();
-  }
-    if (!/^[0-9]$/.test(value) && value !== "") return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < otp.length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
-
-    if (verifyOtpMutation.isError) {
-      verifyOtpMutation.reset();
-  }
-
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === "Enter") {
-      const isComplete = otp.every((d) => d !== "");
-      if (isComplete) {
-        verifyOtpMutation.mutate();
-      } else {
-        toast.error("Please fill all 6 digits.", {
-          style: {
-            background: "#18181b",
-            color: "#fff",
-            borderRadius: "12px",
-            fontWeight: "600",
-          },
-        });
-      }
-    }
-  };
-
-const resendOtp = async () => {
-    if (!canResend || !userData) return;
-
-    const result = await authClient.emailOtp.sendVerificationOtp({
-      email: userData.email,
-      type: "email-verification",
-    });
-
-    if (result.error) {
-      toast.error(result.error.message || "Failed to resend OTP.");
-      return;
-    }
-
-    setOtp(Array(OTP_LENGTH).fill(""));
-    setCanResend(false);
-    setTimer(60);
-    toast.success("OTP resent to your email!");
-  };
 
   return (
     <main className="">
@@ -242,7 +103,6 @@ const resendOtp = async () => {
         <section className="md:w-[480px] w-full p-8 bg-gray-100 shadow-xl rounded-2xl border border-gray-100">
 
           {/* todo ── STEP 1: SIGN UP FORM ── */}
-          {!showOtp ? (
             <>
               <h3 className="text-2xl font-bold text-center mb-2 text-gray-800">
                 Create Your Account
@@ -389,123 +249,7 @@ const resendOtp = async () => {
                 </button>
               </form>
             </>
-          ) : (
-            /* ── STEP 2: OTP VERIFICATION ── */
-            <div className="flex flex-col items-center gap-6 py-2">
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
-                <MailCheck size={30} className="text-blue-600" />
-              </div>
-
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-800 mb-1">
-                  Check your inbox
-                </h3>
-                <p className="text-sm text-gray-500">
-                  We sent a 6-digit code to{" "}
-                  <span className="font-bold text-black">
-                    {userData?.email}
-                  </span>
-                </p>
-              </div>
-
-              {/* OTP Error */}
-              {verifyOtpMutation.isError && (
-                <div className="w-full p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-center gap-3 text-red-700 animate-in fade-in zoom-in-95">
-                  <AlertCircle size={18} className="shrink-0" />
-                  <p className="text-sm font-semibold">
-                    {(
-                      verifyOtpMutation.error as AxiosError<{
-                        message?: string;
-                      }>
-                    )?.response?.data?.message || "Invalid code. Try again."}
-                  </p>
-                </div>
-              )}
-
-              {/* OTP Inputs */}
-              <div className="flex justify-center gap-3">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    ref={(el) => {
-                      if (el) inputRefs.current[index] = el;
-                    }}
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    className={`w-14 h-16 text-center text-2xl font-bold border-2 rounded-xl outline-none transition-all
-                      ${
-                        digit
-                          ? "border-black bg-white text-black"
-                          : "border-gray-200 bg-gray-50 focus:border-black focus:bg-white"
-                      }
-                      ${verifyOtpMutation.isError ? "border-red-300 bg-red-50" : ""}
-                    `}
-                  />
-                ))}
-              </div>
-
-              {/* Verify Button */}
-              <button
-                disabled={
-                  verifyOtpMutation.isPending ||
-                  otp.some((d) => d === "") ||
-                  verifyOtpMutation.isSuccess
-                }
-                onClick={() => verifyOtpMutation.mutate()}
-                className="w-full py-3 bg-black text-white rounded-xl font-bold hover:bg-zinc-800 disabled:bg-zinc-400 transition-all flex justify-center items-center gap-2 shadow-lg shadow-gray-200"
-              >
-                {verifyOtpMutation.isPending ? (
-                  <Loader2 className="animate-spin" />
-                ) : verifyOtpMutation.isSuccess ? (
-                  <>
-                    <CheckCircle2 size={18} /> Verified!
-                  </>
-                ) : (
-                  "Verify Code"
-                )}
-              </button>
-
-              {/* Resend */}
-              <div className="text-sm text-center">
-                {canResend ? (
-                  <button
-                    onClick={resendOtp}
-                    disabled={signupMutation.isPending}
-                    className="flex items-center gap-1.5 text-blue-600 font-bold hover:underline mx-auto disabled:opacity-50"
-                  >
-                    <RefreshCw
-                      size={14}
-                      className={
-                        signupMutation.isPending ? "animate-spin" : ""
-                      }
-                    />
-                    Resend OTP
-                  </button>
-                ) : (
-                  <span className="text-gray-400 italic">
-                    Resend available in{" "}
-                    <span className="text-black font-bold">{timer}s</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Back link */}
-              <button
-                onClick={() => {
-                  setShowOtp(false);
-                  setOtp(["", "", "", ""]);
-                }}
-                className="text-xs text-gray-400 hover:text-gray-600 transition-colors underline underline-offset-2"
-              >
-                ← Back to sign up
-              </button>
-            </div>
-          )}
+          
         </section>
       </div>
     </main>

@@ -149,9 +149,9 @@ const authOptions = {
             user: {
             create: {
                 before: async  (user, ctx) => {
-                const body = ctx.context.body as any || {};
+                const body = (ctx?.context.body ?? {}) as any;
               
-                if (ctx.path === "/sign-up/email") {
+                if (ctx?.path === "/sign-up/email") {
                 //todo 1. Better Auth automatically handles the "Email already exists" check.
 
                 if (body.role === "seller") {
@@ -165,7 +165,7 @@ const authOptions = {
                     } 
 
                 else{
-                    const parsed = signUpSchema.safeParse(ctx.context.body);
+                    const parsed = signUpSchema.safeParse(body);
                     if (!parsed.success) {
                         throw new APIError("BAD_REQUEST", { message: parsed.error.issues[0].message });
                     }
@@ -184,7 +184,7 @@ const authOptions = {
             after: async (user, ctx) => {
 
                 if (!user || !user.id) return;
-                const { phone_number, country, avatar  } = ctx.context?.body|| {};
+                const { phone_number, country, avatar  } = ctx?.context.body || {};
 
                 if (user.role === "seller") {
                     await prisma.sellers.create({

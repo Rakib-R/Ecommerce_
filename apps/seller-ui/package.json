@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "@prisma/client": "6.5.0",
-    "better-auth": "1.6.11"
+    "better-auth": "1.6.14"
   }
 }

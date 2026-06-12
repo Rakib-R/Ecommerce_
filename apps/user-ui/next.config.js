@@ -16,15 +16,10 @@ const nextConfig = {
   
   // ✅ ADD THIS SECTION to suppress hydration warnings
   /** @param {any} error */
-  onError: (error) => {
-    if (error.message && error.message.includes('cz-shortcut-listen')) {
-      return;
-    }
-    // Re-throw other errors
-    throw error;
-  },
+  // todo USE Suppression Hydration in Layout.jsx for -> cz-shortcut-listen
   
   experimental: {
+
     optimizePackageImports: [
       'lucide-react',
       '@tanstack/react-query',

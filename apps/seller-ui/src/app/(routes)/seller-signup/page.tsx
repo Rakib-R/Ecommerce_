@@ -1,5 +1,7 @@
-import SignUpClient from "./signup-client";
+
+import SignUp from "../../../forms/signupForm";
+
 
 export default function SellerSignUpPage() {
-  return <SignUpClient />;
+  return <SignUp />;
 }
