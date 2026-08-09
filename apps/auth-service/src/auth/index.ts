@@ -118,7 +118,7 @@ const authOptions = {
           let templateName = '';
           let name = 'User';
 
-          const rawBody = ctx?.request?.body;
+          const rawBody = ctx?.body;
           const body = rawBody ? await new Response(rawBody).json() : null;
           if (body?.name) {
             name = body.name;
@@ -164,7 +164,7 @@ const authOptions = {
           });
         } catch (err) {
           console.error(
-            "❌ ❌  ❌ EMAIL CAN'T SEND FROM BETTER AUTH ERROR:",
+            "❌ ❌ ❌ EMAIL CAN'T SEND FROM BETTER AUTH ERROR:",
             err
           );
           throw err;
@@ -204,8 +204,22 @@ const authOptions = {
     user: {
       create: {
         before: async (user, ctx: HookEndpointContext | null) => {
-          console.log('🔥 BEFORE HOOK HIT', ctx?.path, ctx?.context.body);
-          const body = ctx?.context.body ?? {};
+          console.log(
+            '🔎 FULL CTX KEYS:',
+            ctx ? Object.keys(ctx) : 'ctx is null'
+          );
+          console.log(
+            '🔎 CTX.CONTEXT KEYS:',
+            ctx?.context
+              ? Object.keys(ctx.context)
+              : 'ctx.context is null/undefined'
+          );
+          console.log(
+            '🔎 RAW CTX:',
+            JSON.stringify(ctx, null, 2)?.slice(0, 2000)
+          );
+
+          const body = ctx?.body ?? {};
 
           if (ctx?.path === '/sign-up/email') {
             //todo 1. Better Auth automatically handles the "Email already exists" check.
@@ -248,11 +262,10 @@ const authOptions = {
           if (!user || !user.id) return;
           // 🔧 FIXED: previously this destructured phone_number/country/avatar
           // from ctx.context.body and used them for BOTH branches, but only
-          // ever wrote phone_number/country into `sellers` — `avatar` was
-          // pulled out and silently discarded, and regular `users` never
+
           // got phone_number/country/avatar persisted into your decoupled
           const { phone_number, country, avatarFileId, avatarFileUrl } =
-            (ctx?.context.body as {
+            (ctx?.body as {
               phone_number?: string;
               country?: string;
               avatarFileId?: string;

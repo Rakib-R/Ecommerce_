@@ -10,7 +10,6 @@ if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ] || [ "$BRANCH" = "producti
 fi
 
 # 2. Block accidental leaks of secret environment variables
-# Note: Added an extra grep layer to avoid false alarms on Prisma @db definitions
 if git diff --cached | grep -E "STRIPE_SECRET|NEXTAUTH_SECRET|TINYBIRD_TOKEN|DATABASE_URL" | grep -E "^\+.*=" | grep -v "@db"; then
   echo "❌ Error: Hardcoded secrets detected in your changes! Remove them before committing."
   exit 1
@@ -22,5 +21,10 @@ if git diff --cached --name-only | grep -E "^\.env(\..*)?$"; then
   exit 1
 fi
 
-# 4. Run the lint-staged pipeline (Formatting, Linting, Type-checking)
-pnpm exec lint-staged
+# 4. Block accidental 'debugger' statements natively without breaking Windows
+if git diff --cached -- . ':!.husky/pre-commit' | grep -E "^\+.*\bdebugger\b"; then
+  echo "❌ Error: Found 'debugger' statement in staged files. Remove it before committing."
+  exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"

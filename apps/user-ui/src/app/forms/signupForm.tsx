@@ -33,7 +33,6 @@ const FieldError = ({ message }: { message?: string }) => {
 
 const SignUp = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [userData, setUserData] = useState<FormData | null>(null);
   const router = useRouter();
 
   const {
@@ -43,7 +42,6 @@ const SignUp = () => {
   } = useForm<FormData>();
 
   const onSubmit = (data: FormData) => {
-    setUserData(data);
     signupMutation.mutate(data);
   };
 
@@ -82,8 +80,12 @@ const SignUp = () => {
       router.push('/home');
     },
 
-    onError: (error: any) => {
-      toast.error(error.message || 'An unexpected error occurred.');
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred.';
+      toast.error(message);
     },
   });
 

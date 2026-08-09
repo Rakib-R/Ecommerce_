@@ -86,6 +86,6 @@ const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
   console.log(
-    `🔑 Auth Service running at http://localhost:${port}/auth/health`
+    `🔑 🔑  🔑 Auth Service running at http://localhost:${port}/auth/health`
   );
 });

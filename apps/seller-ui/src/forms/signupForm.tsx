@@ -12,7 +12,7 @@ import CreateShop from '../app/shared/modules/auth/create-shop';
 import Stripe from '../app/assets/stripe.jpeg';
 import Image from 'next/image';
 import { useSellerRegistrationStore } from '../app/store/useSellerRegistrationStore';
-import { AnimatePresence, motion, progress } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { authClient } from '../app/configs/auth-client';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '../app/utils/axiosInstance';
