@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -6,9 +5,10 @@ import * as path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { errorMiddleware } from '@packages/error-handler';
 import swaggerDocument from './swagger-output.json';
+import { NextFunction, Request, Response } from 'express';
 
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./auth";
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from './auth';
 
 const app = express();
 
@@ -43,11 +43,11 @@ app.use(
 );
 
 // ────── BETTER AUTH ────────────────────────
-app.all("/api/auth/*", toNodeHandler(auth));
+app.all('/api/auth/*', toNodeHandler(auth));
 
 // ─── General Middleware ──────────────────────────────────────────────────────
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(express.json({ limit: '10mb' })); 
+app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -60,7 +60,7 @@ app.get('/auth/health', (req, res) => {
 // CSP override needed — Swagger loads inline scripts/styles
 app.use(
   '/auth/docs',
-  (req: any, res: any, next: any) => {
+  (req: Request, res: Response, next: NextFunction) => {
     res.setHeader(
       'Content-Security-Policy',
       "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:"
@@ -85,5 +85,7 @@ app.use(errorMiddleware);
 const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
-  console.log(`🔑 Auth Service running at http://localhost:${port}/auth/health`);
+  console.log(
+    `🔑 Auth Service running at http://localhost:${port}/auth/health`
+  );
 });

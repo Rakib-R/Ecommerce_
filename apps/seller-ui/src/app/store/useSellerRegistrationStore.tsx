@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface Step1Values {
   name: string;
@@ -23,9 +23,9 @@ export interface Step2Values {
 interface SellerRegistrationState {
   activeStep: number;
   sellerId: string | null;
+  progressActiveStep: number;
   step1Values: Partial<Step1Values>;
   step2Values: Partial<Step2Values>;
-
   /**
    * Becomes true once Zustand has finished reading from localStorage.
    * NEVER persisted — it's purely a runtime flag.
@@ -36,6 +36,7 @@ interface SellerRegistrationState {
 
   setHasHydrated: (state: boolean) => void;
   setActiveStep: (step: number) => void;
+  setProgressActiveStep: (step: number) => void;
   setSellerId: (id: string) => void;
   saveStep1Values: (values: Partial<Step1Values>) => void;
   saveStep2Values: (values: Partial<Step2Values>) => void;
@@ -43,11 +44,12 @@ interface SellerRegistrationState {
 }
 
 const defaultState = {
-  activeStep: 2,
+  activeStep: 3,
+  progressActiveStep: 1,
   sellerId: null,
   step1Values: {},
   step2Values: {},
-  _hasHydrated: false,       // always starts false — intentional
+  _hasHydrated: false, // always starts false — intentional
 };
 
 export const useSellerRegistrationStore = create<SellerRegistrationState>()(
@@ -57,6 +59,7 @@ export const useSellerRegistrationStore = create<SellerRegistrationState>()(
 
       setHasHydrated: (state) => set({ _hasHydrated: state }),
       setActiveStep: (step) => set({ activeStep: step }),
+      setProgressActiveStep: (step) => set({ progressActiveStep: step }),
       setSellerId: (id) => set({ sellerId: id }),
       saveStep1Values: (values) =>
         set((s) => ({ step1Values: { ...s.step1Values, ...values } })),
@@ -65,7 +68,7 @@ export const useSellerRegistrationStore = create<SellerRegistrationState>()(
       resetRegistration: () => set(defaultState),
     }),
     {
-      name: "seller-registration",
+      name: 'seller-registration',
 
       // Called automatically by Zustand localStorage has been read
       // and merged into the store. We flip _hasHydrated here so components// know
@@ -77,6 +80,7 @@ export const useSellerRegistrationStore = create<SellerRegistrationState>()(
       // Don't persist the runtime flag itself — it must always start false
       partialize: (state) => ({
         activeStep: state.activeStep,
+        progressActiveStep: state.progressActiveStep,
         sellerId: state.sellerId,
         step1Values: state.step1Values,
         step2Values: state.step2Values,

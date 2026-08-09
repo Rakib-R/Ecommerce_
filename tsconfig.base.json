@@ -17,9 +17,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-
-      "@apps/auth-service" : ["apps/auth-service/src/auth/index.ts"],
-      "@auth-service/*" : ["apps/auth-service/*"],
+      "@apps/auth-service": ["apps/auth-service/src/auth/index.ts"],
+      "@packages/requireRole": ["packages/middleware/src/requireRole.ts"],
 
       "@packages/error-handler": ["packages/error-handler/src/index.ts"],
       "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
@@ -28,7 +27,6 @@
       "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/utils": ["packages/utils/src/index.tsx"],
-
       "@packages/auth-types": ["packages/auth-types/src/lib/auth-types.ts"]
     }
   },

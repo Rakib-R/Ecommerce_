@@ -1,4 +1,3 @@
-
 import { PrismaClient } from './generated';
 
 type PrismaClientSingleton = PrismaClient;
@@ -8,9 +7,11 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // ✅ Declare prisma FIRST so withRetry can reference it
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['error'],
-});
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['error'],
+  });
 
 if (process.env['NODE_ENV'] !== 'production') globalForPrisma.prisma = prisma;
 
@@ -23,14 +24,18 @@ export async function withRetry<T>(
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
-    } catch (err: any) {
-      const isConnectionError = err.message?.includes('Server selection timeout')
-        || err.message?.includes('timed out');
+    } catch (err: unknown) {
+      const isConnectionError =
+        err instanceof Error &&
+        (err.message.includes('Server selection timeout') ||
+          err.message.includes('timed out'));
 
       if (isConnectionError && i < retries - 1) {
-        console.warn(`⚠️ DB timeout — retrying (${i + 1}/${retries}) in ${delay}ms...`);
+        console.warn(
+          `⚠️ DB timeout — retrying (${i + 1}/${retries}) in ${delay}ms...`
+        );
         await prisma.$disconnect();
-        await new Promise(r => setTimeout(r, delay));
+        await new Promise((r) => setTimeout(r, delay));
         await prisma.$connect();
         continue;
       }

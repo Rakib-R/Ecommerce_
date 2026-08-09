@@ -1,11 +1,15 @@
+import type { auth } from '@apps/auth-service';
+
+export type User = typeof auth.$Infer.Session.user;
+export type Session = typeof auth.$Infer.Session;
 
 export interface imageType {
-    file_id: string;
-    file_url : string;
+  file_id: string;
+  file_url: string;
 }
 
-export interface OrderType{
-
+export interface OrderType {
+  [key: string]: unknown;
 }
 
 export type shop = ShopType['shop'];
@@ -15,32 +19,32 @@ export interface ShopType {
     id: string;
     name: string;
     category: string;
-    coverShop : imageType[];
+    coverShop: imageType[];
     coverBanner: string;
     address?: string;
     followers?: string[];
     opening_hours: string;
-    website?:    string;
+    website?: string;
     sellerId: string;
     socialLinks?: JSON;
     rating?: number;
     seller: {
       name: string;
-      avatar : imageType[];
-    } 
+      avatar: imageType[];
+    };
   };
 }
 
-export interface UserType {
+export type UserType = User & {
   id: string;
   role: 'user';
   name: string;
   email: string;
   emailVerified: boolean;
-  avatar?: imageType;
+  avatar?: imageType[];
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
 export interface UserProfileType extends UserType {
   Points: number;
@@ -57,38 +61,38 @@ export interface AuthResponse {
 }
 
 export interface ProductPayload {
-    id : string;
-    title: string;
-    slug: string;
-    short_description: string;
-    detailed_description: string;
+  id: string;
+  title: string;
+  slug: string;
+  short_description: string;
+  detailed_description: string;
 
-    category: string;
-    subCategory: string;
-    brand?: string;
-    warranty? : string;
+  category: string;
+  subCategory: string;
+  brand?: string;
+  warranty?: string;
 
-    regularPrice: number;
-    salePrice?: number;
-    stock: number;
-    images:imageType[]
-    shop? : shop,
+  regularPrice: number;
+  salePrice?: number;
+  stock: number;
+  images: imageType[];
+  shop?: shop;
 
-    videoUrl?: string;
-    tags: string[] | string;
-    colors?: string[];
-    sizes?: string[];
-    starting_date?: string | Date;
-    ending_date?: string | Date;
-    discountCodes?: string[];
-    customProperties: Record<string, string  | boolean | undefined>;
-    customSpecifications: Record<string, string  | boolean | undefined>;
+  videoUrl?: string;
+  tags: string[] | string;
+  colors?: string[];
+  sizes?: string[];
+  starting_date?: string | Date;
+  ending_date?: string | Date;
+  discountCodes?: string[];
+  customProperties: Record<string, string | boolean | undefined>;
+  customSpecifications: Record<string, string | boolean | undefined>;
 }
 
-export interface ProductPayloadWithDetails extends ProductPayload{
-    quantity : number;
-    ratings :  number;
-    totalSales :number;
-    shipOnTime: string | Date;
-    returnPolicy: string
+export interface ProductPayloadWithDetails extends ProductPayload {
+  quantity: number;
+  ratings: number;
+  totalSales: number;
+  shipOnTime: string | Date;
+  returnPolicy: string;
 }

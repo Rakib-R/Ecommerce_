@@ -1,21 +1,21 @@
-
-
-import { createAuthClient } from "better-auth/react";
-import { jwtClient, emailOTPClient, inferAdditionalFields  } from "better-auth/client/plugins"
-import type { auth } from "@apps/auth-service";
-
+import { createAuthClient } from 'better-auth/react';
+import {
+  emailOTPClient,
+  jwtClient,
+  inferAdditionalFields,
+} from 'better-auth/client/plugins';
+import type { AuthAdditionalFields } from '@apps/auth-service';
 
 export const authClient = createAuthClient({
-    plugins: [
-    inferAdditionalFields<typeof auth>(), 
-     jwtClient(),
-     emailOTPClient() 
+  baseURL: 'http://localhost:7777/api/auth',
+  plugins: [
+    inferAdditionalFields<never, AuthAdditionalFields>(),
+    jwtClient(),
+    emailOTPClient(),
   ],
-    baseURL: "http://localhost:7777/api" ,
-
-       fetchOptions: {
-        credentials: "include"
-    }
+  fetchOptions: {
+    credentials: 'include',
+  },
 });
 
-export const { useSession, signIn, signOut } = authClient;
+export const { useSession, signIn, signOut, signUp } = authClient;

@@ -1,20 +1,22 @@
+import { auth } from '@apps/auth-service';
 
-
+export type Seller = typeof auth.$Infer.Session.user;
+export type Session = typeof auth.$Infer.Session;
 
 export interface imageType {
   file_id: string;
-  file_url : string;
+  file_url: string;
 }
 
-export interface SellerType {
+export interface SellerType extends Seller {
   id: string;
   name: string;
   email: string;
-  shop : ShopType;
+  shop: ShopType;
   avatar?: imageType;
   points: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ShopType {
@@ -22,7 +24,7 @@ export interface ShopType {
   name: string;
   category: string;
   address: string;
-  
+
   coverBanner?: string | null;
   coverShop: imageType[]; // Assumes an 'images' type/interface exists
   bio?: string | null;
@@ -30,7 +32,7 @@ export interface ShopType {
   website?: string | null;
   socialLinks?: Record<string, string> | null; // Represents the Json type
   ratings?: number | null;
-  
+
   sellerId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -42,4 +44,3 @@ export interface ShopType {
   // order?: Order[];
   // followers?: ShopFollowed[];
 }
-

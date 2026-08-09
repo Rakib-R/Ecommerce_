@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  
+
   "compilerOptions": {
     "jsx": "preserve",
     "strict": true,
@@ -11,11 +11,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "isolatedModules": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,12 +21,11 @@
       {
         "name": "next"
       }
-    ],
-    "isolatedModules": true
+    ]
   },
   "include": [
     "**/*.js",
-    "**/*.jsx", 
+    "**/*.jsx",
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
@@ -37,12 +33,7 @@
     "next.config.mjs",
     ".next/types/**/*.ts",
     "types.d.ts"
-],
+  ],
 
-  "exclude": [
-    "node_modules",
-    "jest.config.ts",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "exclude": ["node_modules", "jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
 }

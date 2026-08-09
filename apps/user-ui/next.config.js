@@ -6,37 +6,27 @@ const { composePlugins, withNx } = require('@nx/next');
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
-
   reactStrictMode: true,
   nx: {
     svgr: false,
   },
 
-  output: 'standalone', // FOR PROD IN RAILWAY
-  
+  output: 'standalone',
+
   // ✅ ADD THIS SECTION to suppress hydration warnings
   /** @param {any} error */
-  onError: (error) => {
-    if (error.message && error.message.includes('cz-shortcut-listen')) {
-      return;
-    }
-    // Re-throw other errors
-    throw error;
-  },
-  
+  // todo USE Suppression Hydration in Layout.jsx for -> cz-shortcut-listen
+
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      '@tanstack/react-query',
-    ],
+    optimizePackageImports: ['lucide-react', '@tanstack/react-query'],
   },
-  
+
   images: {
     unoptimized: process.env.NODE_ENV === 'production' ? false : true,
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "ik.imagekit.io",
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
       },
     ],
   },
@@ -51,13 +41,28 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
-    
     config.ignoreWarnings = [
       { module: /node_modules\/@prisma\/client/ },
-      /Failed to parse source map/
+      /Failed to parse source map/,
     ];
-    
+
     if (!isServer) {
+      // Prevents webpack from trying to bundle Node core modules on the client
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        stream: false,
+        buffer: false,
+      };
+      //Claude Added over Gemini Fix
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'node:crypto': false,
+        'node:stream': false,
+        'node:buffer': false,
+        kysely: false,
+        '@better-auth/kysely-adapter': false,
+      };
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         cacheGroups: {
@@ -80,9 +85,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const plugins = [
-  withNx,
-  withBundleAnalyzer,
-];
+const plugins = [withNx, withBundleAnalyzer];
 
 module.exports = composePlugins(...plugins)(nextConfig);

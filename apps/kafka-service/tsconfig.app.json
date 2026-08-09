@@ -2,11 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc/kafka-service",
-    "rootDir": ".",
-    "module": "commonjs",
+    "module": "nodenext",
     "types": ["node", "express"]
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

@@ -1,9 +1,9 @@
 
 
 generator client {
-  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
-  
-  output   = "../src/lib/generated" 
+  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX
+
+  output   = "../src/lib/generated"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-1.1.x"]
 }
 
@@ -15,16 +15,16 @@ datasource db {
 model images {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   file_id      String
-  file_url     String     
-  productId    String?        @db.ObjectId
+  file_url     String
+  productId    String?         @db.ObjectId
   userAvatarsId      String?   @db.ObjectId
   sellerAvatarsId    String?   @db.ObjectId
   coverShopId   String?        @db.ObjectId
 
-  coverShop   shops?        @relation(fields: [coverShopId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  sellerAvatar sellers?    @relation(fields: [sellerAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction) 
-  userAvatar    users?       @relation(fields: [userAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  products   product?       @relation(fields: [productId], references: [id])
+  coverShop     shops?      @relation(fields: [coverShopId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sellerAvatar  sellers?    @relation(fields: [sellerAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userAvatar    users?      @relation(fields: [userAvatarsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products      product?    @relation(fields: [productId], references: [id])
 
 }
 
@@ -38,7 +38,7 @@ model user {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  role          String    @default("user") 
+  role          String    @default("user")
   sessions      Session[]
   accounts      Account[]
 
@@ -69,13 +69,13 @@ model users {
   following   shop_followed[]
   avatar      images[]
   shopReviews shopReviews[]
-  analytics   userAnalytics? 
+  analytics   userAnalytics?
   order       Order[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("users")     
+  @@map("users")
 }
 
 model sellers {
@@ -97,12 +97,12 @@ model sellers {
   product      product[]
   productDiscounts productDiscount[]
   discount_codes   discount_codes[]
-  stripeOnboarded  Boolean  @default(false) 
+  stripeOnboarded  Boolean  @default(false)
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  @@map("sellers")   
+  @@map("sellers")
 }
 
 model Verification {
@@ -166,7 +166,7 @@ model shops {
   name          String
   category      String
   address       String
-  
+
   coverBanner   String?
   coverShop     images[]
   bio           String?
@@ -174,14 +174,14 @@ model shops {
   website       String?
   socialLinks   Json?
   ratings       Float?
-  reviews       shopReviews[] 
-  
-  sellerId     String  @unique @db.ObjectId  
+  reviews       shopReviews[]
+
+  sellerId     String  @unique @db.ObjectId
   seller       sellers @relation(fields: [sellerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-      
+
   products     product[]
   order        Order[]
-  followers    shop_followed[] 
+  followers    shop_followed[]
   analytics    productAnalytics[]
 
   createdAt  DateTime      @default(now())
@@ -190,12 +190,12 @@ model shops {
 
  model shop_followed {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String    @db.ObjectId   
+  userId          String    @db.ObjectId
   shopId          String    @db.ObjectId
 
   follower         users    @relation(fields: [userId], references: [id])
   following_shops  shops    @relation(fields: [shopId], references: [id])
-  @@unique([userId, shopId]) 
+  @@unique([userId, shopId])
  }
 
 enum SendingAddressType {
@@ -220,8 +220,8 @@ model address {
   country   String
   userId    String  @db.ObjectId
   user      users   @relation(fields: [userId], references: [id])
-  isDefault Boolean 
-  
+  isDefault Boolean
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -256,7 +256,7 @@ model productDiscount {
   seller         sellers        @relation(fields: [sellerId], references: [id])
   product        product        @relation(fields: [productId], references: [id])
   discountCode   discount_codes @relation(fields: [discountCodeId], references: [id])
-  
+
   @@unique([productId, discountCodeId])
 }
 
@@ -287,12 +287,12 @@ model product {
   category            String
   subCategory         String
   short_description   String
-  detailed_description String 
-  images              images[] 
+  detailed_description String
+  images              images[]
   tags                String[]
   colors              String[] @default([])
   sizes               String[] @default([])
-  
+
   video_url           String?
   brand               String?
   regularPrice        Float
@@ -303,11 +303,11 @@ model product {
   custom_specification Json?
   custom_property      Json?
   isDeleted            Boolean? @default(false)
-  cashOnDelivery       Boolean 
+  cashOnDelivery       Boolean
   cash_on_delivery     String?
   status               productStatus  @default(Active)
   analytics            productAnalytics?
-  totalSales           Int      @default(0) 
+  totalSales           Int      @default(0)
 
   shopId               String   @db.ObjectId
   Shop                 shops    @relation(fields: [shopId], references: [id])
@@ -317,11 +317,11 @@ model product {
 
   paymentStatus       PaymentStatus @default(UNPAID)
   paymentMethod       PaymentMethod?
-  
+
   // AI Assistance Patched Inconsistency
   discount_codes       productDiscount[]
   Order                OrderItem[]
-  
+
   // Meta
   createdAt           DateTime @default(now())
   starting_date       DateTime
@@ -335,7 +335,7 @@ model product {
   // ✅ Optimized  Compound indexes for common queries
   @@index([shopId, status])      // Shop + status filter
   @@index([category, status])     // Category + status
-  @@index([createdAt, status]) 
+  @@index([createdAt, status])
 }
 
 enum OrderStatus {
@@ -377,7 +377,7 @@ model Order {
   shippingAddress Json
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
+
   user          users     @relation(fields: [userId], references: [id])
   shop          shops     @relation(fields: [shopId], references: [id])
 }
@@ -393,7 +393,7 @@ model OrderItem {
   total     Float    // quantity * price
   size      String?
   color     String?
-  
+
   order     Order    @relation(fields: [orderId], references: [id])
   product   product  @relation(fields: [productId], references: [id])
 }
@@ -404,10 +404,10 @@ model userAnalytics {
   lastTrained   DateTime?
   country        String?
   city           String?
-  
+
   // extraFields —
   totalVisits    Int?     @default(1)
-  actions       Json     @default("[]")// ← updatedActions (array/object of user actions)
+  actions        Json     @default("[]")// ← updatedActions (array/object of user actions)
   pageViews      Json?    @default("[]")// { "/home": 5, "/product": 3 }
   device        String?  // mobile, desktop
   browser        String?
@@ -432,7 +432,7 @@ model productAnalytics {
   lastViewedAt  DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
   product       product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   shop          shops?    @relation(fields: [shopId], references: [id])
 

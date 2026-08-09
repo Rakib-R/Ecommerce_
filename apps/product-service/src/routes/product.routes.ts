@@ -1,17 +1,14 @@
-
-
-import express, { Router } from "express";
-import multer from "multer";
+import express, { Router } from 'express';
+import multer from 'multer';
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 import {
   createDiscountCodes,
   createProduct,
-
   deleteDiscountCode,
   deleteProduct,
   deleteProductImage,
@@ -26,58 +23,59 @@ import {
   getProductDetails,
   getShopProducts,
   getTopShops,
-
   restoreProduct,
   searchProducts,
-
   uploadProductImage,
   uploadSellerImage,
-  uploadShopImage
-
-} from "../controllers/product.controller";
-import { isAuthenticated } from "@packages/middleware";
+  uploadShopImage,
+} from '../controllers/product.controller';
+import { isAuthenticated } from '@packages/middleware';
 
 const router: Router = express.Router();
 
-router.get("/get-categories", getCategories);
+router.get('/get-categories', getCategories);
 
-router.post("/create-product", isAuthenticated, createProduct);
+router.post('/create-product', isAuthenticated, createProduct);
 
-router.delete("/delete-product-image", isAuthenticated, deleteProductImage);
+router.delete('/delete-product-image', isAuthenticated, deleteProductImage);
 
-router.post("/create-discount-code", isAuthenticated, createDiscountCodes);
+router.post('/create-discount-code', isAuthenticated, createDiscountCodes);
 
-router.get("/get-discount-codes", isAuthenticated, getDiscountCodes);
+router.get('/get-discount-codes', isAuthenticated, getDiscountCodes);
 
-router.post("/delete-discount-code/:id", isAuthenticated, deleteDiscountCode);
+router.post('/delete-discount-code/:id', isAuthenticated, deleteDiscountCode);
 
-router.post("/upload-product-image", isAuthenticated, upload.single("image"), uploadProductImage );
+router.post(
+  '/upload-product-image',
+  isAuthenticated,
+  upload.single('image'),
+  uploadProductImage
+);
 
-router.post("/upload-seller-image", upload.single("image"), uploadSellerImage);
+router.post('/upload-seller-image', upload.single('image'), uploadSellerImage);
 
-router.post("/upload-shop-image", upload.single("image"), uploadShopImage);
+router.post('/upload-shop-image', upload.single('image'), uploadShopImage);
 
-router.get('/get-shop-products', isAuthenticated, getShopProducts)
+router.get('/get-shop-products', isAuthenticated, getShopProducts);
 
-router.delete("/delete-product/:productId", isAuthenticated, deleteProduct); 
+router.delete('/delete-product/:productId', isAuthenticated, deleteProduct);
 
-router.put("/restore-product/:productId", isAuthenticated, restoreProduct);
+router.put('/restore-product/:productId', isAuthenticated, restoreProduct);
 
-router.get('/get-all-products', getAllProducts)
+router.get('/get-all-products', getAllProducts);
 
-router.get('/get-product/:slug', getProductDetails)
+router.get('/get-product/:slug', getProductDetails);
 
-router.get("/get-filtered-products", getFilteredProducts);
+router.get('/get-filtered-products', getFilteredProducts);
 
-router.get("/get-filtered-offers", getFilteredOffer);
+router.get('/get-filtered-offers', getFilteredOffer);
 
-router.get("/get-filtered-shops", getFilteredShops);
+router.get('/get-filtered-shops', getFilteredShops);
 
-router.get("/search-products", searchProducts);
+router.get('/search-products', searchProducts);
 
-router.get("/top-shops", getTopShops)
+router.get('/top-shops', getTopShops);
 
-router.get('/getEffectivePrice/:productId' , getEffectivePrice)
+router.get('/getEffectivePrice/:productId', getEffectivePrice);
 
 export default router;
-

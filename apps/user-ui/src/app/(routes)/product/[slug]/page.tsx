@@ -1,7 +1,6 @@
-
 import { Metadata } from 'next';
-import React from 'react'
-import ProductDetails_experimental from '../../../shared/modules/product/ProductDetailsCard_experimental';
+import React from 'react';
+import ProductDetails_experimental from '../../../shared/components/cards/ProductDetailsCard_experimental';
 import axiosInstance from '../../../utils/axios';
 
 async function fetchProductDetails(slug: string) {
@@ -10,38 +9,44 @@ async function fetchProductDetails(slug: string) {
 }
 
 export async function generateMetadata({
-  params}: { params: Promise<{ slug: string }>;  
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-
-  const { slug } = await params; 
+  const { slug } = await params;
   const product = await fetchProductDetails(slug);
 
   return {
-    title: `${product?.title} | Marketplace` ,
+    title: `${product?.title} | Marketplace`,
 
     openGraph: {
-    description: product?.short_description || "Discover high-quality products on Becodemy Marketplace.",
-    images: [product?.images?.[0]?.url || "/default-image.jpg"],
-    type: "website",
+      description:
+        product?.short_description ||
+        'Discover high-quality products on Becodemy Marketplace.',
+      images: [product?.images?.[0]?.url || '/default-image.jpg'],
+      type: 'website',
     },
-    
+
     twitter: {
-        card: "summary_large_image",
-        title: product?.title,
-        description: product?.short_description || "Discover high-quality products on Becodemy Marketplace.",
-        images: [product?.images?.[0]?.url || "/default-image.jpg"],
-        },
-    }
+      card: 'summary_large_image',
+      title: product?.title,
+      description:
+        product?.short_description ||
+        'Discover high-quality products on Becodemy Marketplace.',
+      images: [product?.images?.[0]?.url || '/default-image.jpg'],
+    },
+  };
 }
 
 const Page = async ({ params }: { params: Promise<{ slug: string }> }) => {
-  const { slug } = await params; 
+  const { slug } = await params;
   const productDetails = await fetchProductDetails(slug);
 
   return (
-  <main className=''>
-      <ProductDetails_experimental data={productDetails}/>
-  </main>)
+    <main className="">
+      <ProductDetails_experimental data={productDetails} />
+    </main>
+  );
 };
 
 export default Page;

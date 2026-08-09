@@ -1,14 +1,12 @@
+import type { Metadata } from 'next';
+import { Providers } from '@packages/utils';
 
-
-import type { Metadata } from "next"; 
-import { Providers } from "@packages/utils"
-
-import { Adamina, Poppins, Roboto } from "next/font/google";
+import { Adamina, Poppins, Roboto } from 'next/font/google';
 import './user-ui.css';
 
 import ClientLayout from './shared/widget/headerProvider';
 // --REACT SCAN---------------
-import Script from "next/script";
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Ecommerce_',
@@ -16,15 +14,15 @@ export const metadata: Metadata = {
 };
 
 const roboto = Roboto({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-roboto",
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-roboto',
 });
 
 const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["200", "700"],
-  variable: "--font-poppins",
+  subsets: ['latin'],
+  weight: ['200', '700'],
+  variable: '--font-poppins',
 });
 
 const adamina = Adamina({
@@ -38,7 +36,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html data-scroll-behavior="smooth" lang="en">
       <head>
@@ -48,13 +45,12 @@ export default async function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className={`${poppins.variable} ${roboto.variable} ${adamina.variable}`}>
+      <body
+        className={`${poppins.variable} ${roboto.variable} ${adamina.variable}`}
+        suppressHydrationWarning
+      >
         <Providers>
-          
-          <ClientLayout> 
-            {children}
-          </ClientLayout>
-          
+          <ClientLayout>{children}</ClientLayout>
         </Providers>
       </body>
     </html>

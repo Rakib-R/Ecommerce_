@@ -1,23 +1,5 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "main",
-  "tui": {
-    "enabled": false
-  },
-  "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": [
-      "default",
-      "!{projectRoot}/.eslintrc.json",
-      "!{projectRoot}/eslint.config.mjs",
-      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-      "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/jest.config.[jt]s",
-      "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
-    ],
-    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
-  },
   "nxCloudId": "699344f839aabe1d0607396f",
   "generators": {
     "@nx/js:library": {
@@ -36,6 +18,25 @@
       }
     }
   },
+  "defaultBase": "main",
+  "tui": {
+    "enabled": false
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.mjs",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s"
+    ],
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
+  },
+
   "plugins": [
     {
       "plugin": "@nx/next/plugin",
@@ -44,7 +45,7 @@
         "devTargetName": "dev",
         "startTargetName": "start"
       },
-    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
+      "exclude": ["packages/libs/prisma/src/lib/generated/**"]
     },
     {
       "plugin": "@nx/jest/plugin",
@@ -67,14 +68,14 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       },
-    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
+      "exclude": ["packages/libs/prisma/src/lib/generated/**"]
     },
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
       },
-    "exclude": ["packages/libs/prisma/src/lib/generated/**"]
+      "exclude": ["packages/libs/prisma/src/lib/generated/**"]
     }
   ],
   "targetDefaults": {

@@ -1,128 +1,146 @@
+import { Prisma } from '@packages/prisma';
+import { prisma } from '../lib/prisma';
+import { KafkaEvent } from '../main';
 
-import { prisma } from "../lib/prisma";
+interface UserAction {
+  productId: string;
+  shopId: string; // Added
+  action: string;
+  timestamp: Date;
+}
 
-export const updateUserAnalytics = async (event: any) => {
+export const updateUserAnalytics = async (event: KafkaEvent) => {
   try {
     const existingData = await prisma.userAnalytics.findUnique({
       where: {
-        userId: event.userId
+        userId: event.userId,
       },
-      select: {actions : true}
+      select: { actions: true },
     });
 
-let updatedActions:any = existingData?.actions || [];
-const actionExists = updatedActions.some((entry:any) => entry.productId === event.productId && entry.action === event.action)
+    let updatedActions = (existingData?.actions ||
+      []) as unknown as UserAction[];
+    const actionExists = updatedActions.some(
+      (entry: any) =>
+        entry.productId === event.productId && entry.action === event.action
+    );
 
-// Always store product_views for recommendations
-if (event.action === "product_view") {
-    updatedActions.push({
+    // Always store product_views for recommendations
+    if (event.action === 'product_view') {
+      updatedActions.push({
         productId: event.productId,
         shopId: event.shopId,
-        action: "product_view",
-        timestamp: new Date()
-    });
-    }
-    else if ( ["add_to_wishlist", "add_to_cart"].includes(event.action) && !actionExists) {
-    updatedActions.push({
-        productId : event?.productId,
-        shopId :    event.shopId,
-        action :    event?.action,
-        timeStamp: new Date() 
-    })
-    }  else if (event.action === "remove_from_cart") {
-        updatedActions = updatedActions.filter(
-            (entry: any) => 
-            !(entry.productId === event.productId && entry.action === "add_to_cart")
-        );
-    } else if (event.action === "remove_from_wishlist") {
-        updatedActions = updatedActions.filter(
-            (entry: any) => 
-            !(entry.productId === event.productId && entry.action === "add_to_wishlist")
-        );
+        action: 'product_view',
+        timestamp: new Date(),
+      });
+    } else if (
+      ['add_to_wishlist', 'add_to_cart'].includes(event.action) &&
+      !actionExists
+    ) {
+      updatedActions.push({
+        productId: event?.productId,
+        shopId: event.shopId,
+        action: event?.action,
+        timestamp: new Date(),
+      });
+    } else if (event.action === 'remove_from_cart') {
+      updatedActions = updatedActions.filter(
+        (entry: any) =>
+          !(
+            entry.productId === event.productId &&
+            entry.action === 'add_to_cart'
+          )
+      );
+    } else if (event.action === 'remove_from_wishlist') {
+      updatedActions = updatedActions.filter(
+        (entry: any) =>
+          !(
+            entry.productId === event.productId &&
+            entry.action === 'add_to_wishlist'
+          )
+      );
     }
 
     if (updatedActions.length > 50) {
-        updatedActions.shift();
+      updatedActions.shift();
     }
 
-    const extraFields: Record<string, any> = {};
+    const extraFields: Record<string, string> = {};
 
     if (event.country) {
-        extraFields.country = event.country;
+      extraFields.country = event.country;
     }
 
     if (event.city) {
-        extraFields.city = event.city;
+      extraFields.city = event.city;
     }
 
     if (event.device) {
-        extraFields.device = event.device;
+      extraFields.device = event.device;
     }
 
     await prisma.userAnalytics.upsert({
-        where: { userId: event.userId },
-        update: {
-            lastVisited: new Date(),
-            actions: updatedActions,
-            ...extraFields,
-        },
-        create: {
-            userId: event?.userId,
-            lastVisited: new Date(),
-            actions: updatedActions,
-            ...extraFields,
-        },
-     });
+      where: { userId: event.userId },
+      update: {
+        lastVisited: new Date(),
+        actions: updatedActions as unknown as Prisma.InputJsonValue,
+        ...extraFields,
+      },
+      create: {
+        userId: event?.userId,
+        lastVisited: new Date(),
+        actions: updatedActions as unknown as Prisma.InputJsonValue,
+        ...extraFields,
+      },
+    });
 
-    await updateProductAnalytics(event)
-
+    await updateProductAnalytics(event);
   } catch (error) {
-        console.error("Error updating user analytics:", error);
+    console.error('Error updating user analytics:', error);
   }
-}; 
+};
 
-export const updateProductAnalytics = async(event: any) => {
-    try {
+export const updateProductAnalytics = async (event: any) => {
+  try {
+    if (!event.productId) return;
+    const updateFields: any = {};
 
-        if (!event.productId) return;
-        const updateFields: any = {};
-        
-        if (event.action === "product_view") {
-            updateFields.views = { increment: 1 };
-        }
-        if (event.action === "add_to_cart") {
-            updateFields.cartAdds = { increment: 1 };
-        }
-        if (event.action === "add_to_wishlist") {
-            updateFields.wishListAdds = { increment: 1 };
-        }
+    if (event.action === 'product_view') {
+      updateFields.views = { increment: 1 };
+    }
+    if (event.action === 'add_to_cart') {
+      updateFields.cartAdds = { increment: 1 };
+    }
+    if (event.action === 'add_to_wishlist') {
+      updateFields.wishListAdds = { increment: 1 };
+    }
 
-        if (event.action === "remove_from_wishlist") {
-            updateFields.wishListAdds = { decrement: 1 };
-        }
+    if (event.action === 'remove_from_wishlist') {
+      updateFields.wishListAdds = { decrement: 1 };
+    }
 
-        if (event.action === "purchase") {
-            updateFields.purchases = { increment: 1 };
-        }
+    if (event.action === 'purchase') {
+      updateFields.purchases = { increment: 1 };
+    }
 
     // Update or create Product Analytics
     await prisma.productAnalytics.upsert({
-        where: { productId: event.productId },
-        update: {
-            lastViewedAt: new Date(),
-            ...updateFields,
-        },
-        create: {
-            productId: event.productId,
-            shopId: event.shopId || null,
-            views: event.action === "product_view" ? 1 : 0,
-            cartAdds: event.action === "add_to_cart" ? 1 : 0,
-            wishListAdds: event.action === "add_to_wishlist" ? 1 : 0,
-            purchases: event.action === "purchase" ? 1 : 0,
-            lastViewedAt: new Date(),
-        },
-        });
-    } catch (error) {
-        console.log('BEWARE! Kafka ERROR')
-    }
-}
+      where: { productId: event.productId },
+      update: {
+        lastViewedAt: new Date(),
+        ...updateFields,
+      },
+      create: {
+        productId: event.productId,
+        shopId: event.shopId || null,
+        views: event.action === 'product_view' ? 1 : 0,
+        cartAdds: event.action === 'add_to_cart' ? 1 : 0,
+        wishListAdds: event.action === 'add_to_wishlist' ? 1 : 0,
+        purchases: event.action === 'purchase' ? 1 : 0,
+        lastViewedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.log('BEWARE! Kafka ERROR');
+  }
+};

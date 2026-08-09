@@ -16,7 +16,7 @@ import useDeviceTracking from '../../../hooks/useDeviceTracking'
 
 import { ProductPayloadWithDetails, UserType } from '../../../../types';
 
-const ProductCard = ({product, isEvent} : {product: ProductPayloadWithDetails, isEvent?: boolean}) => { 
+const ProductCard = ({product, isEvent} : {product: ProductPayloadWithDetails, isEvent?: boolean}) => {
 
 const [timeLeft, setTimeLeft] = useState("")
 const [open, setOpen] = useState(false)
@@ -32,7 +32,7 @@ const isWishlisted = wishlist?.some((item) => item.id === product.id)
   const isInCart = cart?.some((item) => item.id === product.id)
   const setModalOpen = useStore((state) => state.setModalOpen)
 
-  const {user} = useUser() 
+  const {user} = useUser()
   const location = useLocationTracking()
   const deviceInfo = useDeviceTracking()
 
@@ -42,7 +42,7 @@ useEffect(() => {
     setModalOpen(open)           // ← syncs local `open` state → global store
     document.body.classList.toggle('overflow-hidden', open)
     return () => {
-      setModalOpen(false)      
+      setModalOpen(false)
       document.body.classList.remove('overflow-hidden')
     }
   }, [open])
@@ -51,7 +51,7 @@ useEffect(() => {
 useEffect(() => {
   // Only run if it's an event AND has ending_date
   if (!isEvent || !product?.ending_date) {
-    setTimeLeft(""); 
+    setTimeLeft("");
     return;
   }
 
@@ -67,7 +67,7 @@ useEffect(() => {
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      
+
       if (days > 0) {
         setTimeLeft(`${days}d ${hours}h left`);
       } else {
@@ -120,10 +120,10 @@ return(
         />
           {/* Action Icons - Moved to bottom for better UX */}
     <aside className='absolute bottom-3 right-2 flex gap-2'>
-      <button 
+      <button
         className="bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-shadow"
         aria-label="Add to wishlist">
-        <Heart 
+        <Heart
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -148,47 +148,47 @@ return(
             }
           }}
             stroke={isWishlisted ? 'red' : "#4B5563"}
-            className='cursor-pointer hover:scale-110 transition-transform' 
+            className='cursor-pointer hover:scale-110 transition-transform'
             size={16}
             fill={isWishlisted ? 'red' : 'transparent'}
         />
       </button>
 
-      <button 
+      <button
         className="bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-shadow"
         aria-label="Quick view"
         onClick={(e) => {
           e.preventDefault();
-          e.stopPropagation();      
+          e.stopPropagation();
           setOpen(!open)}
           }>
         <Eye className="cursor-pointer hover:scale-110 transition-transform" size={16}/>
       </button>
-      
-        <button 
+
+        <button
           className="bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-shadow"
           aria-label="Add to cart"
           onClick={(e) => {
             e.preventDefault();
-            e.stopPropagation();  
+            e.stopPropagation();
 
-            if (!baseUser) return; 
+            if (!baseUser) return;
              if (isInCart) {
     // Match the Object payload signature: { id, user, location, deviceInfo }
-              removeFromCart({ 
-              id: product.id, 
-                user: baseUser, 
-                location, 
-                deviceInfo 
+              removeFromCart({
+              id: product.id,
+                user: baseUser,
+                location,
+                deviceInfo
               });
             } else {
               // Match the Object payload signature: { product, user, location, deviceInfo }
-              addToCart({ 
-                product: product, 
+              addToCart({
+                product: product,
                 quantity : 1,
-                user: baseUser, 
-                location, 
-                deviceInfo 
+                user: baseUser,
+                location,
+                deviceInfo
               });
             }
           }}>
@@ -224,7 +224,7 @@ return(
       <div className="flex flex-col">
 
         <div className="flex items-center gap-2">
-        {product.salePrice ? 
+        {product.salePrice ?
         <>
           <span className="text-lg font-bold text-gray-900">
             ${product?.salePrice?.toFixed(2) || '0.00'}
@@ -234,12 +234,12 @@ return(
               ${product.regularPrice.toFixed(2)}
             </span>
           )}
-          </> :  
+          </> :
           <span className="text-lg font-bold text-gray-900">
             ${product?.regularPrice?.toFixed(2) || '0.00'}
           </span>
           }
-        
+
         </div>
         <span className="text-xs text-green-600 font-medium">
           {product?.totalSales || 0} sold

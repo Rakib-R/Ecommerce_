@@ -1,7 +1,9 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "ignoreDeprecations": "5.0",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "composite": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
