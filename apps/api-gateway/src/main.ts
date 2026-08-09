@@ -124,7 +124,7 @@ app.use(
       if (res.headersSent) {
         return next(err);
       }
-      res.status(503).json({ error: ' 🔴 Auth Service IS DDWN 🔴' });
+      res.status(503).json({ error: 'Auth Service is down' });
     },
   })
 );
@@ -139,7 +139,7 @@ app.use(
     },
     proxyReqOptDecorator: forwardCookies,
     proxyErrorHandler: (err, res, next) => {
-      console.error('Auth Service (non better auth) proxy error:', err.message);
+      console.error('Auth Service proxy error:', err.message);
       if (res.headersSent) {
         return next(err);
       }
