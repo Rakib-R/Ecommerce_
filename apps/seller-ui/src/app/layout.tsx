@@ -30,7 +30,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
+
     <html data-scroll-behavior="smooth" lang="en">
       <head>
         <link rel="preconnect" href="https://ik.imagekit.io" />
@@ -47,7 +49,10 @@ export default function RootLayout({
         className={`min-h-screen font-sans antialiased ${poppins.variable} ${shadowsIntoLight.variable}`}
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+
+        <Providers>
+            { children}
+        </Providers>
       </body>
     </html>
   );

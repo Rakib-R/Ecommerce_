@@ -15,7 +15,7 @@ import { BellPlus, BellRing, CalendarPlus, CreditCard, Home, ListOrdered, LogOut
 import SidebarMenu from './sidebar.menu';
 import axiosInstance from '../../../utils/axiosInstance';
 import { useAuthState } from '../../../store/authStore';
-import { queryClient } from "@packages/utils";
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 const SideBarWrapper = () => {
@@ -31,6 +31,8 @@ const SideBarWrapper = () => {
   const handleLogout = async () => {
     await axiosInstance.post('/api/logout');
     useAuthState.getState().logout();
+    const queryClient = useQueryClient();
+
     queryClient.setQueryData(['seller'], null);
     router.push("/seller-login");
   };
@@ -69,11 +71,11 @@ const SideBarWrapper = () => {
       isActive={activeSidebar === "/dashboard"}
       href='/dashboard'
       className="transition-all duration-2000 ring-1 ring-red-500 mt-4 p-1"
-    /> 
+    />
   <section className="block py-1">
     <SidebarMenu title="Main Menu">
       <SidebarItem
-        isActive={activeSidebar === "/orders"}
+        isActive={activeSidebar === "/dashboard/orders"}
         title="Orders"
         href="/orders"
         icon={
@@ -84,14 +86,14 @@ const SideBarWrapper = () => {
         }
       />
       <SidebarItem
-          isActive={activeSidebar === "/payments"}
+          isActive={activeSidebar === "/dashboard/payments"}
           title="Payments"
           href="/payments" icon={
             <CreditCard />
-          }      
+          }
           />
     </SidebarMenu>
-      
+
     <SidebarMenu title="Products">
         <SidebarItem
           isActive={activeSidebar === "/dashboard/create-product"}
@@ -138,7 +140,7 @@ const SideBarWrapper = () => {
           }
         />
       </SidebarMenu>
-       
+
       <SidebarMenu title="Controllers">
         <SidebarItem
             isActive={activeSidebar === "/dashboard/inbox"}

@@ -1,11 +1,12 @@
 // apps/auth-service/src/auth/index.ts
 import dotenv from 'dotenv';
 import path from 'path';
-import {
-  betterAuth,
-  GenericEndpointContext,
-  HookEndpointContext,
-} from 'better-auth';
+import { betterAuth } from 'better-auth/minimal';
+// import type {
+//   GenericEndpointContext,
+//   HookEndpointContext,
+// } from '@better-auth/core';
+
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { prisma } from '@packages/prisma';
 import { jwt } from 'better-auth/plugins';
@@ -14,7 +15,6 @@ import { emailOTP } from 'better-auth/plugins';
 import { twoFactor } from 'better-auth/plugins/two-factor';
 import { sellerSignUpSchema, userSignUpSchema } from '../schema/signUpSchema';
 
-import { dash } from '@better-auth/infra';
 import type { AppUserInput } from './types';
 import { sendEmail } from '../utils/sendMail';
 import { hashPassword, verifyPassword } from '../utils/hashPassword';
@@ -86,7 +86,6 @@ const authOptions = {
     jwt(),
     twoFactor(),
     // isDevelopment ? [dash({ apiKey: process.env.BETTER_AUTH_API_KEY })] : ([] as const),
-    dash(),
 
     emailOTP({
       // CRITICAL: Tells Better Auth NOT to route core sign-up verification through OTP
@@ -97,22 +96,7 @@ const authOptions = {
         verifyCurrentEmail: true,
       },
       sendVerificationOnSignUp: false,
-      async sendVerificationOTP(
-        {
-          email,
-          otp,
-          type,
-        }: {
-          email: string;
-          otp: string;
-          type:
-            | 'sign-in'
-            | 'email-verification'
-            | 'forget-password'
-            | 'change-email';
-        },
-        ctx?: GenericEndpointContext
-      ): Promise<void> {
+      async sendVerificationOTP({ email, otp, type }, ctx?): Promise<void> {
         try {
           let subject = '';
           let templateName = '';
@@ -173,6 +157,9 @@ const authOptions = {
     }),
   ],
   session: {
+    cookieCache: {
+      enabled: true,
+    },
     modelName: 'session',
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
@@ -202,54 +189,17 @@ const authOptions = {
 
   databaseHooks: {
     user: {
-<<<<<<< HEAD
       create: {
-        before: async (user, ctx: HookEndpointContext | null) => {
-          console.log(
-            '🔎 FULL CTX KEYS:',
-            ctx ? Object.keys(ctx) : 'ctx is null'
-          );
+        before: async (user, ctx) => {
           console.log(
             '🔎 CTX.CONTEXT KEYS:',
             ctx?.context
               ? Object.keys(ctx.context)
               : 'ctx.context is null/undefined'
           );
-          console.log(
-            '🔎 RAW CTX:',
-            JSON.stringify(ctx, null, 2)?.slice(0, 2000)
-          );
-=======
-        fields: { image: "image" },
-        additionalFields: {
-            isAgreedToTerms: {
-                type: "boolean",
-                required: true,
-                input: true,
-         },
-            role: { 
-                type: "string", 
-                required: true, defaultValue: "user", 
-                input: true 
-            },
-           phone_number: { type: "string", required: false, input: true },
-           country: { type: "string", required: false, input: true }
-        }
-    },
-    
-    databaseHooks: {
-            user: {
-            create: {
-                before: async  (user, ctx) => {
-                const body = (ctx?.context.body ?? {}) as any;
-              
-                if (ctx?.path === "/sign-up/email") {
-                //todo 1. Better Auth automatically handles the "Email already exists" check.
->>>>>>> 9744e8e22b789996b94156049ff05144cc0972e5
 
           const body = ctx?.body ?? {};
 
-<<<<<<< HEAD
           if (ctx?.path === '/sign-up/email') {
             //todo 1. Better Auth automatically handles the "Email already exists" check.
 
@@ -275,14 +225,6 @@ const authOptions = {
                   message: parsed.error.issues[0].message,
                 });
               }
-=======
-                else{
-                    const parsed = signUpSchema.safeParse(body);
-                    if (!parsed.success) {
-                        throw new APIError("BAD_REQUEST", { message: parsed.error.issues[0].message });
-                    }
-                }
->>>>>>> 9744e8e22b789996b94156049ff05144cc0972e5
             }
           }
 
@@ -292,76 +234,13 @@ const authOptions = {
               ...user,
               role: userWithExtras.role ?? 'user',
             },
-<<<<<<< HEAD
           };
-=======
-
-            after: async (user, ctx) => {
-
-                if (!user || !user.id) return;
-                const { phone_number, country, avatar  } = ctx?.context.body || {};
-
-                if (user.role === "seller") {
-                    await prisma.sellers.create({
-                    data: {
-                        authId: user.id,
-                        email: user.email,
-                        name: user.name,
-                        phone_number: phone_number || "",
-                        country: country || "",
-                    },
-                    });
-
-                } else {
-                    await prisma.users.create({
-                    data: {
-                        authId: user.id,
-                        email: user.email,
-                        name: user.name,
-                    },
-                    });
-                }
-                },
-            },
-
-            // 🔵 2. The Core Update Block
-            update: {
-                after: async (user) => {
-                
-                if (user.emailVerified) {
-                    if (user.role === "seller") {
-                    // Sync 'emailVerified' to your custom decoupled sellers table
-                    await prisma.sellers.update({
-                        where: { authId: user.id },
-                        data: { emailVerified: true },
-                    });
-                    } else {
-                    // Sync 'emailVerified' to your custom decoupled application users table
-                    await prisma.users.update({
-                        where: { authId: user.id },
-                        data: { emailVerified: true },
-                    });
-                    }
-                }
-                },
-            },
-         }, 
-
-},
-    account: { modelName: "account" },
-    verification: { modelName: "verification" },
-  
-    advanced: {
-         database: {
-            generateId: false, // 🛑 Tells Better Auth NOT to pre-generate string IDs
->>>>>>> 9744e8e22b789996b94156049ff05144cc0972e5
         },
 
         after: async (user, ctx) => {
           if (!user || !user.id) return;
           // 🔧 FIXED: previously this destructured phone_number/country/avatar
-          // from ctx.context.body and used them for BOTH branches, but only
-
+          // from ctx.context.body and used them for BOTH branches, but now
           // got phone_number/country/avatar persisted into your decoupled
           const { phone_number, country, avatarFileId, avatarFileUrl } =
             (ctx?.body as {

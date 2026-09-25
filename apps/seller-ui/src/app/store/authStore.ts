@@ -14,12 +14,12 @@ interface AuthState {
   seller: Seller | null;
   setSeller: (seller: Seller | null) => void;
   logout: () => void;
-  
+
   // Temp email for registration flow
   tempEmail: string | null;
   setTempEmail: (email: string | null) => void;
   clearTempEmail: () => void;
-  
+
   // Logout handler with redirect
   handleLogout: () => void;
 }
@@ -27,44 +27,42 @@ interface AuthState {
 export const useAuthState = create<AuthState>()(
   persist(
     (set) => ({
-      // User state
+      // Seller state
       seller: null,
       setSeller: (seller) => set({ seller }),
       logout: () => {
         set({ seller: null, tempEmail: null });
-        // Clear any other auth-related state
       },
 
       // Temp email
       tempEmail: null,
       setTempEmail: (email) => set({ tempEmail: email }),
       clearTempEmail: () => set({ tempEmail: null }),
-      
+
       // Logout handler with redirect
       handleLogout: () => {
-        // Clear all auth state
         set({ seller: null, tempEmail: null });
-        
+
         // Remove persisted storage
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth-storage');
+          localStorage.removeItem('seller-storage');
         }
-        
+
         // Redirect to login if not already there
-        if (typeof globalThis.window !== "undefined") {
+        if (typeof globalThis.window !== 'undefined') {
           const location = globalThis.window.location;
-          if (location.pathname !== "/seller-login") {
-            location.href = "/seller-login";
+          if (location.pathname !== '/seller-login') {
+            location.href = '/seller-login';
           }
         }
       },
     }),
     {
-      name: 'auth-storage', // localStorage key
+      name: 'seller-storage', // localStorage key
       // Only persist specific fields
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         seller: state.seller,
-        tempEmail: state.tempEmail 
+        tempEmail: state.tempEmail,
       }),
     }
   )

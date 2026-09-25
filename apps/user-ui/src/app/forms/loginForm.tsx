@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'; // Added useEffect
+import React, { useEffect, useState } from 'react'; // Added useEffect
 import { useForm } from 'react-hook-form';
 import GoogleButton from '../shared/components/google-button';
 
@@ -42,6 +42,15 @@ const Login = () => {
     formState: { errors },
   } = useForm<FormData>();
 
+    // Pre-fill email if remembered
+    useEffect(() => {
+      const rememberedEmail = localStorage.getItem('rememberedUserEmail');
+      if (rememberedEmail) {
+        setValue('email', rememberedEmail);
+        setRememberMe(true);
+      }
+    }, [setValue]);
+
   const onSubmit = async (data: FormData) => {
     setServerError(null);
     loginMutation.mutate(data);
@@ -66,7 +75,6 @@ const Login = () => {
         emailVerified: session.user.emailVerified,
         createdAt: session.user.createdAt,
         updatedAt: session.user.updatedAt,
-        isAgreedToTerms: session.user.isAgreedToTerms,
         avatar: session.user.image
           ? [
               {
@@ -98,9 +106,9 @@ const Login = () => {
       });
 
       if (rememberMe) {
-        localStorage.setItem('rememberedEmail', data?.user?.email || '');
+        localStorage.setItem('rememberedUserEmail', data?.user?.email || '');
       } else {
-        localStorage.removeItem('rememberedEmail');
+        localStorage.removeItem('rememberedUserEmail');
       }
       router.replace('/home');
     },

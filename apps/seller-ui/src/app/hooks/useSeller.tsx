@@ -1,49 +1,17 @@
+'use client';
 
-
-import {useQuery} from '@tanstack/react-query';
-import axiosInstance from "../utils/axiosInstance"
-import { useEffect, useState } from 'react';
+import { authClient } from "../configs/auth-client";
 import { SellerType } from '../../types';
 
-interface ApiResponse {
-  seller: SellerType; 
+export default function useSeller() {
+  const { data: session, isPending, error } = authClient.useSession();
+
+  const isSeller = session?.user?.role === 'seller';
+
+  return {
+    seller: isSeller ? (session?.user as unknown as SellerType) : null,
+    isLoading: isPending,
+    error: error || null,
+    isAuthenticated: !!session && isSeller,
+  };
 }
-
-// fetch user data from API
-const fetchSeller = async () => {
-  try {
-    const response = await axiosInstance.get<ApiResponse>("/api/logged-in-seller");
-    return response.data.seller ?? null;  // ✅ never return undefined
-  } catch (error: any) {
-    if (error?.response?.status === 401) {
-      return null;  //! Unauthenticated = null, not undefined and NOT ERROR
-    }
-    throw error; 
-  }
-};
-
-const useSeller = () => {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const { data: seller, isLoading, isError, refetch } = useQuery({
-    queryKey: ["seller"],
-    queryFn: fetchSeller,
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
-    enabled: mounted,
-});
-
-  if (!mounted) {
-    return { seller: null, isLoading: true, isError: false, refetch: () => Promise.resolve(null as any) 
-     }
-
-   };
-
-    return { seller: seller ?? null, isLoading, isError, refetch };
-
-}
-export default useSeller

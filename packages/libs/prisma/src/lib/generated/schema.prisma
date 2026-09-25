@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX  
+  provider = "prisma-client-js" //!!  NUCLEAR FIX     NUCLEAR FIX    NUCLEAR FIX    NUCLEAR FIX
 
   output        = "../src/lib/generated"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-1.1.x"]

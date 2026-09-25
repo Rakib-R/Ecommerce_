@@ -12,6 +12,9 @@
     "@packages/imagekit": "workspace:*",
     "@packages/prisma": "workspace:*",
     "@packages/redis": "workspace:*",
-    "@prisma/client": "6.5.0"
+    "@prisma/client": "6.5.0",
+    "cookie-parser": "^1.4.7",
+    "dompurify": "3.4.16",
+    "isomorphic-dompurify": "4.3.0"
   }
 }

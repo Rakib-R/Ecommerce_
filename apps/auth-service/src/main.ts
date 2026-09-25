@@ -76,7 +76,7 @@ app.get('/auth/docs-json', (req, res) => {
 });
 
 // ─── Auth Routes ─────────────────────────────────────────────────────────────
-// app.use('/auth', router);
+// app.use('/auth', router);  ---- USING BETTERAUTH !
 
 // ─── Global Error Handler (always last) ──────────────────────────────────────
 app.use(errorMiddleware);

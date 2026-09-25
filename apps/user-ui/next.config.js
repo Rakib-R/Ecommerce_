@@ -16,19 +16,9 @@ const nextConfig = {
   // ✅ ADD THIS SECTION to suppress hydration warnings
   /** @param {any} error */
   // todo USE Suppression Hydration in Layout.jsx for -> cz-shortcut-listen
-<<<<<<< HEAD
 
   experimental: {
     optimizePackageImports: ['lucide-react', '@tanstack/react-query'],
-=======
-  
-  experimental: {
-
-    optimizePackageImports: [
-      'lucide-react',
-      '@tanstack/react-query',
-    ],
->>>>>>> 9744e8e22b789996b94156049ff05144cc0972e5
   },
 
   images: {
@@ -64,15 +54,15 @@ const nextConfig = {
         stream: false,
         buffer: false,
       };
-      //Claude Added over Gemini Fix
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'node:crypto': false,
-        'node:stream': false,
-        'node:buffer': false,
-        kysely: false,
-        '@better-auth/kysely-adapter': false,
-      };
+      //Claude Added over Gemini Fix I DONOT EVEN NEED TO SHUT DOWN KYSELY. I WILL IMPORT BETTER-AUTH/MINIMUL
+      // config.resolve.alias = {
+      //   ...config.resolve.alias,
+      //   'node:crypto': false,
+      //   'node:stream': false,
+      //   'node:buffer': false,
+      //   kysely: false,
+      //   '@better-auth/kysely-adapter': false,
+      // };
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         cacheGroups: {

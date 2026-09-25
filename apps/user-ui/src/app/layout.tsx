@@ -5,6 +5,7 @@ import { Adamina, Poppins, Roboto } from 'next/font/google';
 import './user-ui.css';
 
 import ClientLayout from './shared/widget/headerProvider';
+
 // --REACT SCAN---------------
 import Script from 'next/script';
 
@@ -36,6 +37,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+
+
   return (
     <html data-scroll-behavior="smooth" lang="en">
       <head>

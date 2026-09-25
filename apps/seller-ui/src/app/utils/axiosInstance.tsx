@@ -5,7 +5,7 @@ import { queryClient } from '@packages/utils';
 // 1. Primary instance for general app traffic
 const axiosInstance = axios.create({
    baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
-   withCredentials: true, 
+   withCredentials: true,
 });
 
 // 2. ISOLATED instance used strictly for token renewals
@@ -32,7 +32,11 @@ const onRefreshFailure = () => {
 };
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // 🟢 SUCCESS: This does NOT trigger on errors.
+    // originalRequest is not used here because the request succeeded.
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -43,20 +47,21 @@ axiosInstance.interceptors.response.use(
 
     // Standard public auth routes to skip intercepting entirely
     const skipRefreshRoutes = [
-      '/api/home', '/api/seller-registration', '/api/register-user',
+      '/api/home','/api/admin',
+       '/api/seller-registration', '/api/user-registration',
+      '/api/seller-signup',
+      '/api/seller-login',
       '/api/login',
       '/api/signup',
-      '/api/seller-login',
-      '/api/seller-signup', '/api/admin',
       '/api/forgot-password-user', '/api/forgot-password-seller',
     ];
 
-    const isAuthRoute = skipRefreshRoutes.some(r => 
+    const isAuthRoute = skipRefreshRoutes.some(r =>
         originalRequest.url?.includes(r)
     );
 
     if (isAuthRoute) {
-      return Promise.reject(error); 
+      return Promise.reject(error);
     }
 
     // Don't retry the refresh endpoint itself to prevent infinite loops
@@ -84,7 +89,7 @@ axiosInstance.interceptors.response.use(
                   config: originalRequest
                 });
               } else {
-                reject(new Error('Token refresh failed'));
+                reject(error);
               }
             }
           })
@@ -97,20 +102,20 @@ axiosInstance.interceptors.response.use(
       try {
         // Use the clean, isolated refreshClient here
         await refreshClient.post(`/api/refreshToken_User`);
-        
+
         isRefreshing = false;
         onRefreshSuccess();
 
         // Sync local React Query state
         queryClient.invalidateQueries({ queryKey: ['seller'] });
-        
+
         // Re-run original request with fresh cookies
         return axiosInstance(originalRequest);
-      }  
+      }
       catch (err: any) {
         isRefreshing = false;
-        onRefreshFailure(); 
-        
+        onRefreshFailure();
+
         // CRITICAL FIX: If the session checking route caused this, don't force logout state.
         // Just return the clean fallback null payload.
         if (originalRequest.url?.includes('/api/logged-in-seller')) {
@@ -127,11 +132,11 @@ axiosInstance.interceptors.response.use(
         // If a regular application endpoint (like /api/products) hits a dead refresh token, force logout.
         useAuthState.getState().handleLogout();
         queryClient.setQueryData(['seller'], null);
-        
+
         return Promise.reject(err);
       }
     }
-    
+
     // Fallback if a request fails a second time even after a retry attempt
     if (originalRequest.url?.includes('/api/logged-in-seller')) {
       return Promise.resolve({
