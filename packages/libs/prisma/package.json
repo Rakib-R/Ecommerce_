@@ -4,6 +4,7 @@
   "private": true,
   "type": "commonjs",
   "rootDir": "./src",
+  "allowJs": true,
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "dependencies": {

@@ -6,7 +6,6 @@
   "main": "./index.js",
   "dependencies": {
     "@packages/prisma": "workspace:*",
-    "@prisma/client": "6.5.0",
     "kafkajs": "^2.2.4",
     "tslib": "^2.3.0"
   }

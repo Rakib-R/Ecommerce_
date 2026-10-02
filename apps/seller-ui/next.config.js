@@ -7,7 +7,7 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
 
-  reactStrictMode: false,
+  reactStrictMode: true,
   nx: {
     svgr: false,
   },

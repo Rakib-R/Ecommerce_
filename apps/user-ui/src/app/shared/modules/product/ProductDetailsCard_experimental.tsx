@@ -29,7 +29,7 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
     const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '')
     const [quantity, setQuantity]             = useState(1)
     const [priceRange] = useState([data?.salePrice ?? 0, 1200])
-    const [recommendedProducts, setRecommendedProducts] = useState([]);
+    const [recommendedProducts, setRecommendedProducts] = useState<ProductPayloadWithDetails[]>([]);
     const [currentIndex, setCurrentIndex]     =         useState<number>(0);  
     const [currentImage, setCurrentImage] = useState<imageType | undefined>(data?.images?.[0])
 
@@ -98,22 +98,20 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
         query.set("limit", "5");
         
         const res = await axiosInstance.get(`/product/api/get-filtered-products?${query.toString()}`);
-        // 1. Get the current product's ID string checking both formats
-        const currentId = String(data?.id || data?._id || "");
+        const currentId = String(data?.id );
 
         // 2. Filter out the current product (handles id and _id variations)
         const filteredList = res.data.products.filter((item: ProductPayload) => {
-            const itemId = String(item?.id || item?._id || "");
+            const itemId = String(item?.id);
             return itemId !== currentId;
         });
         // 3. FORCE deduplication in case the API response returned identical duplicates
         const uniqueProducts = filteredList.filter(
-            (product: any, index: number, self: any[]) => {
-                const pId = String(product?.id || product?._id || "");
-                return index === self.findIndex((p) => String(p?.id || p?._id || "") === pId);
+            (product: ProductPayloadWithDetails, index: number, self: any[]) => {
+                const pId = String(product?.id );
+                return index === self.findIndex((p) => String(p?.id ) === pId);
             }
         );
-        
         setRecommendedProducts(uniqueProducts);
     
     } catch (error) {
@@ -126,8 +124,6 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
         fetchFilteredProducts();
         // return
     },[priceRange])
-
-    if (!data) return null
 
     return (
         <>
@@ -623,10 +619,10 @@ const ProductDetailsCard = ({ data}: { data: ProductPayloadWithDetails}) => {
                     <aside>
                         <div className="container mx-auto px-4 py-8">
                         <h3 className="my-8 text-3xl font-medium text-cyan-800 text-center">You May Also Like</h3>
-                        
+            
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {recommendedProducts.map((product) => (
-                            <ProductCard key={data.id} product={product} />
+                            <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
                         </div>

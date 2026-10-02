@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
       "Unknown";
 
        if (!country || country === "Unknown") {
+
     try {
       const response = await fetch("https://ipinfo.io", {
         headers: { "Authorization": "Bearer 2e25ffaadd8bfe" }
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
         browser: result.browser,
       }
     });
-  } catch (error) {
+  } catch (error : unknown) {
     return NextResponse.json(    { 
         success: false, 
         error: "Failed to parse user agent",

@@ -5,7 +5,6 @@
   "main": "./src/main.ts",
   "dependencies": {
     "@packages/kafka": "workspace:*",
-    "@packages/prisma": "workspace:*",
-    "@prisma/client": "6.5.0"
+    "@packages/prisma": "workspace:*"
   }
 }

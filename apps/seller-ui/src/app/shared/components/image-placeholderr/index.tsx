@@ -100,8 +100,7 @@ const ImagePlaceholder = ({
   return (
     <div
       className={`relative ${small ? "h-[180px]" : "h-[400px]"} w-full bg-zinc-900 cursor-pointer 
-        border border-gray-600 flex rounded-lg items-center overflow-hidden`}
-    >
+        border border-gray-600 flex rounded-lg items-center overflow-hidden`}>
       <input
         type="file"
         accept="image/*"

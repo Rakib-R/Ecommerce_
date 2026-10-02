@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@prisma/client": "6.5.0",
-    "@ecommerce/utils": "workspace:*"
+    "better-auth": "latest",
+    "framer-motion": "13.5.0",
+    "lucide-react": "1.49.0",
+    "zod": "4.6.5",
+    "zustand": "5.0.15"
   }
 }

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "jsx": "preserve",
     "strict": true,
     "noEmit": true,
@@ -25,7 +25,9 @@
         "name": "next"
       }
     ],
-    "tsBuildInfoFile": ".tsbuildinfo"
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "target": "ES2017",
+    "skipLibCheck": true
   },
   "include": [
     "**/*.js",

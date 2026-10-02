@@ -2,16 +2,17 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "module": "esnext",
-    "ignoreDeprecations": "5.0",
+    "module": "preserve",
+    "ignoreDeprecations": "6.0",
 
     "declaration": true,
     "declarationMap": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "outDir": "../../dist/packages/error-handler",
     "rootDir": "./src",
     "target": "ES2019"
   },
+  "references": [{ "path": "../auth-types" }],
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }

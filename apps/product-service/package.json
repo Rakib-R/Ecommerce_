@@ -12,6 +12,14 @@
     "@packages/imagekit": "workspace:*",
     "@packages/prisma": "workspace:*",
     "@packages/redis": "workspace:*",
-    "@prisma/client": "6.5.0"
+    "add": "2.0.9",
+    "dompurify": "3.4.16",
+    "multer": "2.1.1",
+    "sanitize-html": "2.18.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/multer": "2.2.0",
+    "@types/sanitize-html": "2.16.2"
   }
 }

@@ -1,3 +1,1 @@
-
-
-export { default as redis } from './lib/redis';
+export * from './lib/redis';

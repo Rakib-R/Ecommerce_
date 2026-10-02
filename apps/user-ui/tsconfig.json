@@ -24,7 +24,9 @@
         "name": "next"
       }
     ],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "target": "ES2017",
+    "skipLibCheck": true
   },
   "include": [
     "**/*.js",

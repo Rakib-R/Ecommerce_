@@ -3,38 +3,36 @@
   "compilerOptions": {
     "rootDir": ".",
     "sourceMap": true,
-    "declaration": false,
-
-    /* Modern Bundler Settings */
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "target": "es2022",
-    "lib": ["es2022", "dom", "dom.iterable"],
-
-    /* Interop & Safety */
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-
-    /* Decorators (Keep if your Nx libs require them) */
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
 
+    "allowJs": true,
+    "declaration": false,
+
     "baseUrl": ".",
     "paths": {
-      "@apps/utils": ["apps/utils/index.ts"],
-      "@apps/utils/*": ["apps/utils/*"],
-      "@packages/error-handler": ["packages/error-handler/src/index.ts"],
-      "@packages/kafka": ["packages/utils/kafka/index.ts"],
-      "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
-      "@packages/components": ["packages/components"],
-      "@packages/redis": ["packages/libs/redis/src/index.ts"],
-      "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
-      "@packages/utils": ["packages/utils/src/index.ts"],
+      "@app/auth-types": ["apps/auth-service/src/auth/index.ts"],
       "@seller-ui/*": ["apps/seller-ui/src/*"],
-      "@user-ui/*": ["apps/user-ui/src/*"]
+      "@user-ui/*": ["apps/user-ui/src/*"],
+      "@packages/auth-types": ["packages/auth-types/src/lib/auth-types.ts"],
+
+      "@packages/error-handler": ["packages/error-handler/src/index.ts"],
+      "@packages/validationError": ["packages/error-handler/src/index.ts"],
+      "@packages/NotFoundError": ["packages/error-handler/src/index.ts"],
+      "@packages/ForbiddenError": ["packages/error-handler/src/index.ts"],
+      "@packages/AuthError": ["packages/error-handler/src/index.ts"],
+
+      "@packages/imagekit": ["packages/libs/imagekit/src/index.ts"],
+      "@packages/kafka": ["packages/utils/kafka/index.ts"],
+      "@packages/middleware": ["packages/middleware/src/index.ts"],
+      "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
+      "@packages/components": ["packages/components/index.ts"],
+      "@packages/redis": ["packages/libs/redis/src/index.ts"],
+      "@packages/utils": ["packages/utils/src/index.tsx"]
     }
   },
   "exclude": ["node_modules", "tmp"],

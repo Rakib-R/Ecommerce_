@@ -12,9 +12,18 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
+        "externalDependencies": [
+          "express",
+          "cors",
+          "helmet",
+          "morgan",
+          "cookie-parser",
+          "express-rate-limit",
+          "express-http-proxy"
+        ],
         "outputPath": "dist/apps/api-gateway",
         "main": "apps/api-gateway/src/main.ts",
-        
+
         "tsConfig": "apps/api-gateway/tsconfig.app.json",
         "webpackConfig": "apps/api-gateway/webpack.config.js",
 
@@ -40,19 +49,16 @@
         "runtimeArgs": ["--env-file=.env"],
         "inspect": false,
         "runBuildTargetDependencies": false,
-          "watch": false
-
+        "watch": false
       },
       "configurations": {
         "development": {
           "buildTarget": "api-gateway:build:development",
           "watch": false
-
         },
         "production": {
           "buildTarget": "api-gateway:build:production",
           "watch": false
-
         }
       }
     },

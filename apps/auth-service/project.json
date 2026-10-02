@@ -6,9 +6,19 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "options": { 
+      "options": {
         "outputPath": "dist/apps/auth-service",
         "main": "apps/auth-service/src/main.ts",
+        "externalDependencies": [
+          "express",
+          "cors",
+          "helmet",
+          "morgan",
+          "cookie-parser",
+          "express-rate-limit",
+          "express-http-proxy"
+        ],
+
         "tsConfig": "apps/auth-service/tsconfig.app.json",
         "webpackConfig": "apps/auth-service/webpack.config.js",
         "target": "node",

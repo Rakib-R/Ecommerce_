@@ -1,14 +1,13 @@
 
 'use client';
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryClient } from "apps/utils/queryClient";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus, Trash, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Controller, useForm } from "react-hook-form";
-import Input from "packages/components/input";
+import {Input} from "@packages/components";
 import { AxiosError } from "axios";
 import DeleteDiscountCodeModal from "../../../shared/components/modals/delete-discount-codes";
 import axiosInstance from "../../../utils/axiosInstance";
@@ -22,10 +21,11 @@ interface DiscountFormValues {
 
 const Page = () => {
 
-  const [showModal, setShowModal] = useState<Boolean>(false);
-  const [showDeleteModal, setShowDeleteModal] = useState<Boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [selectedDiscount, setSelectedDiscount] = useState<any>();
 
+  const queryClient = useQueryClient();
  const { data: discountCodes = [], isLoading } = useQuery<DiscountFormValues[]>({
   queryKey: ["shop-discounts"],
   queryFn: async () => {
@@ -45,7 +45,7 @@ const Page = () => {
     return;
   }
   createDiscountCodeMutation.mutate(data);
-};  
+};
 
 const {
   register, handleSubmit, control, reset, watch, formState: { errors }, } = useForm<DiscountFormValues>({
@@ -94,14 +94,14 @@ const {
         <h2 className="text-2xl text-white font-semibold">
           Discount Codes
         </h2>
-        
+
         <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             onClick={() => setShowModal(true)}>
           <Plus size={20} />
           <span>Create Discount</span>
         </button>
       </section>
-      
+
       {/* Breadcrumbs */}
     <div className="flex items-center gap-2 text-sm text-white mb-6">
         <Link href="/dashboard" className="hover:text-white transition-colors cursor-pointer">
@@ -110,7 +110,7 @@ const {
         <ChevronRight size={14} />
         <span className="text-white font-medium">Discount Codes</span>
     </div>
-      
+
       <div className="mt-8 p-3 bg-[#1a1c1e] rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">
           Your Discount Codes
@@ -159,7 +159,7 @@ const {
               <Trash size={18} />
             </button>
           </td>
-          
+
           </tr>
         ))}
       </tbody>
@@ -168,10 +168,10 @@ const {
         {!isLoading && discountCodes?.length === 0 && (
         <p className="text-gray-400 w-full pt-5 block text-center">
           No Discount Codes Available!
-        </p>  
+        </p>
       )}
       </div>
-      {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}   
+      {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}  {/* DISCOUNT MODAL */}
 
             {showModal && (
                 <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
@@ -208,10 +208,10 @@ const {
                         {/* Discount Type */}
                         <div className="mt-2">
                           <label className="text-sm text-gray-400">Discount Type</label>
-                          <Controller 
+                          <Controller
                             control={control}
                             name="discountType"
-                          render={({}) => ( 
+                          render={() => (
                               <select
                               {...register("discountType")}
                               className="w-full bg-gray-800 text-white p-2 rounded-lg mt-1">
@@ -227,7 +227,7 @@ const {
                               label="Discount Value"
                               type="number"
                               min={1}
-                              {...register("discountValue", { 
+                              {...register("discountValue", {
                                 required: "Value is required",
                                 min: { value: 1, message: "Value must be at least 1" }
                               })}
@@ -238,8 +238,8 @@ const {
                         <div className="mt-4">
                           <Input
                             label="Discount Code"
-                            {...register("discountCode", { 
-                              required: "Discount Code is required" 
+                            {...register("discountCode", {
+                              required: "Discount Code is required"
                             })}
                           />
                           </div>

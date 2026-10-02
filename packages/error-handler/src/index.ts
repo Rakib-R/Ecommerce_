@@ -1,2 +1,2 @@
-export * from './AppError.js';
-export * from './error-middleware.js';
+export * from './AppError';
+export * from './error-middleware';

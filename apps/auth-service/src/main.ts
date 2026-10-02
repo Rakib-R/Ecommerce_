@@ -4,9 +4,7 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { errorMiddleware } from '@packages/error-handler';
-import router from './routes/auth.router';
 import swaggerDocument from './swagger-output.json';
-
 
 const app = express();
 
@@ -42,7 +40,7 @@ app.use(
 
 // ─── General Middleware ──────────────────────────────────────────────────────
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(express.json({ limit: '10mb' })); 
+app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -71,7 +69,7 @@ app.get('/auth/docs-json', (req, res) => {
 });
 
 // ─── Auth Routes ─────────────────────────────────────────────────────────────
-app.use('/auth', router);
+// app.use('/auth', router);
 
 // ─── Global Error Handler (always last) ──────────────────────────────────────
 app.use(errorMiddleware);
@@ -80,5 +78,7 @@ app.use(errorMiddleware);
 const port = process.env.PORT || 6001;
 
 app.listen(port, () => {
-  console.log(`🔑 Auth Service running at http://localhost:${port}/auth/health`);
+  console.log(
+    `🔑 Auth Service running at http://localhost:${port}/auth/health`
+  );
 });

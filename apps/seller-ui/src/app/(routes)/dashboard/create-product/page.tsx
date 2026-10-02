@@ -11,7 +11,7 @@ import {
   ColorSelector,
   Input,
   CustomSpecifications
-} from '@packages/components'; // consolidated — remove duplicate/mixed default+named imports
+} from "@packages/components"; // consolidated — remove duplicate/mixed default+named imports
 import Image from 'next/image';
 import { AxiosError } from "axios";
 import Link from 'next/link';

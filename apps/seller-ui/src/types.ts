@@ -28,7 +28,7 @@ export interface ShopType {
   bio?: string | null;
   opening_hours?: string | null;
   website?: string | null;
-  socialLinks?: Record<string, any> | null; // Represents the Json type
+  socialLinks?: Record<string, string> | null; // Represents the Json type
   ratings?: number | null;
   
   sellerId: string;
