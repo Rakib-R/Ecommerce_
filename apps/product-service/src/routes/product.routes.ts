@@ -29,7 +29,7 @@ import {
   uploadSellerImage,
   uploadShopImage,
 } from '../controllers/product.controller';
-import { isAuthenticated } from '@packages/middleware';
+import { isAuthenticated } from '@packages/auth-types';
 
 const router: Router = express.Router();
 

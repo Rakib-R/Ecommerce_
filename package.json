@@ -11,13 +11,11 @@
     "kafka": "pnpm exec nx serve kafka-service",
     "prisma:generate": "pnpm --filter @packages/prisma exec prisma generate --schema=prisma/schema.prisma",
     "start:prod": "pnpm exec nx run-many --target=serve --all --prod",
-    "lint": "next lint",
     "build:analyze_user": "cross-env ANALYZE=true pnpm exec nx build user-ui",
     "build:analyze_seller": "cross-env ANALYZE=true pnpm exec nx build seller-ui",
     "build": "pnpm exec nx run-many --target=build --all",
     "product-docs": "node apps/product-service/src/swagger.js",
-    "auth-docs": "node apps/auth-service/src/swagger.js",
-    "prepare": "husky"
+    "auth-docs": "node apps/auth-service/src/swagger.js"
   },
   "private": true,
   "packageManager": "pnpm@10.33.0",
@@ -55,18 +53,6 @@
   "prisma": {
     "schema": "packages/libs/prisma/prisma/schema.prisma"
   },
-  "THIS IS COMMENTED OUT": {
-    "nx": {
-      "targets": {
-        "build": {},
-        "serve": {
-          "dependsOn": [
-            "^build"
-          ]
-        }
-      }
-    }
-  },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "^9.8.0",
@@ -99,7 +85,7 @@
     "@types/jest": "30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
-    "@types/node": "~18.16.9",
+    "@types/node": "~20.19.43",
     "@types/nodemailer": "^7.0.10",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
@@ -107,17 +93,14 @@
     "autoprefixer": "10.4.13",
     "cross-env": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
-    "i": "^0.3.7",
     "jest": "30.0.5",
     "jest-environment-node": "^29.7.0",
     "jest-util": "30.0.5",
     "jsonc-eslint-parser": "^2.1.0",
-    "lint-staged": "17.0.5",
     "nx": "^20.8.4",
     "postcss": "8.4.38",
     "prettier": "^2.6.2",
     "react-refresh": "^0.10.0",
-    "react-scan": "0.5.6",
     "tailwindcss": "3.4.3",
     "ts-jest": "29.4.6",
     "ts-node": "10.9.1",
@@ -136,19 +119,39 @@
     "@tanstack/react-query-persist-client": "^5.90.24",
     "@tanstack/react-table": "^8.21.3",
     "@types/node-cron": "^3.0.11",
+    "@upstash/redis": "1.38.0",
+    "axios": "1.13.5",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "docker": "^1.0.0",
+    "dompurify": "3.3.3",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
+    "express": "^4.21.2",
+    "express-http-proxy": "^2.1.2",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.9.3",
+    "isomorphic-dompurify": "3.7.1",
+    "jose": "^6.2.1",
+    "jotai": "^2.18.0",
     "next": "15.5.9",
     "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-hook-form": "^7.71.1",
+    "react-hot-toast": "^2.6.0",
+    "react-quill-new": "^3.8.3",
     "react-range": "1.10.0",
     "sharp": "0.34.5",
     "stripe": "^20.3.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
     "ua-parser-js": "^2.0.9",
     "winston": "3.19.0",
-    "zod": "4.3.6"
+    "zustand": "^5.0.11"
   }
 }

@@ -5,7 +5,7 @@
     "outDir": "../../dist/out-tsc",
     "composite": true,
     "module": "commonjs",
-    "moduleResolution": "node10",
+    "moduleResolution": "bundler",
     "types": ["jest", "node"]
   },
   "include": [
@@ -17,6 +17,6 @@
   ],
 
   "references": [
-  { "path": "./tsconfig.lib.json" } // Reference your own code here
-]
+    { "path": "./tsconfig.lib.json" } // Reference your own code here
+  ]
 }

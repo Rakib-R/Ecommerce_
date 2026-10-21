@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "ignoreDeprecations": "5.0", // "6.0" doesn't exist
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "es2020",

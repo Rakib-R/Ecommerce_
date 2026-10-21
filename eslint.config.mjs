@@ -26,6 +26,10 @@ export default [
           ],
         },
       ],
+      '@typescript-eslint/no-empty-object-type': [
+        'error',
+        { allowInterfaces: 'with-single-extends' },
+      ],
     },
   },
   {

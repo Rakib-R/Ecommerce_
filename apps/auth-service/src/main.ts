@@ -8,7 +8,7 @@ import swaggerDocument from './swagger-output.json';
 import { NextFunction, Request, Response } from 'express';
 
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './auth';
+import { auth } from '@packages/auth-types';
 
 const app = express();
 

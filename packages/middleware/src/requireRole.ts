@@ -1,15 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
-
+import type { Role } from '@packages/auth-types';
 // Define a minimal, decouple shape of your User session object
-interface SessionUser {
-  role?: 'user' | 'seller';
-  emailVerified?: boolean;
-}
 
-export function requireRole(allowedRole: 'user' | 'seller') {
+export function requireRole(allowedRole: Role) {
   return (req: Request, res: Response, next: NextFunction) => {
     // Auth-service middleware should populate req.user or req.session before reaching this point
-    const user = req.user as SessionUser | undefined;
+    const user = req.user;
 
     if (!user) {
       return res.status(401).json({

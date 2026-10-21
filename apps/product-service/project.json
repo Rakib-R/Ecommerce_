@@ -1,22 +1,21 @@
 {
   "name": "product-service",
-  "implicitDependencies": ["prisma", "imagekit", "middleware"],
+  "implicitDependencies": ["prisma", "imagekit"],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/product-service/src",
   "projectType": "application",
   "targets": {
-    
     "build": {
       "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
-      
+
       "options": {
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/product-service",
         "main": "apps/product-service/src/main.ts",
         "tsConfig": "apps/product-service/tsconfig.app.json",
-        "webpackConfig": "apps/product-service/webpack.config.js" 
+        "webpackConfig": "apps/product-service/webpack.config.js"
       },
       "configurations": {
         "production": { "optimization": true },
@@ -37,7 +36,6 @@
         "development": {
           "buildTarget": "product-service:build:development",
           "watch": false
-         
         },
         "production": {
           "buildTarget": "product-service:build:production",
@@ -46,11 +44,11 @@
       }
     },
     "swagger": {
-    "executor": "nx:run-commands",
-    "options": {
-      "command": "tsx apps/product-service/src/swagger.ts"
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx apps/product-service/src/swagger.ts"
+      }
     }
-  }
   },
 
   "tags": []

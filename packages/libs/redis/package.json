@@ -5,6 +5,10 @@
   "type": "commonjs",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
+  "lib": [
+    "es2022",
+    "dom"
+  ],
   "dependencies": {
     "@upstash/redis": "1.39.0",
     "ioredis": "6.0.0"

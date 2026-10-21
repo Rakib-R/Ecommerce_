@@ -47,11 +47,9 @@ Thumbs.db
 .nx/cache
 .nx/workspace-data
 
-/generated/prisma
+*prisma/src/lib/generated
 
-/generated/prisma
 
-/generated/prisma
 
 # Next.js
 .next

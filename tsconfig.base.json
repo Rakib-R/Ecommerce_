@@ -5,15 +5,15 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
-    "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
@@ -27,7 +27,8 @@
       "@packages/prisma": ["packages/libs/prisma/src/index.ts"],
       "@packages/redis": ["packages/libs/redis/src/index.ts"],
       "@packages/utils": ["packages/utils/src/index.tsx"],
-      "@packages/auth-types": ["packages/auth-types/src/lib/auth-types.ts"]
+
+      "@packages/auth-types": ["packages/auth-types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"],

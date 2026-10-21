@@ -16,8 +16,8 @@ import { twoFactor } from 'better-auth/plugins/two-factor';
 import { sellerSignUpSchema, userSignUpSchema } from '../schema/signUpSchema';
 
 import type { AppUserInput } from './types';
-import { sendEmail } from '../utils/sendMail';
-import { hashPassword, verifyPassword } from '../utils/hashPassword';
+import { sendEmail } from '../lib/utils/sendMail/index';
+import { hashPassword, verifyPassword } from '../lib/utils/hashPassword';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({
@@ -238,7 +238,8 @@ const authOptions = {
         },
 
         after: async (user, ctx) => {
-          if (!user || !user.id) return;
+          const user__ = user as AppUserInput;
+          if (!user__ || !user__.id) return;
           // 🔧 FIXED: previously this destructured phone_number/country/avatar
           // from ctx.context.body and used them for BOTH branches, but now
           // got phone_number/country/avatar persisted into your decoupled
@@ -261,7 +262,7 @@ const authOptions = {
               }
             : undefined;
 
-          if (user.role === 'seller') {
+          if (user__.role === 'seller') {
             await prisma.sellers.create({
               data: {
                 authId: user.id,
@@ -289,7 +290,7 @@ const authOptions = {
       update: {
         after: async (user) => {
           if (user.emailVerified) {
-            if (user.role === 'seller') {
+            if (user['role'] === 'seller') {
               // Sync 'emailVerified' to your custom decoupled sellers table
               await prisma.sellers.update({
                 where: { authId: user.id },

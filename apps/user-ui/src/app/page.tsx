@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { headers } from 'next/headers';
-import { auth } from '@apps/auth-service';
+import { auth } from '@packages/auth-types';
 
 export default async function Page() {
 

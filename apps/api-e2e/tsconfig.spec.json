@@ -2,7 +2,6 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     
-    "ignoreDeprecations": "5.0",
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "moduleResolution": "node",

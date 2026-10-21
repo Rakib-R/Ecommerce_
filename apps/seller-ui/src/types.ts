@@ -1,4 +1,4 @@
-import { auth } from '@apps/auth-service';
+import { auth } from '@packages/auth-types';
 
 export type Seller = typeof auth.$Infer.Session.user;
 export type Session = typeof auth.$Infer.Session;

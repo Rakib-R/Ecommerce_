@@ -3,7 +3,7 @@ import React from 'react'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { auth } from '@apps/auth-service';
+import { auth } from '@packages/auth-types';
 import { Toaster } from 'react-hot-toast';
 
 const Page = async () => {

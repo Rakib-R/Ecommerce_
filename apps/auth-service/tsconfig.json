@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "esModuleInterop": true,
-    "ignoreDeprecations": "5.0",
 
     "module": "commonjs",
     "moduleResolution": "node"

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "preserve",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "importHelpers": true,
@@ -11,18 +11,13 @@
     "noPropertyAccessFromIndexSignature": true
   },
   "files": [],
-  "include": [
-    "../utils/src/global.d.ts" 
-  ],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.lib.json"
     },
     {
       "path": "./tsconfig.spec.json"
-    },
-
-    { "path": "../error-handler" },
-
-    ]
+    }
+  ]
 }

@@ -1,23 +1,3 @@
-export {};
-
-// 1. Define and export the type
-export type UserRole = 'user' | 'seller';
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        name?: string;
-        role: UserRole; // 2. Use it here
-        emailVerified: boolean;
-      };
-      session?: Session;
-    }
-  }
-}
-
 export interface ShopType {
   id: string;
   name: string;

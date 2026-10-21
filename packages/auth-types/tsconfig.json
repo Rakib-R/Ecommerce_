@@ -15,6 +15,7 @@
   "references": [
     {
       "path": "./tsconfig.lib.json"
-    }
+    },
+    { "path": "../libs/prisma" }
   ]
 }
